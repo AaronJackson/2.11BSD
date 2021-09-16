@@ -1,4 +1,4 @@
-/*#include "../h/param.h" */
+#include "../h/param.h"
 #include "ibv.h"
 
 /* Copyright (c) 2021 Aaron Jackson
@@ -80,8 +80,8 @@ ibvintsr(ibv)
   struct ibvdevice *dev;
 
   /* Push out the next byte */
-  if (ibvbuff_len(ibvline_active->buf->tx) > 0) {
-    ibv->ibvio = ibvbuff_pop(buf->tx);
+  if (ibvbuff_len(ibvline_active->tx) > 0) {
+    ibv->ibvio = ibvbuff_pop(ibvline_active->tx);
   }
 }
 
@@ -117,7 +117,7 @@ ibvwrite(dev)
 
   /* Set IE, REM, TCS bits of IBS */
   ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS;
-  ibv->ibvio = ibvbuff_pop(buf->tx);
+  ibv->ibvio = ibvbuff_pop(line->tx);
 }
 
 
