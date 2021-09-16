@@ -192,6 +192,10 @@ SETDOT(240)
 	DEVTRAP(354,	vvxint,	sup|br5)
 #endif
 
+#if NIBV > 0
+	DEVTRAP(420,	ibvintr, br5)
+#endif
+
 #if NEC > 0				/* 3Com ethernet */
 	/*
 	 * These are almost certainly wrong for any given site since the
