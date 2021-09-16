@@ -192,8 +192,11 @@ SETDOT(240)
 	DEVTRAP(354,	vvxint,	sup|br5)
 #endif
 
-#if NIBV > 0
-	DEVTRAP(420,	ibvintr, br5)
+#if NIBV > 0				/* IBV11 */
+	DEVTRAP(420,	ibvinterr, br5) /* Error */
+	DEVTRAP(424,	ibvintsr, br5)  /* Service Request */
+	DEVTRAP(430,	ibvintcmd, br5) /* Command and talker */
+/*	DEVTRAP(434,	ibvintlis, br5) /* Listener */
 #endif
 
 #if NEC > 0				/* 3Com ethernet */
