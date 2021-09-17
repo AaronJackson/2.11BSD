@@ -27,6 +27,8 @@ struct ibvdevice *ibvaddr = (struct ibvdevice *)0160150;
 struct ibvline ibvlines[NIBV];
 struct ibvline *ibvline_active;
 
+int IBV_CMD_SUCCESSFUL;
+
 ibvattach(addr, unit)
      struct ibvdevice *addr;
      u_int unit;
@@ -52,7 +54,14 @@ ibvopen(dev, flag)
   if (!d && !line->t_addr)
     line->t_addr = (caddr_t)ibvaddr; /* default address */
 
-  return 0;
+  return 1;
+}
+
+ibvclose(dev, flag)
+     dev_t	dev;
+     int	flag;
+{
+  return 1;
 }
 
 /* ****************************************
@@ -70,7 +79,7 @@ ibvinterr(ibv)
   struct ibvdevice *dev;
   /* dev = &IBVcsr[ibv]; */
 
-
+  log(LOG_ERR, "ibv%d error interupt", ibv);
 }
 
 /* Service request interrupt */
@@ -81,7 +90,9 @@ ibvintsr(ibv)
 
   /* Push out the next byte */
   if (ibvbuff_len(ibvline_active->tx) > 0) {
-    ibv->ibvio = ibvbuff_pop(ibvline_active->tx);
+    /* ibv->ibvio = ibvbuff_pop(ibvline_active->tx); */
+  } else {
+    ibvbuff_push(line->tx, IBV_MSG_UNTALK);
   }
 }
 
@@ -95,11 +106,21 @@ ibvintcmd(ibv)
 
 }
 
+ibvread(dev, uio, flag)
+     dev_t dev;
+     struct uio *uio;
+     int flag;
+{
+
+}
+
 /* Begin writing data to the bus.
  * Between each message we have to wait for an interrupt (ibvintsr).
  */
-ibvwrite(dev)
-  dev_t dev;
+ibvwrite(dev, uio, flag)
+     dev_t dev;
+     struct uio *uio;
+     int flag;
 {
   struct ibvdevice *ibv;
   struct ibvline *line;
@@ -110,37 +131,21 @@ ibvwrite(dev)
   ibvline_active = line;
   ibv = (struct ibvdevice *)line->t_addr;
 
-  ibvbuff_push(line->tx, IBV_MSG_UNLISTEN);
-  ibvbuff_push(line->tx, IBV_MSG_LISTEN + d);
+  ibv->ibvcsrl = IBVS_TCS; 
+
   /* write data here... */
-  ibvbuff_push(line->tx, IBV_MSG_UNTALK);
+
 
   /* Set IE, REM, TCS bits of IBS */
   ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS;
-  ibv->ibvio = ibvbuff_pop(line->tx);
+  ibvbuff_push(line->tx, IBV_MSG_UNLISTEN);
+  ibvbuff_push(line->tx, IBV_MSG_LISTEN + d);
+  /* ibv->ibvio = ibvbuff_pop(line->tx); */
 }
 
-
-/* i know i know buffer might get full etc etc pls leave me alone until this is working slightly */
-ibvbuff_push(buf,c)
-     struct ibvbuff *buf;
+ibv_pushbyte(dev, c)
+     dev_t dev;
      char c;
 {
-  buf->b[buf->tail++] = c;
-}
-
-char ibvbuff_pop(buf)
-     struct ibvbuff *buf;
-{
-  char c;
-  c = buf->b[buf->head++];
-  if (buf->head == buf->tail)
-    buf->head = buf->tail = 0;
-  return c;
-}
-
-ibvbuff_len(buf)
-     struct ibvbuff *buf;
-{
-  return buf->tail - buf->head;
+  
 }

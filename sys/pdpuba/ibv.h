@@ -62,20 +62,6 @@ struct ibvdevice {
 #define ibvds un2.s.ibd_status
 };
 
-#define IBV_BUFFLEN 64
-struct ibvbuff {
-  char b[IBV_BUFFLEN];
-  short head;
-  short tail;
-};
-
-struct ibvline {
-  caddr_t t_addr;
-  char t_line;
-  struct ibvbuff tx;
-  struct ibvbuff rx;
-};
-
 
 /* Status Bits */
 #define IBVS_TCS  0000001 /* (R/W) Take Control Synchronously */
