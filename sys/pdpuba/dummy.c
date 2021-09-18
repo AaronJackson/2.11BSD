@@ -36,6 +36,12 @@ dummyread(dev, uio, flag)
      int flag;
 {
   log(LOG_INFO, "dummy read");
+  ureadc('H', uio);
+  ureadc('e', uio);
+  ureadc('l', uio);
+  ureadc('l', uio);
+  ureadc('o', uio);
+
   return 0;
 }
 
