@@ -336,7 +336,7 @@ int	dnopen(), dnclose(), dnwrite();
 #endif
 
 #include "dummy.h"
-#if NDUMMYY > 0
+#if NDUMMY > 0
 int dummyopen(), dummyclose(), dummyread(), dummywrite();
 #else
 #define dummyopen	nodev
