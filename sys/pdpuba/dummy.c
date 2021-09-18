@@ -1,7 +1,10 @@
 
 #include "../h/param.h"
 #include "../h/syslog.h"
+#include "../h/uio.h"
 #include "dummy.h"
+
+#define DUMMY_BUFF_LEN 128
 
 dummyattach(addr, unit)
      struct dummy *addr;
@@ -16,7 +19,7 @@ dummyopen(dev, flag)
      short flag;
 {
   log(LOG_INFO, "dummy open");
-  return 1;
+  return 0;
 }
 
 dummyclose(dev, flag)
@@ -24,7 +27,7 @@ dummyclose(dev, flag)
      short flag;
 {
   log(LOG_INFO, "dummy close");
-  return 1;
+  return 0;
 }
 
 dummyread(dev, uio, flag)
@@ -33,7 +36,7 @@ dummyread(dev, uio, flag)
      int flag;
 {
   log(LOG_INFO, "dummy read");
-  return 1;
+  return 0;
 }
 
 dummywrite(dev, uio, flag)
@@ -41,6 +44,19 @@ dummywrite(dev, uio, flag)
      struct uio *uio;
      int flag;
 {
-  log(LOG_INFO, "dummy write");
-  return 1;
+  register int n;
+  register char *cp;
+  char inbuf[DUMMY_BUFF_LEN];
+  int error;
+
+  while (n = MIN(DUMMY_BUFF_LEN, uio->uio_resid)) {
+    cp = inbuf;
+    error = uiomove(cp, (int)n, uio);
+    if (error)
+      return error;
+    do
+      log(LOG_NOTICE, "dummy write: c=%c", *cp++);
+    while (--n);
+  }
+  return 0;
 }
