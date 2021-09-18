@@ -335,6 +335,16 @@ int	dnopen(), dnclose(), dnwrite();
 #define	dnioctl		nodev
 #endif
 
+#include "dummy.h"
+#if NDUMMYY > 0
+int dummyopen(), dummyclose(), dummyread(), dummywrite();
+#else
+#define dummyopen	nodev
+#define dummyclose	nodev
+#define dummyread	nodev
+#define dummywrite	nodev
+#endif
+
 int	logopen(), logclose(), logread(), logioctl(), logselect();
 int	syopen(), syread(), sywrite(), syioctl(), syselect();
 
@@ -467,6 +477,10 @@ struct cdevsw	cdevsw[] = {
 	fdopen,		nodev,		nodev,		nodev,
 	nodev,		nodev,		0,		nodev,
 	nodev,
+/* dummy = 27 */
+	dummyopen,	dummyclose,	dummyread,	dummywrite,
+	nodev,		nulldev,	0, 		nodev,
+	nulldev,
 };
 
 int	nchrdev = sizeof(cdevsw) / sizeof(cdevsw[0]);
@@ -525,7 +539,7 @@ isdisk(dev, type)
 	/* NOTREACHED */
 }
 
-#define MAXDEV	27
+#define MAXDEV	28
 static char chrtoblktbl[MAXDEV] =  {
       /* CHR */      /* BLK */
 	/* 0 */		NODEV,
@@ -554,7 +568,8 @@ static char chrtoblktbl[MAXDEV] =  {
 	/* 23 */	12,		/* tmscp */
 	/* 24 */	NODEV,
 	/* 25 */	NODEV,
-	/* 26 */	NODEV
+	/* 26 */	NODEV,
+	/* 27 */	NODEV,		/* dummy */
 };
 
 /*
