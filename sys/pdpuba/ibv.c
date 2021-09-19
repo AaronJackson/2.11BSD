@@ -1,4 +1,6 @@
 #include "../h/param.h"
+#include "../h/syslog.h"
+#include "../h/uio.h"
 #include "ibv.h"
 
 /* Copyright (c) 2021 Aaron Jackson
@@ -20,21 +22,19 @@
 
 #define NIBV 1
 
+#define IBV_BUFF_LEN 128
+#define IBV_MAX_LOOP 1000
+
 /* We will assume there is only one IBV11 card installed */
 struct ibvdevice *ibvaddr = (struct ibvdevice *)0160150;
 
-/* Each IBV Line is an address on the IEEE-488 bus */
-struct ibvline ibvlines[NIBV];
-struct ibvline *ibvline_active;
-
-int IBV_CMD_SUCCESSFUL;
+char IBV_CMD_SUCCESSFUL;
 
 ibvattach(addr, unit)
      struct ibvdevice *addr;
      u_int unit;
 {
   if (unit <= NIBV) {
-    ibvlines[unit].t_addr = (caddr_t)addr;
     return 1;
   }
 
@@ -45,23 +45,20 @@ ibvopen(dev, flag)
      dev_t dev;
      short flag;
 {
-  struct ibvline *line;
   int d; /* minor */
 
+  IBV_CMD_SUCCESSFUL = 0;
+
   d = minor(dev);
-  line = &ibvlines[d];
 
-  if (!d && !line->t_addr)
-    line->t_addr = (caddr_t)ibvaddr; /* default address */
-
-  return 1;
+  return 0;
 }
 
 ibvclose(dev, flag)
      dev_t	dev;
      int	flag;
 {
-  return 1;
+  return 0;
 }
 
 /* ****************************************
@@ -86,24 +83,28 @@ ibvinterr(ibv)
 ibvintsr(ibv)
      int ibv;
 {
-  struct ibvdevice *dev;
-
-  /* Push out the next byte */
-  if (ibvbuff_len(ibvline_active->tx) > 0) {
-    /* ibv->ibvio = ibvbuff_pop(ibvline_active->tx); */
-  } else {
-    ibvbuff_push(line->tx, IBV_MSG_UNTALK);
-  }
+  IBV_CMD_SUCCESSFUL = 1;
 }
 
 /* Command and talker interrupt */
 ibvintcmd(ibv)
      int ibv;
 {
-  struct ibvdevice *dev;
-  /* dev = &IBVcsr[ibv]; */
 
+}
 
+ibv_waitintr()
+{
+  int n = IBV_MAX_LOOP;
+
+  while (!IBV_CMD_SUCCESSFUL) { /* wait for interrupt */
+    if (n-- == 0) {
+      log(LOG_NOTICE, "ibv: timeout waiting for interrupt");
+      return 0;
+    }
+  }
+  IBV_CMD_SUCCESSFUL = 0;
+  return 1;
 }
 
 ibvread(dev, uio, flag)
@@ -111,8 +112,23 @@ ibvread(dev, uio, flag)
      struct uio *uio;
      int flag;
 {
+  struct ibvdevice *ibv;
+  int d;
 
+  ibv = ibvaddr;
+  d = minor(dev);
+
+  while (ibv->ibvds & IBVD_EOI == 0) {
+    ibv->ibvcsrl = IBVS_ACC | IBVS_IE | IBVS_LON; /* 320 */
+    ibv_waitintr();
+    ureadc(ibv->ibvio, uio);
+    ibv->ibvio = 0;
+    ibv_waitintr();
+  }
+
+  return 0;
 }
+
 
 /* Begin writing data to the bus.
  * Between each message we have to wait for an interrupt (ibvintsr).
@@ -123,29 +139,47 @@ ibvwrite(dev, uio, flag)
      int flag;
 {
   struct ibvdevice *ibv;
-  struct ibvline *line;
+  register int n;
+  register char *cp;
+  char inbuf[IBV_BUFF_LEN];
+  int error;
   int d; /* minor device */
 
+  ibv = ibvaddr;
   d = minor(dev);
-  line = &ibvlines[d];
-  ibvline_active = line;
-  ibv = (struct ibvdevice *)line->t_addr;
 
-  ibv->ibvcsrl = IBVS_TCS; 
+  /* Clear the bus! Coming through! */
+  ibv->ibvcsrl = IBVS_IE | IBVS_IBC; /* 110 */
+  ibv_waitintr();
 
-  /* write data here... */
+  /* Push start of a frame, which device etc */
+  ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS; /* 105 */
+  ibv->ibvio = IBV_MSG_UNLISTEN;
+  ibv_waitintr();
+  ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS; /* 105 */
+  ibv->ibvio = IBV_MSG_LISTEN + d;
+  ibv_waitintr();
 
+  /* Start pushing the command */
+  while (n = MIN(IBV_BUFF_LEN, uio->uio_resid)) {
+    cp = inbuf;
+    error = uiomove(cp, (int)n, uio);
+    if (error)
+      return error;
+    do {
+      ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS; /* 105 */
+      ibv->ibvio = *cp++; /* push byte */
+      ibv_waitintr();
+    } while (--n);
+  }
 
-  /* Set IE, REM, TCS bits of IBS */
-  ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS;
-  ibvbuff_push(line->tx, IBV_MSG_UNLISTEN);
-  ibvbuff_push(line->tx, IBV_MSG_LISTEN + d);
-  /* ibv->ibvio = ibvbuff_pop(line->tx); */
-}
+  /* I've finished talking now */
+  ibv->ibvcsrl = IBVS_IE | IBVS_REM | IBVS_TCS; /* 105 */
+  ibv->ibvio = IBV_MSG_UNTALK;
+  ibv_waitintr();
 
-ibv_pushbyte(dev, c)
-     dev_t dev;
-     char c;
-{
-  
+  /* Go back to listening */
+  ibv->ibvcsrl = IBVS_ACC | IBVS_IE | IBVS_LON; /* 320 */
+
+  return 0;
 }
