@@ -1,4 +1,5 @@
 #include "../h/param.h"
+#include "../h/errno.h"
 #include "../h/syslog.h"
 #include "../h/uio.h"
 #include "ibv.h"
@@ -24,11 +25,13 @@
 
 #define IBV_BUFF_LEN 128
 #define IBV_MAX_LOOP 1000
+#define IBV_DEBUG 0
 
 /* We will assume there is only one IBV11 card installed */
 struct ibvdevice *ibvaddr = (struct ibvdevice *)0160150;
 
-char IBV_CMD_SUCCESSFUL;
+int IBV_OPEN_ADDR = 0; /* which ever remote address is active */
+char IBV_CMD_SUCCESSFUL = 0;
 
 ibvattach(addr, unit)
      struct ibvdevice *addr;
@@ -45,11 +48,11 @@ ibvopen(dev, flag)
      dev_t dev;
      short flag;
 {
-  int d; /* minor */
+  if (IBV_OPEN_ADDR > 0)
+    return EACCES;
 
   IBV_CMD_SUCCESSFUL = 0;
-
-  d = minor(dev);
+  IBV_OPEN_ADDR = minor(dev);
 
   return 0;
 }
@@ -58,24 +61,14 @@ ibvclose(dev, flag)
      dev_t	dev;
      int	flag;
 {
+  IBV_OPEN_ADDR = 0;
   return 0;
 }
-
-/* ****************************************
- * with all interrupts 'know' which device (i.e. card) it comes from
- * as this is passed as an argument, but we don't know which line it
- * comes from. for this reason we keep track of the currently active
- * line in the variable ibvline_active
- * ***************************************
- */
 
 /* Error interrupt */
 ibvinterr(ibv)
      int ibv;
 {
-  struct ibvdevice *dev;
-  /* dev = &IBVcsr[ibv]; */
-
   log(LOG_ERR, "ibv%d error interupt", ibv);
 }
 
@@ -84,6 +77,9 @@ ibvintsr(ibv)
      int ibv;
 {
   IBV_CMD_SUCCESSFUL = 1;
+#if IBV_DEBUG > 0
+  log(LOG_NOTICE, "ibv%d service request interrupt", ibv);
+#endif
 }
 
 /* Command and talker interrupt */
@@ -91,6 +87,18 @@ ibvintcmd(ibv)
      int ibv;
 {
 
+#if IBV_DEBUG > 0
+  log(LOG_NOTICE, "ibv%d command interrupt", ibv);
+#endif
+}
+
+/* Listener interrupt */
+ibvintlis(ibv)
+     int ibv;
+{
+#if IBV_DEBUG > 0
+  log(LOG_NOTICE, "ibv%d listener interrupt", ibv);
+#endif
 }
 
 ibv_waitintr()
@@ -113,12 +121,14 @@ ibvread(dev, uio, flag)
      int flag;
 {
   struct ibvdevice *ibv;
-  int d;
+
+  if (IBV_OPEN_ADDR != minor(dev))
+    return EACCES;
 
   ibv = ibvaddr;
-  d = minor(dev);
 
-  while (ibv->ibvds & IBVD_EOI == 0) {
+  /* This needs work... */
+  while (ibv->ibs & IBVS_LNR > 0) {
     ibv->ibvcsrl = IBVS_ACC | IBVS_IE | IBVS_LON; /* 320 */
     ibv_waitintr();
     ureadc(ibv->ibvio, uio);
@@ -129,10 +139,6 @@ ibvread(dev, uio, flag)
   return 0;
 }
 
-
-/* Begin writing data to the bus.
- * Between each message we have to wait for an interrupt (ibvintsr).
- */
 ibvwrite(dev, uio, flag)
      dev_t dev;
      struct uio *uio;
@@ -143,10 +149,11 @@ ibvwrite(dev, uio, flag)
   register char *cp;
   char inbuf[IBV_BUFF_LEN];
   int error;
-  int d; /* minor device */
+
+  if (IBV_OPEN_ADDR != minor(dev))
+    return EACCES;
 
   ibv = ibvaddr;
-  d = minor(dev);
 
   /* Clear the bus! Coming through! */
   ibv->ibvcsrl = IBVS_IE | IBVS_IBC; /* 110 */
