@@ -1,4 +1,4 @@
-* 2.11BSD
+# 2.11BSD
 
 ![Current Build](https://github.com/AaronJackson/2.11BSD/actions/workflows/main.yml/badge.svg)
 
