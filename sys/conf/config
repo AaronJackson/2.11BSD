@@ -187,6 +187,7 @@ echo "#define NKL	$NKL"		> ../$MACHINE/cn.h
 echo "#define NLP	$NLP"		> ../$MACHINE/lp.h
 echo "#define LP_MAXCOL	$LP_MAXCOL"	>> ../$MACHINE/lp.h
 echo "#define NPTY	$NPTY"		> ../$MACHINE/pty.h
+echo "#define NIBV	$NIBV"		> ../$MACHINE/ibv.h
 if [ $INGRES = YES ]; then
 	echo "#define NINGRES	1"	> ../$MACHINE/ingres.h
 else
