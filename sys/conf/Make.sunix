@@ -58,7 +58,7 @@ OV3=	clock.o cons.o kern_time.o \
 	machdep2.o quota_sys.o subr_prf.o sys_process.o \
 	syscalls.o ufs_mount.o
 OV4=	hk.o init_main.o kern_prot.o tty_pty.o quota_kern.o quota_subr.o \
-	quota_ufs.o vm_swp.o vm_swap.o vm_proc.o
+	quota_ufs.o vm_swp.o vm_swap.o vm_proc.o ibv.o
 OV5=	ht.o tm.o ts.o
 OV6=	tmscp.o tmscpdump.o mem.o
 OV7=	mch_fpsim.o ingreslock.o ufs_disksubr.o

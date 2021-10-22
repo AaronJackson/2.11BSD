@@ -37,6 +37,7 @@
 #include "tms.h"
 #include "xp.h"
 #include "vv.h"
+#include "ibv.h"
 
 /*
  * Reference the global symbol "_end" so that ld(1) will define it for us.
@@ -190,6 +191,13 @@ SETDOT(240)
 #if NVV > 0				/* V2LNI */
 	DEVTRAP(350,	vvrint,	sup|br5)
 	DEVTRAP(354,	vvxint,	sup|br5)
+#endif
+
+#if NIBV > 0				/* IBV11 */
+	DEVTRAP(420,	ibvinterr, br4) /* Error */
+	DEVTRAP(424,	ibvintsr, br4)  /* Service Request */
+	DEVTRAP(430,	ibvintcmd, br4) /* Command and talker */
+	DEVTRAP(434,	ibvintlis, br4) /* Listener
 #endif
 
 #if NEC > 0				/* 3Com ethernet */
@@ -405,4 +413,11 @@ do_panic:
 
 #if NDZ > 0				/* DZ */
 	HANDLER(dzrint)
+#endif
+
+#if NIBV > 0				/* IBV11 */
+	HANDLER(ibvinterr)
+	HANDLER(ibvintsr)
+	HANDLER(ibvintcmd)
+	HANDLER(ibvintlis)
 #endif

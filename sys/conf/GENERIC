@@ -201,6 +201,7 @@ NDN		0		# DN11 dialer
 NLP		0		# Line Printer
 LP_MAXCOL	132		# Maximum number of columns on line printers
 NDR		0		# DR11-W
+NIBV		0		# IBV11 IEEE-488
 
 #########################################
 # PSEUDO DEVICES, PROTOCOLS, NETWORKING	#
@@ -261,3 +262,5 @@ FPSIM		NO			# floating point simulator
 PROFILE		NO		# system profiling with KW11P clock
 
 INGRES		NO		# include the Ingres lock driver
+
+NIBV		1		# IBV11 GPIB
