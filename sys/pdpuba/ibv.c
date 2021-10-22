@@ -24,7 +24,7 @@
 #define NIBV 1
 
 #define IBV_BUFF_LEN 128
-#define IBV_MAX_LOOP 10000
+#define IBV_MAX_LOOP 32000
 #define IBV_DEBUG 0
 
 /* We will assume there is only one IBV11 card installed */
@@ -98,6 +98,7 @@ ibvintlis(ibv)
      int ibv;
 {
   IBV_CMD_SUCCESSFUL = 1;
+  wakeup((caddr_t)&ibvaddr);
 #if IBV_DEBUG > 0
   log(LOG_NOTICE, "ibv%d listener interrupt", ibv);
 #endif
@@ -127,28 +128,24 @@ ibvread(dev, uio, flag)
      int flag;
 {
   struct ibvdevice *ibv;
-  int c = 0;
+  int c = 0; /* ureadc error */
 
   if (IBV_OPEN_ADDR != minor(dev))
     return EACCES;
 
   ibv = ibvaddr;
 
-  ibv->ibvcsrl = IBVS_ACC | IBVS_IE | IBVS_LON; /* 320 */
+  if ((ibv->ibvcsr & IBVS_LNR) == 0) {
+    tsleep((caddr_t)&ibvaddr, PZERO+1, 50);
+    if ((ibv->ibvcsr & IBVS_LNR) == 0) return 0;
+  }
+
+  c = ureadc(ibv->ibvio, uio);
+
+  ibv->ibvio = 0;
   ibv_waitintr();
 
-  /* This needs work... */
-  while ((ibv->ibvcsr & IBVS_LNR) != 0) {
-    if ((c = ureadc(ibv->ibvio, uio)) != 0) {
-	return c;
-    }
-    c++;
-    ibv->ibvio = 0;
-    if (ibv->ibvd & IBVD_EOI) break;
-    ibv_waitintr();
-  } 
-
-  return 0;
+  return c;
 }
 
 ibvwrite(dev, uio, flag)
