@@ -12,3 +12,36 @@
  */
 
 struct sbddevice *sbd = (struct sbddevice *)0760010;
+
+sbdattach(addr, unit)
+     struct sbddevice *addr;
+     u_int unit;
+{
+
+  return 1;
+}
+
+sbdopen(dev, flag)
+     dev_t dev;
+     short flag;
+{
+
+  return 0;
+}
+
+sbdclose(dev, flag)
+     dev_t	dev;
+     int	flag;
+{
+
+  return 0;
+}
+
+sbdwrite(dev, uio, flag)
+     dev_t dev;
+     struct uio *uio;
+     int flag;
+{
+
+  return 0;
+}
