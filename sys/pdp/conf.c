@@ -345,6 +345,15 @@ int	ibvopen(), ibvclose(), ibvread(), ibvwrite();
 #define ibvwrite	nodev
 #endif
 
+#include "sbd.h"
+#if NSBD > 0
+int	sbdopen(), sbdclose(), sbdwrite();
+#else
+#define sbdopen		nodev
+#define sbdclose	nodev
+#define sbdwrite	nodev
+#endif
+
 int	logopen(), logclose(), logread(), logioctl(), logselect();
 int	syopen(), syread(), sywrite(), syioctl(), syselect();
 
@@ -481,6 +490,10 @@ struct cdevsw	cdevsw[] = {
 	ibvopen,	ibvclose,	ibvread,	ibvwrite,
 	nodev,		nulldev,	0,		nodev,
 	nulldev,
+/* sbd = 28 */
+	sbdopen,	sbdclose,	nodev,		sbdwrite,
+	nodev,		nulldev,	0,		nodev,
+	nulldev,
 };
 
 int	nchrdev = sizeof(cdevsw) / sizeof(cdevsw[0]);
@@ -539,7 +552,7 @@ isdisk(dev, type)
 	/* NOTREACHED */
 }
 
-#define MAXDEV	28
+#define MAXDEV	29
 static char chrtoblktbl[MAXDEV] =  {
       /* CHR */      /* BLK */
 	/* 0 */		NODEV,
@@ -569,7 +582,8 @@ static char chrtoblktbl[MAXDEV] =  {
 	/* 24 */	NODEV,
 	/* 25 */	NODEV,
 	/* 26 */	NODEV,
-	/* 27 */	NODEV		/* IBV11 */
+	/* 27 */	NODEV,		/* IBV11 */
+	/* 28 */	NODEV		/* Dowty SBD */
 };
 
 /*
