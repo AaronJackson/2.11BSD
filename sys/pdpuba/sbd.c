@@ -7,11 +7,13 @@
 #define NSBD 1
 
 /*
- * Default status register 0760010
+ * Default status register 0760040
  * Default vector 0270 (PRI 4)
  */
 
-struct sbddevice *sbd = (struct sbddevice *)0760010;
+#define dev_t int
+
+struct sbddevice *sbd = (struct sbddevice *)0760040;
 
 sbdattach(addr, unit)
      struct sbddevice *addr;
@@ -25,6 +27,26 @@ sbdopen(dev, flag)
      dev_t dev;
      short flag;
 {
+  static int cmd[] = {
+    22,  /* 22 bytes / 11 words */
+    (0 << 9) | SBD_FCPIX,
+    (0 << 9) | SBD_FCRUB,
+    (2 << 9) | SBD_FCALP,
+    0300, /* x coord */
+    0300, /* y coord */
+    06,   /* 6 characters */
+    "eh",
+    "ll",
+    "!o",
+    -1
+  };
+
+  /* we can probably ignore bits above 16 i think? */
+  unsigned int addr = (unsigned int)cmd;
+
+  sbd->hahl = 0000376 & addr;
+  sbd->hahr = 0177400 & addr;
+  sbd->hcsr = 0;
 
   return 0;
 }
