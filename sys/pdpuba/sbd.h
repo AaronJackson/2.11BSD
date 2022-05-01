@@ -17,7 +17,7 @@
  *
  * Command buffer address is set in Q,A1-A21.
  *    Q should always be 0, hence it must be word aligned.
- * Execution of command buffer is performed when R is set to 1.
+ * Execution of command buffer is performed when R is set to 0.
  *
  * Each register is in its own word but only the least significant 8
  * bits are used.
