@@ -23,29 +23,38 @@ sbdattach(addr, unit)
   return 1;
 }
 
+/* Simple example to set to graphics mode, erase screen and write hello */
+static int sbdcmd[] = {
+  22,  /* 22 bytes / 11 words */
+  (0 << 8) | SBD_FCPIX,
+  (0 << 8) | SBD_FCRUB,
+  (4 << 8) | SBD_FCALP,
+  0300, /* x coord */
+  0300, /* y coord */
+  06,   /* 6 characters */
+  "eh",
+  "ll",
+  "!o",
+  -1
+};
+
 sbdopen(dev, flag)
      dev_t dev;
      short flag;
 {
-  static int cmd[] = {
-    22,  /* 22 bytes / 11 words */
-    (0 << 9) | SBD_FCPIX,
-    (0 << 9) | SBD_FCRUB,
-    (2 << 9) | SBD_FCALP,
-    0300, /* x coord */
-    0300, /* y coord */
-    06,   /* 6 characters */
-    "eh",
-    "ll",
-    "!o",
-    -1
-  };
 
-  /* we can probably ignore bits above 16 i think? */
-  unsigned int addr = (unsigned int)cmd;
+  /* Since the command block will remain in kernel space (i.e. lower
+   * addresses), we can ignore the most significant bits of the
+   * command block address. This will avoid needing to handle pages
+   * etc.
+   */
+  unsigned int addr = (unsigned int)sbdcmd;
 
-  sbd->hahl = 0000376 & addr;
-  sbd->hahr = 0177400 & addr;
+  /* 0376 to avoid overwriting Q (abort) - we are guarenteed a word
+   * aligned memory block anyway.
+   */
+  sbd->hahl = 0376 & addr;
+  sbd->hahr = 0377 & (addr >> 8);
   sbd->hcsr = 0;
 
   return 0;
