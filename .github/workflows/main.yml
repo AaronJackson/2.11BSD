@@ -10,4 +10,4 @@ jobs:
       - name: Use 2.11BSD container
         run: |
           docker run -v /$GITHUB_WORKSPACE:/github --device /dev/fuse \
-                     --cap-add SYS_ADMIN asjackson/2.11bsd-ci:latest
+                     --privileged asjackson/2.11bsd-ci:latest
