@@ -38,6 +38,7 @@
 #include "xp.h"
 #include "vv.h"
 #include "ibv.h"
+#include "sbd.h"
 
 /*
  * Reference the global symbol "_end" so that ld(1) will define it for us.
