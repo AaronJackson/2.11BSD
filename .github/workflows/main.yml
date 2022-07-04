@@ -1,12 +1,11 @@
 on: [push]
 
 jobs:
-  build:
+  kernel:
     runs-on: ubuntu-latest
-    name: Run some builds
+    name: build kernel
     steps:
-      - name: Build kernel
-        uses: AaronJackson/2.11BSD-Action@v1.0
+      - uses: AaronJackson/2.11BSD-Action@v1.0
         with:
           path: /usr/src
           run: |
@@ -14,16 +13,47 @@ jobs:
             ./config GENERIC
             cd ../GENERIC
             make
-
-      - name: Build some utils
-        uses: AaronJackson/2.11BSD-Action@v1.0
+  bin:
+    runs-on: ubuntu-latest
+    name: build /bin
+    steps:
+      - uses: AaronJackson/2.11BSD-Action@v1.0
         with:
           path: /usr/src
           run: |
             cd bin
             make
-            cd ../sbin
-            make
-            cd ../usr.bin
+
+  sbin:
+    runs-on: ubuntu-latest
+    name: build /sbin
+    steps:
+      - uses: AaronJackson/2.11BSD-Action@v1.0
+        with:
+          path: /usr/src
+          run: |
+            cd sbin
             make
 
+  usr_bin:
+    runs-on: ubuntu-latest
+    name: build /usr/bin
+    steps:
+      - uses: AaronJackson/2.11BSD-Action@v1.0
+        with:
+          path: /usr/src
+          run: |
+            cd usr.bin
+            make
+
+
+  usr_sbin:
+    runs-on: ubuntu-latest
+    name: build /usr/sbin
+    steps:
+      - uses: AaronJackson/2.11BSD-Action@v1.0
+        with:
+          path: /usr/src
+          run: |
+            cd usr.sbin
+            make
