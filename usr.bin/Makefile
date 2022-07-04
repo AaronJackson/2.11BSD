@@ -8,7 +8,7 @@ SEPFLAG= -i
 #
 SUBDIR=	at calendar dc diction diff3 eqn fstat f77 find graph id learn \
 	lex lint \
-	m4 neqn plot printf prof ranlib ratfor refer roff spell struct tbl \
+	m4 neqn plot printf prof ranlib ratfor refer spell struct tbl \
 	mkerrlst patch \
 	renice shar tip uucp uname whereis yacc xargs xinstall
 
