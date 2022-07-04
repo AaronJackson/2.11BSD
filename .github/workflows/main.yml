@@ -6,8 +6,9 @@ jobs:
     name: Build 2.11BSD kernel
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Use 2.11BSD container
-        run: |
-          docker run -v /$GITHUB_WORKSPACE:/github --device /dev/fuse \
-                     --privileged asjackson/2.11bsd-ci:latest
+        uses: AaronJackson/2.11BSD-Action
+        with:
+          path: /usr/src/sys
+          run: |
+            cd GENERIC
+            make
