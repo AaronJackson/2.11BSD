@@ -14,3 +14,16 @@ jobs:
             ./config GENERIC
             cd ../GENERIC
             make
+
+      - name: Build some utils
+        uses: AaronJackson/2.11BSD-Action@v1.0
+        with:
+          path: /usr/src
+          run: |
+            cd bin
+            make
+            cd ../sbin
+            make
+            cd ../usr.bin
+            make
+
