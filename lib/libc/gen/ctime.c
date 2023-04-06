@@ -5,20 +5,19 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)ctime.c	1.1 (Berkeley) 3/25/87";
+static char sccsid[] = "@(#)ctime.c	2.0 (2.11BSD) 2019/10/18";
 #endif LIBC_SCCS and not lint
 
-#include "sys/param.h"
-#include "sys/time.h"
-#include "tzfile.h"
+#include <sys/param.h>
+#include <sys/time.h>
+#include <tzfile.h>
+#include <string.h>
+#include <stdlib.h>
 
 char *
 ctime(t)
 time_t *t;
 {
-	struct tm	*localtime();
-	char	*asctime();
-
 	return(asctime(localtime(t)));
 }
 
@@ -48,14 +47,6 @@ register struct tm *	timeptr;
 	return result;
 }
 
-#ifndef TRUE
-#define TRUE		1
-#define FALSE		0
-#endif /* !TRUE */
-
-extern char *		getenv();
-extern char *		strcpy();
-extern char *		strcat();
 struct tm *		offtime();
 
 struct ttinfo {				/* time type information */
@@ -90,9 +81,9 @@ int			daylight = 0;
 
 static long
 detzcode(codep)
-char *	codep;
+register char *codep;
 {
-	register long	result;
+	long	result;
 	register int	i;
 
 	result = 0;
@@ -106,13 +97,13 @@ tzload(name)
 register char *	name;
 {
 	register int	i;
-	register int	fid;
+	register char *p;
+	int	fid;
 
 	if (name == 0 && (name = TZDEFAULT) == 0)
 		return -1;
 	{
-		register char *	p;
-		register int	doaccess;
+		int	doaccess;
 		char		fullname[MAXPATHLEN];
 
 		doaccess = name[0] == '/';
@@ -129,7 +120,7 @@ register char *	name;
 			*/
 			while (*name != '\0')
 				if (*name++ == '.')
-					doaccess = TRUE;
+					doaccess = 1;
 			name = fullname;
 		}
 		if (doaccess && access(name, 4) != 0)
@@ -138,7 +129,6 @@ register char *	name;
 			return -1;
 	}
 	{
-		register char *			p;
 		register struct tzhead *	tzhp;
 		char				buf[sizeof s];
 
@@ -219,27 +209,6 @@ register char *	name;
 }
 
 static
-tzsetkernel()
-{
-	struct timeval	tv;
-	struct timezone	tz;
-	char	*tztab();
-
-	if (gettimeofday(&tv, &tz))
-		return -1;
-	s.timecnt = 0;		/* UNIX counts *west* of Greenwich */
-	s.ttis[0].tt_gmtoff = tz.tz_minuteswest * -SECS_PER_MIN;
-	s.ttis[0].tt_abbrind = 0;
-	(void)strcpy(s.chars, tztab(tz.tz_minuteswest, 0));
-	tzname[0] = tzname[1] = s.chars;
-#ifdef USG_COMPAT
-	timezone = tz.tz_minuteswest * 60;
-	daylight = tz.tz_dsttime;
-#endif /* USG_COMPAT */
-	return 0;
-}
-
-static
 tzsetgmt()
 {
 	s.timecnt = 0;
@@ -258,14 +227,12 @@ tzset()
 {
 	register char *	name;
 
-	tz_is_set = TRUE;
+	tz_is_set = 1;
 	name = getenv("TZ");
 	if (!name || *name) {			/* did not request GMT */
 		if (name && !tzload(name))	/* requested name worked */
 			return;
 		if (!tzload((char *)0))		/* default name worked */
-			return;
-		if (!tzsetkernel())		/* kernel guess worked */
 			return;
 	}
 	tzsetgmt();				/* GMT is default */
@@ -336,10 +303,8 @@ time_t *	clock;
 long		offset;
 {
 	register struct tm *	tmp;
-	register long		days;
-	register long		rem;
-	register int		y;
-	register int		yleap;
+	long		days, rem;
+	register int		y, yleap;
 	register int *		ip;
 	static struct tm	tm;
 
