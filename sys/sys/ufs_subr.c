@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ufs_subr.c	1.6 (2.11BSD) 2019/11/18
+ *	@(#)ufs_subr.c	1.7 (2.11BSD) 2019/12/17
  */
 
 #include "param.h"
@@ -41,6 +41,7 @@ sync()
 			continue;
 		async = mp->m_flags & MNT_ASYNC;
 		mp->m_flags &= ~MNT_ASYNC;
+		fs->fs_time = time.tv_sec;
 		ufs_sync(mp);
 		mp->m_flags |= async;
 		}
