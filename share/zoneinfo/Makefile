@@ -1,4 +1,4 @@
-# @(#)Makefile	1.6 Makefile 1997/12/28
+# @(#)Makefile	1.7 Makefile (2.11BSD) 2019/10/29
 
 DESTDIR=
 
@@ -47,6 +47,7 @@ install:	zic $(DATA) $(MAN)
 		install -c -m 444 -o bin -g bin $(ZICMAN) ${MANDIR}/${ZICMAN}
 		install -c -m 444 -o bin -g bin $(ZDUMAN) ${MANDIR}/${ZDUMAN}
 		install -c -s -m 755 -o bin -g bin zic ${DESTDIR}/usr/sbin/zic
+		install -c -s -m 755 -o bin -g bin zdump ${DESTDIR}/usr/sbin/zdump
 
 zdump.0:	$(ZDUMANSRC)
 		/usr/man/manroff $(ZDUMANSRC) > $(ZDUMAN)
