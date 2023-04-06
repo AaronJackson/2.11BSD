@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)param.c	2.2 (2.11BSD GTE) 1997/2/14
+ *	@(#)param.c	2.3 (2.11BSD) 2018/12/19
  */
 
 #include "../h/param.h"
@@ -71,16 +71,6 @@ struct	callout callout[NCALL];
 struct	mount mount[NMOUNT];
 struct	buf buf[NBUF], bfreelist[BQUEUES];
 struct	bufhd bufhash[BUFHSZ];
-
-/*
- * Remove the ifdef/endif to run the kernel in unsecure mode even when in
- * a multiuser state.  Normally 'init' raises the security level to 1 
- * upon transitioning to multiuser.  Setting the securelevel to -1 prevents
- * the secure level from being raised by init.
-*/
-#ifdef	PERMANENTLY_INSECURE
-int	securelevel = -1;
-#endif
 
 #ifdef UCB_CLIST
 	u_int clstdesc = ((((btoc(NCLIST*sizeof(struct cblock)))-1) << 8) | RW);
