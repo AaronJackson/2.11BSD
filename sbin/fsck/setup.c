@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)setup.c	5.3.1 (2.11BSD) 1996/2/3";
+static char sccsid[] = "@(#)setup.c	5.4 (2.11BSD) 2019/11/18";
 #endif not lint
 
 #include <stdio.h>
@@ -14,6 +14,7 @@ static char sccsid[] = "@(#)setup.c	5.3.1 (2.11BSD) 1996/2/3";
 #include <sys/inode.h>
 #include <sys/fs.h>
 #include <sys/stat.h>
+#include <sys/mount.h>
 #include "fsck.h"
 
 setup(dev)
@@ -158,6 +159,11 @@ setup(dev)
 		statemap = &mbase[bmapsz];
 		freemap = statemap;
 		lncntp = (short *)&statemap[smapsz];
+	}
+
+	if (!fflag) {
+		if (sblock.fs_flags & MNT_CLEAN) return(-1);
+		if (hotroot && (sblock.fs_flags & MNT_WASCLEAN)) return(-1);
 	}
 	return(1);
 }
