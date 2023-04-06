@@ -17,7 +17,7 @@
  *	RIGHTS, APPROPRIATE COPYRIGHT LEGENDS MAY BE PLACED ON THE
  *	DERIVATIVE WORK IN ADDITION TO THAT SET FORTH ABOVE.
  *
- *	@(#)mch_fpsim.s	1.3 (2.11BSD) 2006/12/26
+ *	@(#)mch_fpsim.s	1.4 (2.11BSD) 2019/10/11
  */
 #include "DEFS.h"
 
@@ -246,15 +246,15 @@ ret:
 2:
 	jmp	cret
 1:
-	mov	$SIGTRAP.,r0
+	mov	$SIGTRAP,r0
 	br	2b
 badins:				/ Illegal Instruction
-	mov	$SIGILL.,r0
+	mov	$SIGILL,r0
 	br	2b
 segfault:			/ Segmentation Violation
 	mov	uar0,r0		/ Don't update any registers, but
 	sub	$2,2.(r0)	/ back up the pc to point to the instruction.
-	mov	$SIGSEGV.,r0
+	mov	$SIGSEGV,r0
 	br	2b
 fpexcept:			/ Floating Point Exception
 	/ restore all the new register values, and then
@@ -270,7 +270,7 @@ fpexcept:			/ Floating Point Exception
 	mov	(r1)+,-6.(r0)	/ sp (r6)
 	mov	(r1)+,2.(r0)	/ pc (r7)
 	mov	(r1)+,4.(r0)	/ psw
-	mov	$SIGFPE.,r0
+	mov	$SIGFPE,r0
 	jmp	cret
 
 freg:
