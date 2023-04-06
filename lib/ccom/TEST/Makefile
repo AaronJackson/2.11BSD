@@ -32,6 +32,9 @@ tst_longsym: tst_longsym.o
 tst_lgm: tst_lgm.o
 	${CC} -o $@ tst_lgm.o
 
+tst_lgm-g: tst_lgm-g.o
+	${CC} -o $@ tst_lgm-g.o
+
 # This will fail... see README
 #tst_lgmgood: tst_lgmgood.o
 #	${CC} -o $@ tst_lgmgood.o

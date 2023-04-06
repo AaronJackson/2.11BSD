@@ -9,7 +9,7 @@ char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
 
-static char sccsid[] = "@(#)rwhod.c	5.9.3 (2.11BSD) 1999/9/14";
+static char sccsid[] = "@(#)rwhod.c	5.9.4 (2.11BSD) 2019/11/21";
 #endif
 
 #include <sys/param.h>
@@ -117,7 +117,7 @@ main()
 	}
 	if ((cp = index(myname, '.')) != NULL)
 		*cp = '\0';
-	strncpy(mywd.wd_hostname, myname, sizeof (myname) - 1);
+	strncpy(mywd.wd_hostname, myname, sizeof (mywd.wd_hostname) - 1);
 	utmpf = open(Utmp, O_RDONLY);
 	if (utmpf < 0) {
 		(void) close(creat(Utmp, 0644));
@@ -232,7 +232,7 @@ time_t	utmptime;
 int	utmpent;
 int	utmpsize = 0;
 struct	utmp *utmp;
-int	alarmcount;
+int	alarmcount=9;
 
 onalrm()
 {

@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)sh.glob.c	5.4.1 (2.11BSD) 1996/9/20";
+static char *sccsid = "@(#)sh.glob.c	5.5 (2.11BSD) 2019/11/19";
 #endif
 
 #include "sh.h"
@@ -474,17 +474,6 @@ addpath(c)
 		error("Pathname too long");
 	*gpathp++ = c & TRIM;
 	*gpathp = 0;
-}
-
-rscan(t, f)
-	register char **t;
-	int (*f)();
-{
-	register char *p;
-
-	while (p = *t++)
-		while (*p)
-			(*f)(*p++);
 }
 
 trim(t)
