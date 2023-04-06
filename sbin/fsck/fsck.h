@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)fsck.h	5.1 (Berkeley) 6/5/85
+ *	@(#)fsck.h	5.2 (2.11BSD) 2019/11/18 
  */
 
 #define	MAXDUP		10	/* limit on dup blks (per inode) */
@@ -155,6 +155,8 @@ char	yflag;			/* assume a yes response */
 char	sflag;			/* rebuild free list */
 int	debug;			/* output debugging info */
 char	preen;			/* just fix normal inconsistencies */
+char	fflag;			/* force check on clean file system */
+char	noflag;			/* flag is we answered any question with no */
 char	hotroot;		/* checking root device */
 char	fixfree;		/* force rebuild of freelist */
 char	*membase;		/* base of memory we get */
