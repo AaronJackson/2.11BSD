@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)kern_sysctl.c	8.4.12 (2.11BSD) 2000/5/17
+ *	@(#)kern_sysctl.c	8.4.13 (2.11BSD) 2018/12/20
  */
 
 /*
@@ -230,7 +230,7 @@ kern_sysctl(name, namelen, oldp, oldlenp, newp, newlen)
 		if ((error = sysctl_int(oldp, oldlenp, newp, newlen, &level)) ||
 		    newp == NULL)
 			return (error);
-		if (level < securelevel && u.u_procp->p_pid != 1)
+		if (level < securelevel && u.u_procp->p_pid != 1 && securelevel > 0)
 			return (EPERM);
 		securelevel = level;
 		return (0);
