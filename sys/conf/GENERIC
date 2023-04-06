@@ -1,3 +1,4 @@
+# 2019/10/18 - TIMEZONE set to GMT
 # 1997/1/21 - RK added to GENERIC kernel (for use with Bob Supnik's emulator)
 # 1995/12/14 - RX added to GENERIC kernel.
 # 1995/07/21 - XP_PROBE removed.
@@ -60,12 +61,8 @@ BOOTDEV		NONE			# don't autoboot
 #BOOTDEV	sc21			# Emulex SC21 boot device
 #BOOTDEV	si			# si 9500 boot device
 
-# Timezone, in minutes west of GMT
-#TIMEZONE	300			# EST
-#TIMEZONE	360			# CST
-#TIMEZONE	420			# WST
-TIMEZONE	480			# PST
-DST		1			# Daylight Savings Time (1 or 0)
+# Timezone
+TIMEZONE	0			# kernel uses GMT by default
 
 # Filesystem configuration
 # Rootdev, swapdev etc. should be in terms of makedev.  For example,
