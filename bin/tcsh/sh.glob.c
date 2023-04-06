@@ -1,4 +1,3 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/sh.glob.c,v 3.0 1991/07/04 21:49:28 christos Exp $ */
 /*
  * sh.glob.c: Regular expression expansion
  */
@@ -37,7 +36,7 @@
 #include "config.h"
 #if !defined(lint) && !defined(pdp11)
 static char *rcsid() 
-    { return "$Id: sh.glob.c,v 3.0 1991/07/04 21:49:28 christos Exp $"; }
+    { return "$Id: sh.glob.c,v 3.1 2019/10/11 13:06:28 sms Exp $"; }
 #endif
 
 #include "sh.h"
@@ -530,18 +529,6 @@ ginit()
     gargv = (Char **) xmalloc((size_t) sizeof(Char *) * gargsiz);
     gargv[0] = 0;
     gargc = 0;
-}
-
-void
-rscan(t, f)
-    register Char **t;
-    void    (*f) ();
-{
-    register Char *p;
-
-    while (p = *t++)
-	while (*p)
-	    (*f) (*p++);
 }
 
 void
