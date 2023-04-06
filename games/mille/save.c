@@ -1,30 +1,23 @@
+/*
+ * @(#)save.c	1.4 (2.11BSD) 2018/12/29
+ */
+
 #include	"mille.h"
 #include	<string.h>
 #include	<sys/types.h>
 #include	<sys/stat.h>
+#include	<time.h>
+#include	<unistd.h>
+#include	<errno.h>
 #ifndef	unctrl
 #include	"unctrl.h"
 #endif
 
-# ifdef	attron
-#	include	<term.h>
-#	define	_tty	cur_term->Nttyb
-# endif	attron
-
-/*
- * @(#)save.c	1.3 (2.11BSD) 1996/3/21
- */
-
 typedef	struct stat	STAT;
-
-extern	char	*ctime();
-extern	int	read(), write();
 
 /*
  *	This routine saves the current game for use at a later date
  */
-extern int	errno;
-
 save() {
 
 	reg char	*sp;
@@ -129,4 +122,3 @@ reg char	*file; {
 	Fromfile = file;
 	return !On_exit;
 }
-

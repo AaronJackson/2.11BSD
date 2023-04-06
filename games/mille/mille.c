@@ -1,11 +1,10 @@
-# include	"mille.h"
-# include	<signal.h>
-# ifdef attron
-#	include	<term.h>
-# endif	attron
+#include	"mille.h"
+#include	<signal.h>
+#include	<stdlib.h>
+#include	<time.h>
 
 /*
- * @(#)mille.c	1.3.1 (2.11BSD GTE) 1/16/95
+ * @(#)mille.c	1.4 (2.11BSD) 2018/12/29
  */
 
 int	rub();
@@ -47,9 +46,6 @@ reg char	*av[]; {
 	setbuf(stdout, _sobuf);
 	Play = PLAYER;
 	initscr();
-# ifdef attron
-#	define	CA	cursor_address
-# endif
 	if (!CA) {
 		printf("Sorry.  Need cursor addressing to play mille\n");
 		exit(-1);
@@ -58,19 +54,14 @@ reg char	*av[]; {
 	stdscr = Board = newwin(BOARD_Y, BOARD_X, 0, 0);
 	Score = newwin(SCORE_Y, SCORE_X, 0, 40);
 	Miles = newwin(MILES_Y, MILES_X, 17, 0);
-#ifdef attron
-	idlok(Board, TRUE);
-	idlok(Score, TRUE);
-	idlok(Miles, TRUE);
-#endif
 	leaveok(Score, TRUE);
 	leaveok(Miles, TRUE);
 	clearok(curscr, TRUE);
-# ifndef PROF
-	srandom(getpid());
-# else
-	srandom(0);
-# endif
+#ifndef PROF
+	srandom(time((void *)NULL) + getpid());
+#else
+	srandom(0L);
+#endif
 	crmode();
 	noecho();
 	signal(SIGINT, rub);
@@ -109,8 +100,7 @@ reg char	*av[]; {
 }
 
 /*
- *	Routine to trap rubouts, and make sure they really want to
- * quit.
+ *	Routine to trap rubouts, and make sure they really want to quit.
  */
 rub() {
 
@@ -132,4 +122,3 @@ die() {
 	endwin();
 	exit(1);
 }
-

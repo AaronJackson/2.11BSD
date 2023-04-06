@@ -290,7 +290,7 @@ struct in_addr	inet_makeaddr(net, host) long net, host; { struct in_addr in; ret
 u_long	inet_network(cp) char *cp; { return 0L; }
 char *	inet_ntoa(in) struct in_addr in; { return (char *) 0; }
 int	initgroups(uname, agroup) char *uname; { return 0; }
-char *	initstate( s, st, n) unsigned s; char *st; { return st; }
+char *	initstate( s, st, n) long s; char *st; int n; { return st; }
 	insque(elem, pred) struct qelem *elem, pred; { ; }
 int	isatty(f) { return 1; }
 void	l3tol(l, c, n) long *l; char *c; {;}
@@ -369,7 +369,8 @@ char *	setstate( st ) char *st; { return st; }
 int	setuid(u) uid_t u; { return(0); }
 	setusershell() { ; }
 int	sleep(i) unsigned i; {}
-int	srand(s){ return s; }
+void	srand(s) unsigned s; {}
+void	srandom(s) long s; {}
 int	strcasecmp(a, b) char *a, *b; { return(1); }
 int	strncasecmp(a, b, n) char *a, *b; { return (1); }
 char *	strcat(a, b) char *a, *b; { return a; }

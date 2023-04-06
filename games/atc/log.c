@@ -7,9 +7,9 @@
  * For more info on this and all of my stuff, mail edjames@berkeley.edu.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)log.c	1.4 (Berkeley) 12/26/87";
-#endif not lint
+/*
+ * @(#)log.c 1.5 (2.11BSD) 2018/12/30
+ */
 
 #include "include.h"
 
@@ -58,9 +58,6 @@ log_score(list_em)
 	FILE		*fp;
 	char		*cp, logstr[BUFSIZ], *index(), *rindex();
 	SCORE		score[100], thisscore;
-#ifdef SYSV
-	struct utsname	name;
-#endif
 
 	strcpy(logstr, SPECIAL_DIR);
 	strcat(logstr, LOG);
@@ -80,16 +77,11 @@ log_score(list_em)
 		perror(logstr);
 		return (-1);
 	}
-#ifdef BSD
 	if (flock(fileno(fp), LOCK_EX) < 0)
-#endif
-#ifdef SYSV
-	while (lockf(fileno(fp), F_LOCK, 1) < 0)
-#endif
-	{
+		{
 		perror("flock");
 		return (-1);
-	}
+		}
 	for (;;) {
 		good = fscanf(fp, "%s %s %s %d %d %d",
 			score[num_scores].name, 
@@ -109,16 +101,10 @@ log_score(list_em)
 			return (-1);
 		}
 		strcpy(thisscore.name, pw->pw_name);
-#ifdef BSD
 		if (gethostname(thisscore.host, sizeof (thisscore.host)) < 0) {
 			perror("gethostname");
 			return (-1);
 		}
-#endif
-#ifdef SYSV
-		uname(&name);
-		strcpy(thisscore.host, name.sysname);
-#endif
 
 		cp = rindex(file, '/');
 		if (cp == NULL) {
@@ -189,12 +175,7 @@ log_score(list_em)
 		}
 		putchar('\n');
 	}
-#ifdef BSD
 	flock(fileno(fp), LOCK_UN);
-#endif
-#ifdef SYSV
-	/* lock will evaporate upon close */
-#endif
 	fclose(fp);
 	printf("%2s:  %-8s  %-8s  %-18s  %4s  %9s  %4s\n", "#", "name", "host", 
 		"game", "time", "real time", "planes safe");

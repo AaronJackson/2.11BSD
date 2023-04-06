@@ -5,7 +5,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)random.c	5.2 (Berkeley) 3/9/86";
+static char sccsid[] = "@(#)random.c	5.3 (2.11BSD) 12/25/2018";
 #endif LIBC_SCCS and not lint
 
 #include	<stdio.h>
@@ -171,9 +171,9 @@ static  long		*end_ptr		= &randtbl[ DEG_3 + 1 ];
  * values produced by this routine.
  */
 
-srandom( x )
-
-    unsigned		x;
+void
+srandom(x)
+    long x;
 {
     	register  int		i, j;
 
@@ -211,9 +211,8 @@ srandom( x )
  */
 
 char  *
-initstate( seed, arg_state, n )
-
-    unsigned		seed;			/* seed for R. N. G. */
+initstate(seed, arg_state, n)
+    long		seed;			/* seed for R. N. G. */
     char		*arg_state;		/* pointer to state array */
     int			n;			/* # bytes of state info */
 {
@@ -351,4 +350,3 @@ random()
 	}
 	return( i );
 }
-
