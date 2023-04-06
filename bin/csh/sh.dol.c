@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)sh.dol.c	5.3 (Berkeley) 3/29/86";
+static char *sccsid = "@(#)sh.dol.c	5.4 (2.11BSD) 2019/11/19";
 #endif
 
 #include "sh.h"
@@ -548,12 +548,20 @@ Dredc()
 	return (' ');
 }
 
-Dtestq(c)
-	register int c;
+static void
+rscan(t)
+	register char **t;
 {
+	register char *p, c;
 
-	if (cmap(c, QUOTES))
-		gflag = 1;
+	while (p = *t++)
+	      {
+	      while (c = *p++)
+		    {
+		    if (cmap(c, QUOTES))
+		       gflag = 1;
+		    }
+	       }
 }
 
 /*
@@ -584,7 +592,7 @@ heredoc(term)
 	}
 	(void) unlink(shtemp);			/* 0 0 inode! */
 	Dv[0] = term; Dv[1] = NOSTR; gflag = 0;
-	trim(Dv); rscan(Dv, Dtestq); quoted = gflag;
+	trim(Dv); rscan(Dv); quoted = gflag;
 	ocnt = BUFSIZ; obp = obuf;
 	for (;;) {
 		/*
