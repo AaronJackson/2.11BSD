@@ -1,25 +1,23 @@
-/* $Header: fortune.c,v 1.10 85/11/01 15:19:49 arnold Exp $ */
+/* @(#)fortune.c 2.0 (2.11BSD) 2018/12/29 */
 
-# include	<sys/types.h>
-# include	<stdio.h>
-# include	<sys/file.h>
-# include	"strfile.h"
-
-# define	TRUE	1
-# define	FALSE	0
-# define	bool	short
+#include	<sys/types.h>
+#include	<stdio.h>
+#include	<sys/file.h>
+#include	<time.h>
+#include	<stdlib.h>
+#include	"strfile.h"
 
 # define	MINW	6		/* minimum wait if desired */
 # define	CPERS	20		/* # of chars for each sec */
 # define	SLEN	160		/* # of chars in short fortune */
 
-# define	FORTFILE	"/usr/games/lib/fortunes.dat"
+#define	FORTFILE	"/usr/games/lib/fortunes.dat"
 
-bool	Wflag		= FALSE,	/* wait desired after fortune */
-	Sflag		= FALSE,	/* short fortune desired */
-	Lflag		= FALSE,	/* long fortune desired */
-	Oflag		= FALSE,	/* offensive fortunes only */
-	Aflag		= FALSE;	/* any fortune allowed */
+short	Wflag		= 0,	/* wait desired after fortune */
+	Sflag		= 0,	/* short fortune desired */
+	Lflag		= 0,	/* long fortune desired */
+	Oflag		= 0,	/* offensive fortunes only */
+	Aflag		= 0;	/* any fortune allowed */
 
 char	*Fortfile	= FORTFILE,	/* fortune database */
 	*Usage[]	= {
@@ -182,9 +180,9 @@ register char	*av[];
 					 * few numbers to avoid any non-
 					 * randomness in startup
 					 */
-					srnd(time(NULL) + getpid());
+					srandom(time(NULL) + getpid());
 					for (j = 0; j < 20; j++)
-						(void) rnd(100);
+						(void) random();
 					break;
 				  default:
 					printf("unknown flag: '%c'\n", *sp);
@@ -216,7 +214,7 @@ getfort()
 		Tbl.str_delims[2] = Tbl.str_delims[0];
 
 	if (Aflag) {
-		if (rnd(Tbl.str_numstr) < Tbl.str_delims[0])
+		if ((random() % Tbl.str_numstr) < Tbl.str_delims[0])
 			fortune = Tbl.str_delims[1]++;
 		else
 			fortune = Tbl.str_delims[2]++;

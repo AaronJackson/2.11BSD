@@ -3,13 +3,11 @@
  *
  * Copy permission is hereby granted provided that this notice is
  * retained on all partial or complete copies.
- *
- * For more info on this and all of my stuff, mail edjames@berkeley.edu.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)input.c	1.2 (Berkeley) 10/22/87";
-#endif not lint
+/*
+ * @(#)input.c	1.3 (2.11BSD) 2018/12/30
+ */
 
 #include "include.h"
 
@@ -17,9 +15,6 @@ static char sccsid[] = "@(#)input.c	1.2 (Berkeley) 10/22/87";
 #define MAXDEPTH	15
 
 #define RETTOKEN	'\n'
-#ifdef SYSV
-#define CRTOKEN		'\r'
-#endif
 #define REDRAWTOKEN	'\014'	/* CTRL(L) */
 #define	SHELLTOKEN	'!'
 #define HELPTOKEN	'?'
@@ -63,9 +58,6 @@ char	*setplane(), *circle(), *left(), *right(), *Left(), *Right(),
 
 RULE	state0[] = {	{ ALPHATOKEN,	1,	"%c:",		setplane},
 			{ RETTOKEN,	-1,	"",		NULL	},
-#ifdef SYSV
-			{ CRTOKEN,	-1,	"",		NULL	},
-#endif
 			{ HELPTOKEN,	12,	" [a-z]<ret>",	NULL	}},
 	state1[] = {	{ 't',		2,	" turn",	turn	},	
 			{ 'a',		3,	" altitude:",	NULL	},	
@@ -97,9 +89,6 @@ RULE	state0[] = {	{ ALPHATOKEN,	1,	"%c:",		setplane},
 	state4[] = {	{ '@',		9,	" at",		NULL	},	
 			{ 'a',		9,	" at",		NULL	},	
 			{ RETTOKEN,	-1,	"",		NULL	},
-#ifdef SYSV
-			{ CRTOKEN,	-1,	"",		NULL	},
-#endif
 			{ HELPTOKEN,	12,	" @a<ret>",	NULL	}},
 	state5[] = {	{ NUMTOKEN,	7,	"%c",		delayb	},
 			{ HELPTOKEN,	12,	" [0-9]",	NULL	}},
@@ -114,14 +103,8 @@ RULE	state0[] = {	{ ALPHATOKEN,	1,	"%c:",		setplane},
 			{ 'a',		4,	" 270",		rel_dir	},
 			{ 'q',		4,	" 315",		rel_dir	},
 			{ RETTOKEN,	-1,	"",		NULL	},	
-#ifdef SYSV
-			{ CRTOKEN,	-1,	"",		NULL	},	
-#endif
 			{ HELPTOKEN,	12,	" @a<dir><ret>",NULL	}},
 	state7[] = {	{ RETTOKEN,	-1,	"",		NULL	},
-#ifdef SYSV
-	            	{ CRTOKEN,	-1,	"",		NULL	},
-#endif
 			{ HELPTOKEN,	12,	" <ret>",	NULL	}},
 	state8[] = {	{ NUMTOKEN,	4,	"%c",		benum	},
 			{ HELPTOKEN,	12,	" [0-9]",	NULL	}},
@@ -269,17 +252,11 @@ gettoken()
 	while ((tval = getAChar()) == REDRAWTOKEN || tval == SHELLTOKEN)
 	{
 		if (tval == SHELLTOKEN)
-		{
-#ifdef BSD
+			{
 			struct itimerval	itv;
 			itv.it_value.tv_sec = 0;
 			itv.it_value.tv_usec = 0;
 			setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-			int aval;
-			aval = alarm(0);
-#endif
 			if (fork() == 0)	/* child */
 			{
 				char *shell, *base, *getenv(), *strrchr();
@@ -304,19 +281,13 @@ gettoken()
 			}
 
 			wait(0);
-#ifdef BSD
 			ioctl(fileno(stdin), TIOCSETP, &tty_new);
 			itv.it_value.tv_sec = 0;
 			itv.it_value.tv_usec = 1;
 			itv.it_interval.tv_sec = sp->update_secs;
 			itv.it_interval.tv_usec = 0;
 			setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-			ioctl(fileno(stdin), TCSETAW, &tty_new);
-			alarm(aval);
-#endif
-		}
+			}
 		redraw();
 	}
 

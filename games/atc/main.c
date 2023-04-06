@@ -3,23 +3,24 @@
  *
  * Copy permission is hereby granted provided that this notice is
  * retained on all partial or complete copies.
- *
- * For more info on this and all of my stuff, mail edjames@berkeley.edu.
+ */
+
+/*
+ * @(#)main.c 1.1 (2.11BSD) 2018/12/29
  */
 
 #include "include.h"
 
 main(ac, av)
+	int	ac;
 	char	*av[];
 {
-	int			seed;
+	long			seed;
 	int			f_usage = 0, f_list = 0, f_showscore = 0;
 	int			f_printpath = 0;
 	char			*file = NULL;
 	char			*name, *ptr;
-#ifdef BSD
 	struct itimerval	itv;
-#endif
 	extern int		update(), quit(), log_score();
 	extern char		*default_game(), *okay_game();
 
@@ -104,69 +105,38 @@ main(ac, av)
 
 	signal(SIGINT, quit);
 	signal(SIGQUIT, quit);
-#ifdef BSD
 	signal(SIGTSTP, SIG_IGN);
 	signal(SIGSTOP, SIG_IGN);
-#endif
 	signal(SIGHUP, log_score);
 	signal(SIGTERM, log_score);
 
-#ifdef BSD
 	ioctl(fileno(stdin), TIOCGETP, &tty_start);
 	bcopy(&tty_start, &tty_new, sizeof(tty_new));
 	tty_new.sg_flags |= CBREAK;
 	tty_new.sg_flags &= ~ECHO;
 	ioctl(fileno(stdin), TIOCSETP, &tty_new);
-#endif
-
-#ifdef SYSV
-	ioctl(fileno(stdin), TCGETA, &tty_start);
-	bcopy(&tty_start, &tty_new, sizeof(tty_new));
-	tty_new.c_lflag &= ~ICANON;
-	tty_new.c_lflag &= ~ECHO;
-	tty_new.c_cc[VMIN] = 1;
-	tty_new.c_cc[VTIME] = 0;
-	ioctl(fileno(stdin), TCSETAW, &tty_new);
-#endif
 
 	signal(SIGALRM, update);
 
-#ifdef BSD
 	itv.it_value.tv_sec = 0;
 	itv.it_value.tv_usec = 1;
 	itv.it_interval.tv_sec = sp->update_secs;
 	itv.it_interval.tv_usec = 0;
 	setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-	alarm(sp->update_secs);
-#endif
 
 	for (;;) {
 		if (getcommand() != 1)
 			planewin();
 		else {
-#ifdef BSD
 			itv.it_value.tv_sec = 0;
 			itv.it_value.tv_usec = 0;
 			setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-			alarm(0);
-#endif
-
 			update();
-
-#ifdef BSD
 			itv.it_value.tv_sec = sp->update_secs;
 			itv.it_value.tv_usec = 0;
 			itv.it_interval.tv_sec = sp->update_secs;
 			itv.it_interval.tv_usec = 0;
 			setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-			alarm(sp->update_secs);
-#endif
 		}
 	}
 }
