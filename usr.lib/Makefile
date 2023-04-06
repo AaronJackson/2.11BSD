@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	5.12.3 (2.11BSD GTE) 1996/12/13
+#	@(#)Makefile	5.12.4 (2.11BSD) 2020/1/4
 #
 DESTDIR=
 CFLAGS=	-O
@@ -14,8 +14,7 @@ TAGSFILE=tags
 # master tags file (/usr/lib/tags); the Fortran libraries should
 # be on this list.
 #
-TAGSDIR=libcurses libdbm libln libm libmp libpc libtermlib libutil libvmf \
-	liberrlst
+TAGSDIR=libcurses libdbm libln libmp libtermlib libutil liberrlst
 
 # Programs that live in subdirectories, and have makefiles of their own.
 #

@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	4.15	(2.11BSD)	96/10/21
+#	@(#)Makefile	4.16	(2.11BSD)	2020/1/4
 #
 # This makefile is designed to be run as:
 #	make build
@@ -60,9 +60,6 @@ usr.lib ${SRCDIR}: FRC
 build: buildlib ${SRCDIR}
 
 buildlib: FRC
-	@echo installing /usr/include
-	# cd include; make ${MFLAGS} DESTDIR=${DESTDIR} install
-	@echo
 	@echo compiling libc.a
 	cd lib/libc; make ${MFLAGS} ${LIBCDEFS}
 	@echo installing /lib/libc.a
@@ -108,7 +105,7 @@ installsrc:
 	done
 
 tags:
-	for i in include lib usr.lib; do \
+	for i in lib usr.lib; do \
 		(cd $$i; make ${MFLAGS} TAGSFILE=../tags tags); \
 	done
 	sort -u +0 -1 -o tags tags

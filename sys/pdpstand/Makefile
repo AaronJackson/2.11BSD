@@ -1,4 +1,4 @@
-#	Makefile	(2.11BSD)	2.4	2000/11/13
+#	Makefile	(2.11BSD)	2.5	2020/1/4
 #
 #	The limitations on program size have been removed.  The addition
 #	of disklabel support pushed 'restor' over the limit.  Even with
@@ -13,6 +13,8 @@
 #	It is still possible to hand craft a version of the utilities by leaving
 #	out all but the necessary drivers. 
 #
+# 2020/1/4   - remove unmaintained copy of the system include files in src/ and
+#              the unused sed scripts asm.sed*
 # 2000/11/13 - use libkern instead of libc because the libc routines use 
 #	       floating point which may not exist.
 # 1997/8/11  - add -O to maketape and makesimtape compile commands
@@ -72,9 +74,9 @@ tmscptape: ${ALL} ${DUMP}
 		lib libdata libexec local man msgs new old preserve pub \
 		sbin share spool tmp ucb
 	cd ${ROOT}/usr/src; tar cfb /dev/nr${TAPE} 20 \
-		sys include
+		sys
 	cd ${ROOT}/usr/src; tar cfb /dev/r${TAPE} 20 \
-		Makefile asm.sed asm.sed.pdp asm.sed.vax bin etc games \
+		Makefile bin etc games \
 		lib libexec local man new old sbin share ucb usr.bin \
 		usr.lib usr.sbin
 
@@ -86,7 +88,7 @@ tape1: ${ALL} ${DUMP}
 		lib libdata libexec local man msgs new old preserve pub \
 		sbin share spool tmp ucb
 	cd ${ROOT}/usr/src; tar cfb /dev/nr${TAPE} 20 \
-		sys include
+		sys
 
 switch_tapes: FRC
 	@echo "Switch tapes.  Hit CR when second tape is mounted."
@@ -96,7 +98,7 @@ FRC:
 
 tape2:
 	cd ${ROOT}/usr/src; tar cfb /dev/r${TAPE} 20 \
-		Makefile asm.sed asm.sed.pdp asm.sed.vax bin etc games \
+		Makefile bin etc games \
 		lib libexec local man new old sbin share ucb usr.bin \
 		usr.lib usr.sbin
 

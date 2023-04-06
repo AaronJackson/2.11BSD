@@ -1,4 +1,4 @@
-#	Makefile	4.3.2	1997/12/27
+#	Makefile	4.4	2019/12/17
 #
 # C Shell with process control; VM/UNIX VAX Makefile
 # Bill Joy UC Berkeley; Jim Kulp IIASA, Austria
@@ -11,48 +11,16 @@ VERSION=6.00
 BUILD=tcsh
 
 ################################################################
-## CLAGS.  For various -D things, see config.h
+## CFLAGS.  For various -D things, see config.h
 ################################################################
-#
 # These are the default suffixes from .c to .o and -c to get there
-# but to use the global optimizer on the mips boxes, see below
-#
 SUF=o
 CF=-c
 
 LFLAGS=-I.
-#LFLAGS=-Zn10000			# hpux lint
 
 SYSDEFINE=pdp11
 CFLAGS= -I. -O -D${SYSDEFINE}
-#CFLAGS= -I. -g
-
-#CFLAGS= -g -pg -I. -DPROF
-#CFLAGS= -O -pg -I. -DPROF
-
-# gcc 1.37-
-#CFLAGS=-O -I. -finline-functions -fstrength-reduce 
-
-# gcc 1.37+
-#CFLAGS=-O -I. -fcombine-regs -finline-functions -fstrength-reduce #-msoft-float
-
-#CFLAGS= -O -I. -fvolatile
-
-# for silicon graphics (and other mips compilers) -- use the
-# global optimizer! (-O3).
-#CFLAGS= -O3 -I. 
-#CF=-j
-#SUF=u
-#.SUFFIXES: .u 				## Ultrix needs that
-
-# for at&t machines
-#CFLAGS= -O -Ksd -I.
-
-# for convexen
-#CFLAGS= -I. -ext -tm c1
-
-# Stardent Titan
-#CFLAGS = -I. -O -43
 
 ################################################################
 ## LDLAGS.  Define something here if you need to
@@ -60,52 +28,24 @@ CFLAGS= -I. -O -D${SYSDEFINE}
 LDFLAGS=-i -X
 
 ################################################################
-## LIBES.  Pick one, or roll your own.
+## LIBES.  Edit as needed.
 ################################################################
 LIBES= -ltermcap		## BSD style things
-#LIBES= -ltermcap -lcs		## Mach
-#LIBES= -lcurses		## Sys V3 w/o networking
-#LIBES= -lcurses -lnet		## Sys V3 with networking
-#LIBES= -lcurses -ldir		## Sys V2 w/o networking [needs directory lib]
-#LIBES= -lcurses -ldir -lnet	## Sys V2 with networking [needs directory lib]
-#LIBES= -lcurses -lbsd		## For Irix3.1 on SGI-IRIS4D
-#LIBES= -lcurses -lsun -lbsd -lc_s ## For Irix3.3 on SGI-IRIS4D (w/ yp)
-#LIBES= -lcurses -lbsd -lc_s	## For Irix3.3 on SGI-IRIS4D (wo/ yp)
-#LIBES= -lcurses -lbsd		## or for aix on an IBM 370 or rs6000 or ps2
-#LIBES= -lcurses -lcposix	## ISC 2.2 
-#LIBES= -lposix -ltermcap	## A/UX 2.0
-#LIBES= -ltermcap -lseq		## Sequent's Dynix
-#LIBES= -lcurses -lsocket	## Intel's hypercube
 
-# The difficult choice of a c-compiler...
-# First, you should try your own c-compiler. 
-# Gcc -traditional is also a safe choice. 
-# If you think that you have good include files try gcc -Wall...
-# If you want to take out -traditional, make sure that your sys/ioctl.h
-# is fixed correctly, otherwise you'll be stopped for tty input!
-#CC=	gcc -Wall 
 CC=	cc
-#CC=	occ
 ED=	-ed
 AS=	-as
 RM=	-rm
 CXREF=	/usr/ucb/cxref
-VGRIND=	csh /usr/ucb/vgrind
 CTAGS=	/usr/ucb/ctags
 XSTR= /usr/ucb/xstr
-#MKSTR=	/usr/ucb/mkstr
 MKSTR=	./mkprstr
-SCCS=	/usr/local/sccs
-PARALLEL=12				# Make the multi-max run fast.
-#P=&					# Use Sequent's parallel make
-P=
 DESTDIR=
 BINDIR=/bin
 CATSECT=0
 MANSECT=1
 DESTMAN=/usr/man/man${MANSECT}
 DESTCAT=/usr/man/cat${MANSECT}
-FTPAREA=/usr/spool/ftp
 
 ASSRCS=	sh.c sh.dir.c sh.dol.c sh.err.c sh.exec.c sh.char.c \
 	sh.exp.c sh.file.c sh.func.c sh.glob.c sh.hist.c sh.init.c \
@@ -148,31 +88,17 @@ ALLSRCS=  ${SHSRCS} ${TWSRCS} ${EDSRCS} ${TCSRCS} ${VHSRCS}
 DISTSRCS= ${PSSRCS} ${TWSRCS} ${EDSRCS} ${TCSRCS} ${AVSRCS}
 
 
+# STRINGS must be last, to keep in sync with mkstr and xstr ouput 
 OBJS= ${SHOBJS} ${TWOBJS} ${EDOBJS} ${TCOBJS} ${ALLOC} ${ERROBJ} ${STRINGS}
+
 ################################################################
 ## ERROBJS.  File for mkstr error processing
 ################################################################
-#ERROBJ=jpnerror.o errlst.o
 ERROBJ=jpnerror.o
 STRINGDIR=/etc
 STRINGFILE=tcsh${VERSION}strgs
 STRINGS=strings.o
-#
-#all: ${BUILD}
-#
-#tcsh:$(P) ${OBJS} 
-#	rm -f tcsh core
-#	${CC} ${LDFLAGS} ${CFLAGS} ${OBJS} -o tcsh ${LIBES}
-#
-#tcsh.ps: tcsh.1
-#	rm -f tcsh.ps
-#	-ptroff -man tcsh.1 > tcsh.ps
-#
-#
-# STRINGS must be last, to keep in sync with mkstr and xstr ouput 
-#OBJS= ${SHOBJS} ${TWOBJS} ${EDOBJS} ${ALLOC} ${PRINT} ${DIROBJS} \
-#	${ERROBJ} ${STRINGS}
-#ALLOC=tc.alloc.o 
+
 ALLOC=tc.alloc.o alloc11.o
 
 all: mkprstr tcsh tcsh.${CATSECT}
@@ -251,16 +177,6 @@ tcsh: $(OBJS)
 	-Y -ltermcap -lc
 	@-size $@
 
-#.c.${SUF}:
-#	${CC} ${CF} ${CFLAGS} $<
-
-#.c.${SUF}:
-#	${MKSTR} - ${STRINGFILE} x $*.c
-#	mv -f x$*.c x.c
-#	${CC} ${CFLAGS} ${CF} x.c 
-#	mv x.o $*.o
-#	rm -f x.c
-
 .c.${SUF}: ${MKSTR}
 	${MKSTR} - ${STRINGFILE} x $*.c
 	${CC} -E ${CFLAGS} x$*.c | ${XSTR} ${CF} -
@@ -268,14 +184,6 @@ tcsh: $(OBJS)
 	${CC} ${CFLAGS} ${CF} x.c 
 	mv x.o $*.o
 	rm -f x.c
-
-# Don't do any special massaging of C files for sharing of strings!!
-# it causes weird segmentation faults on some systems.
-#.c.o:
-#	${CC} -E ${CFLAGS} $*.c | ${XSTR} ${CF} -
-#	${CC} ${CF} ${CFLAGS} x.c 
-#	mv -f x.o $*.o
-#	rm -f x.c
 
 strings.o: strings
 	${XSTR}
@@ -288,12 +196,6 @@ ed.init.o: ed.init.c
 	${CC} -R ${CF} ${CF} x.c 
 	mv -f x.o $*.o
 	rm -f x.c
-
-##.DEFAULT:
-##	${SCCS} get $<
-
-##.DEFAULT:
-##	co $<
 
 ed.defns.h: ed.defns.c
 	@rm -f $@
@@ -337,22 +239,8 @@ print:
 	@ls -l | pr 
 	@pr sh*.h [a-rt-z]*.h sh*.c alloc.c
 
-vprint:
-	@pr -l84 READ_ME TODO
-	@pr -l84 makefile makefile.*
-	@(size -l a.out; size *.${SUF}) | pr -l84 -h SIZES
-	@${CXREF} sh*.c | pr -l84 -h XREF
-	@ls -l | pr -l84
-	@${CXREF} sh*.c | pr -l84 -h XREF
-	@pr -l84 sh*.h [a-rt-z]*.h sh*.c alloc.c
-
-vgrind:
-	@cp /dev/null index
-	@for i in *.h; do vgrind -t -h "C Shell" $$i >/crp/bill/csh/$$i.t; done
-	@for i in *.c; do vgrind -t -h "C Shell" $$i >/crp/bill/csh/$$i.t; done
-	@vgrind -t -x -h Index index >/crp/bill/csh/index.t
-
-install: tcsh  tcsh.${CATSECT}
+# tcsh  tcsh.${CATSECT}
+install: all
 	-mv -f ${DESTDIR}${BINDIR}/tcsh  ${DESTDIR}${BINDIR}/tcsh.old
 	install -s -m 555 -o bin -g bin tcsh ${DESTDIR}${BINDIR}/tcsh
 	install -c -m 444 -o bin -g bin  ${STRINGFILE} ${DESTDIR}${STRINGDIR}
@@ -372,57 +260,6 @@ veryclean: clean
 tags:	/tmp
 	${CTAGS} sh*.c
 
-tar:
-	rm -f tcsh.tar.Z
-	rm -rf tcsh-${VERSION} 
-	mkdir tcsh-${VERSION} tcsh-${VERSION}/config
-	cp ${ALLSRCS} tcsh-${VERSION}
-	cp ${CONFSRCS} tcsh-${VERSION}/config
-	tar cvf - tcsh-${VERSION} | compress > tcsh-${VERSION}.tar.Z
-	rm -rf tcsh-${VERSION}
-
-tcsh-${VERSION}.tar.Z:
-	rm -rf tcsh-${VERSION} 
-	rm -f tcsh-${VERSION}.tar tcsh-${VERSION}.tar.Z DIFFS.[123]
-	mkdir tcsh-${VERSION}
-	./MAKEDIFFS bsd
-	mv DIFFS.1 DIFFS.2 DIFFS.3 tcsh-${VERSION}
-	cp ${DISTSRCS} tcsh-${VERSION}
-	mkdir tcsh-${VERSION}/config
-	cp ${CONFSRCS} tcsh-${VERSION}/config
-	cp Makefile tcsh-${VERSION}/Makefile.new
-	tar cvf - tcsh-${VERSION} | compress > tcsh-${VERSION}.tar.Z
-	rm -rf tcsh-${VERSION}
-
-tcsh.tahoe-${VERSION}.tar.Z:
-	rm -rf tcsh.tahoe-${VERSION} 
-	rm -f tcsh.tahoe-${VERSION}.tar tcsh.tahoe-${VERSION}.tar.Z DIFFS.[123]
-	mkdir tcsh.tahoe-${VERSION}
-	./MAKEDIFFS tahoe
-	mv DIFFS.1 DIFFS.2 DIFFS.3 tcsh.tahoe-${VERSION}
-	cp ${DISTSRCS} tcsh.tahoe-${VERSION}
-	mkdir tcsh.tahoe-${VERSION}/config
-	cp ${CONFSRCS} tcsh.tahoe-${VERSION}/config
-	cp Makefile tcsh.tahoe-${VERSION}/Makefile.new
-	tar cvf - tcsh.tahoe-${VERSION} | compress > tcsh.tahoe-${VERSION}.tar.Z
-	rm -rf tcsh.tahoe-${VERSION}
-
-tcsh.reno-${VERSION}.tar.Z:
-	rm -rf tcsh.reno-${VERSION} 
-	rm -f tcsh.reno-${VERSION}.tar tcsh.reno-${VERSION}.tar.Z DIFFS.[123]
-	mkdir tcsh.reno-${VERSION}
-	./MAKEDIFFS reno
-	mv DIFFS.1 DIFFS.2 DIFFS.3 tcsh.reno-${VERSION}
-	cp ${DISTSRCS} tcsh.reno-${VERSION}
-	mkdir tcsh.reno-${VERSION}/config
-	cp ${CONFSRCS} tcsh.reno-${VERSION}/config
-	cp Makefile tcsh.reno-${VERSION}/Makefile.new
-	tar cvf - tcsh.reno-${VERSION} | compress > tcsh.reno-${VERSION}.tar.Z
-	rm -rf tcsh.reno-${VERSION}
-
-ftp: tcsh-${VERSION}.tar.Z tcsh.tahoe-${VERSION}.tar.Z
-	cp tcsh-${VERSION}.tar.Z tcsh.tahoe-${VERSION}.tar.Z ${FTPAREA}
-	cp tcsh.man ${FTPAREA}
 
 #
 # Dependencies
