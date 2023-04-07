@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ufs_subr.c	1.7 (2.11BSD) 2019/12/17
+ *	@(#)ufs_subr.c	1.8 (2.11BSD) 2020/1/20
  */
 
 #include "param.h"
@@ -50,6 +50,10 @@ sync()
 
 /*
  * Go through the mount table marking filesystems clean.
+ * This function is identical to sync() except that it also
+ * marks the filesystem clean if it was clean before it was mounted.
+ *
+ * This routine is used only by the reboot code.
  */
 fsclean()
 {
@@ -67,15 +71,20 @@ fsclean()
 		fs = &mp->m_filsys;
 		if	(fs->fs_ronly == 1 || fs->fs_ilock || fs->fs_flock)
 			continue;
-		if (fs->fs_flags & MNT_WASCLEAN) {
-			async = mp->m_flags & MNT_ASYNC;
-			mp->m_flags &= ~MNT_ASYNC;
+		if (fs->fs_flags & MNT_WASCLEAN)
+			{
 			fs->fs_flags |= MNT_CLEAN;
 			fs->fs_fmod = 1;
+			}
+		if (fs->fs_fmod)
+			{
+			async = mp->m_flags & MNT_ASYNC;
+			mp->m_flags &= ~MNT_ASYNC;
+			fs->fs_time = time.tv_sec;
 			ufs_sync(mp);
 			fs->fs_flags &= ~MNT_CLEAN;
 			mp->m_flags |= async;
-		    }
+			}
 		}
 	updlock = 0;
 	}

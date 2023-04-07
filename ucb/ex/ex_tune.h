@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ex_tune.h	7.8.2 (2.11BSD) 2000/5/6
+ *	@(#)ex_tune.h	7.8.3 (2.11BSD) 2020/1/20
  */
 
 /*
@@ -100,9 +100,9 @@
  * hardcopy mode when a line gets longer than 80 characters.
  */
 #ifndef VMUNIX
-#define	TUBELINES	80	/* Number of screen lines for visual */
+#define	TUBELINES	70	/* Number of screen lines for visual */
 #define	TUBECOLS	160	/* Number of screen columns for visual */
-#define	TUBESIZE	6400	/* Maximum screen size for visual (80x80)*/
+#define	TUBESIZE	5600	/* Maximum screen size for visual (70x80)*/
 #else
 #define	TUBELINES	70
 #define	TUBECOLS	160
