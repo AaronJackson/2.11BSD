@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)drreg.h	1.1 (2.10BSD Berkeley) 12/1/86
+ *	@(#)drreg.h	1.2 (2.11BSD) 2020/1/7
  */
 
 /*
@@ -61,18 +61,18 @@ struct	sg2 {
 /*
  *	Definitions for ioctl calls for DR11-W interface
  */
-#define	DRGTTY		_IOR(d, 1, struct sg2)	/* get dr11 status */
-#define	DRSTTY		_IOW(d, 2, struct sg2)	/* set flags & function */
-#define	DRSFUN		_IOW(d, 3, struct sg1)	/* set function */
-#define	DRSFLAG		_IOW(d, 4, struct sg1)	/* set flags */
-#define	DRGCSR		_IOR(d, 5, struct sg2)	/* get csr and wcr */
-#define	DRSSIG		_IOW(d, 6, struct sg1)	/* set sig for ATTN interrupt */
-#define	DRESET		_IO(d, 7)		/* reset DR11-W interface */
-#define	DRSTIME		_IOW(d, 8, struct sg1)	/* set timeout */
-#define	DRCTIME		_IO(d, 9)		/* set timeout inactive */
-#define	DROUTPUT	_IOW(d, 10, struct sg1)	/* word to output data reg */
-#define	DRINPUT		_IOR(d, 11, struct sg1)	/* word from input data reg */
-#define	DRITIME		_IO(d, 12)		/* no set error on timeout */
+#define	DRGTTY		_IOR('d', 1, struct sg2)	/* get dr11 status */
+#define	DRSTTY		_IOW('d', 2, struct sg2)	/* set flags & function */
+#define	DRSFUN		_IOW('d', 3, struct sg1)	/* set function */
+#define	DRSFLAG		_IOW('d', 4, struct sg1)	/* set flags */
+#define	DRGCSR		_IOR('d', 5, struct sg2)	/* get csr and wcr */
+#define	DRSSIG		_IOW('d', 6, struct sg1)	/* set sig for ATTN interrupt */
+#define	DRESET		_IO('d', 7)		/* reset DR11-W interface */
+#define	DRSTIME		_IOW('d', 8, struct sg1)	/* set timeout */
+#define	DRCTIME		_IO('d', 9)		/* set timeout inactive */
+#define	DROUTPUT	_IOW('d', 10, struct sg1)	/* word to output data reg */
+#define	DRINPUT		_IOR('d', 11, struct sg1)	/* word from input data reg */
+#define	DRITIME		_IO('d', 12)		/* no set error on timeout */
 
 /*
  *	i_flags definition

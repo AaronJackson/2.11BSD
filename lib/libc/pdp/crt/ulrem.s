@@ -6,7 +6,8 @@
  *  Version	Date		Modification
  *	0.0	02Feb91		1. Initial inspiration struck.
  *	1.0	05Jun93		2. Released into the Public Domain.
- *      1.1     23Dec08         Revised, corrected KERNEL (no-FPP) code wfjm
+ *      1.1     23Dec08         3. Revised, corrected KERNEL (no-FPP) code wfjm
+ *      1.2     07Jan20         4. ANSI style comments to avoid errors
 */
 
 #include "DEFS.h"
@@ -38,18 +39,18 @@
 
 ulrem:
 ENTRY(ulrem)
-	jsr	pc,l2f		/ 2(sp) -> fr0
-	movf	fr0,fr2		/ put in right place (fr2)
-	jsr	pc,l6f		/ 6(sp) -> fr3
-	tstf	fr3		/ check for division by zero
-	cfcc			/   don't want FP trap during
-	beq	1f		/   integer arithmetic
-	divf	fr3,fr0		/ fr0 = lhs/rhs
-	modf	$one,fr0	/ fr0 = integer((lhs/rhs) * 1.0)
-	mulf	fr3,fr1		/ fr0 = integer(lhs/rhs) * rhs
-	subf	fr1,fr2		/ fr2 = lhs - (integer(*lhs/rhs) * rhs)
+	jsr	pc,l2f		// 2(sp) -> fr0
+	movf	fr0,fr2		// put in right place (fr2)
+	jsr	pc,l6f		// 6(sp) -> fr3
+	tstf	fr3		// check for division by zero
+	cfcc			//   don't want FP trap during
+	beq	1f		//   integer arithmetic
+	divf	fr3,fr0		// fr0 = lhs/rhs
+	modf	$one,fr0	// fr0 = integer((lhs/rhs) * 1.0)
+	mulf	fr3,fr1		// fr0 = integer(lhs/rhs) * rhs
+	subf	fr1,fr2		// fr2 = lhs - (integer(*lhs/rhs) * rhs)
 1:
-	movfi	fr2,-(sp)	/ (result)
+	movfi	fr2,-(sp)	// (result)
 	mov	(sp)+,r0
 	mov	(sp)+,r1
 	seti
@@ -174,8 +175,8 @@ noadd1:
 	mov	(sp)+,r3
 	mov	(sp)+,r2
 	rts	pc
-#endif NEVER
-#endif KERNEL
+#endif /* NEVER */
+#endif /* KERNEL */
 
 /*
  * u_long ualrem(lhs, rhs)
@@ -188,15 +189,15 @@ noadd1:
 	.globl	ualrem
 ualrem:
 ENTRY(ualrem)
-	mov	r2,-(sp)	/ need a register to point at the lhs
-	mov	8.(sp),-(sp)	/ The rem algorithm is long
-	mov	8.(sp),-(sp)	/   enough that it just doesn't make sense
-	mov	8.(sp),r2	/   to bother repeating it.  We just translate
-	mov	2(r2),-(sp)	/   the call for ulrem and let it do the work
-	mov	(r2),-(sp)	/   and return its results (also stuffing it
-	jsr	pc,ulrem	/   into *lhs)
-	add	$8.,sp		/ clean up stack
-	mov	r0,(r2)+	/ store high word,
-	mov	r1,(r2)		/   and low
-	mov	(sp)+,r2	/ restore r2
-	rts	pc		/   and return
+	mov	r2,-(sp)	// need a register to point at the lhs
+	mov	8.(sp),-(sp)	// The rem algorithm is long
+	mov	8.(sp),-(sp)	//   enough that it just doesn't make sense
+	mov	8.(sp),r2	//   to bother repeating it.  We just translate
+	mov	2(r2),-(sp)	//   the call for ulrem and let it do the work
+	mov	(r2),-(sp)	//   and return its results (also stuffing it
+	jsr	pc,ulrem	//   into *lhs)
+	add	$8.,sp		// clean up stack
+	mov	r0,(r2)+	// store high word,
+	mov	r1,(r2)		//   and low
+	mov	(sp)+,r2	// restore r2
+	rts	pc		//   and return

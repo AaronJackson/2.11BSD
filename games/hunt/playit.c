@@ -8,6 +8,10 @@
  *  specifies the terms and conditions for redistribution.
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)playit.c      1.1 (2.11BSD) 2020/1/7";
+#endif
+
 # include	<curses.h>
 # include	<ctype.h>
 # include	<signal.h>
@@ -16,7 +20,7 @@
 # include	<sys/file.h>
 
 # undef  CTRL
-# define CTRL(x)	('x' & 037)
+# define CTRL(x)	(x & 037)
 
 int		input();
 static int	nchar_send;
@@ -121,7 +125,7 @@ playit()
 			ch = EOF;
 			goto out;
 		  case BELL:
-			putchar(CTRL(G));
+			putchar(CTRL('G'));
 			break;
 		  case READY:
 			(void) fflush(stdout);
@@ -232,7 +236,7 @@ send_stuff()
 		if ((*nsp = map_key[*sp]) == 'q')
 			intr();
 # ifdef OTTO
-		else if (*nsp == CTRL(O))
+		else if (*nsp == CTRL('O'))
 			Otto_mode = !Otto_mode;
 # endif OTTO
 		else
@@ -279,7 +283,7 @@ quit()
 		}
 		else if (ch == 'n')
 			return TRUE;
-		(void) putchar(CTRL(G));
+		(void) putchar(CTRL('G'));
 		if (!explain) {
 			put_str("(Y or N) ");
 			explain = TRUE;

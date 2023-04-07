@@ -1,6 +1,6 @@
 # Placed in the public domain - 1995/05/06
 #
-#	@(#)Makefile	1.9.1 (2.11BSD) 2020/1/4
+#	@(#)Makefile	1.9.2 (2.11BSD) 2020/1/10
 
 CPP= /lib/cpp
 LD= /bin/ld
@@ -53,8 +53,6 @@ NOERROR= getgid.o getegid.o getpgrp.o getpid.o \
 	umask.o vhangup.o
 
 OBJS= ${PDPOBJS} ${NORM1} ${NORM2} ${LONG} ${ERROR} ${NOERROR}
-
-tags:
 
 .s.o:
 	/lib/cpp -DPROF ${DEFS} $< | sed -e 's;^#;/;' | as -V -o $@
@@ -127,3 +125,5 @@ ${NOERROR}: SYS.h /usr/include/syscall.h
 
 clean:
 	rm -f *.o profiled/*.o a.out syslib syslib_p
+
+tags:

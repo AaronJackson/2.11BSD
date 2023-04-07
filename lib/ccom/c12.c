@@ -2,6 +2,10 @@
  *		C compiler part 2 -- expression optimizer
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c12.c	2.0 (2.11BSD) 2020/1/7";
+#endif
+
 #include "c1.h"
 #include <sys/param.h>		/* for MAX */
 
@@ -264,7 +268,7 @@ register union tree *tree;
 
 	constant:
 		if (tree->t.tr1->t.op==CON && tree->t.tr2->t.op==CON) {
-			const(op, &tree->t.tr1->c.value, tree->t.tr2->c.value, tree->t.type);
+			Xconst(op, &tree->t.tr1->c.value, tree->t.tr2->c.value, tree->t.type);
 			return(tree->t.tr1);
 		}
 
@@ -672,7 +676,7 @@ register union tree *tree;
 			if (t2[0]->t.op==CON && t2[-1]->t.op==CON) {
 				acl.nextl--;
 				t2--;
-				const(op, &t2[0]->c.value, t2[1]->c.value, d);
+				Xconst(op, &t2[0]->c.value, t2[1]->c.value, d);
 				t2[0]->t.type = d;
 			} else if (t = lconst(op, t2[-1], t2[0])) {
 				acl.nextl--;
@@ -871,7 +875,7 @@ union tree **p, **maxp;
 		*np = *(np+1);
 }
 
-const(op, vp, v, type)
+Xconst(op, vp, v, type)
 register int *vp, v;
 {
 	switch (op) {
@@ -967,7 +971,7 @@ register int *vp, v;
 		*vp &= ~ v;
 		return;
 	}
-	error("C error: const");
+	error("C error: Xconst");
 }
 
 union tree *

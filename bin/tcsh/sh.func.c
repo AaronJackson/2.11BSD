@@ -1,4 +1,3 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/sh.func.c,v 3.1 1991/07/05 19:07:02 christos Exp $ */
 /*
  * sh.func.c: csh builtin functions
  */
@@ -36,9 +35,8 @@
  */
 #include "config.h"
 
-#if !defined(lint) && !defined(pdp11)
-static char *rcsid() 
-    { return "$Id: sh.func.c,v 3.1 1991/07/05 19:07:02 christos Exp $"; }
+#if !defined(lint) && defined(DOSCCS)
+    static char *sccsid = "@(#)sh.func.c 3.2 (2.11BSD) 2020/1/7";
 #endif
 
 #include "sh.h"
@@ -66,7 +64,7 @@ static	int	getword		__P((Char *));
 static	int	keyword		__P((Char *));
 static	void	Unsetenv	__P((Char *));
 static	void	toend		__P((void));
-static	void	xecho		__P((int, Char **));
+static	void	xecho		__P((Char, Char **));
 
 struct biltins *
 isbfunc(t)

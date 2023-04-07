@@ -1,7 +1,7 @@
-# Makefile for Phantasia 3.2 (1.2 2.11BSD - 1997/9/22)
-#
+# Makefile for Phantasia 3.3 (1.3 2.11BSD - 2020/1/7)
+
 # MODIFIED TO COMPILE WITHOUT 'XSTR'.
-#
+
 # To create game:
 #
 # 1)  Set up a directory where the game and its support files will live.
@@ -44,7 +44,7 @@ DEST =		/usr/games/lib/phantasia
 # define BSD42 for 4.2bsd
 # define USG3 for System III, or similar
 # define USG5 for System V
-FLAGS = 	-DPATH=\"${DEST} \
+FLAGS = 	-DPATH=\"${DEST}\" \
 		-DWIZARD=\"daemon\" \
 		-DUID=1 \
 		-DRAND=32768.0 \

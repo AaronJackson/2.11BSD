@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)ex_tty.c	7.10.1 (2.11BSD GTE) 12/9/94";
+static char *sccsid = "@(#)ex_tty.c	7.11 (2.11BSD) 2020/1/7";
 #endif
 
 #include "ex.h"
@@ -110,10 +110,10 @@ setterm(type)
 		if (ldisc == NTTYDISC) {
 			sc[0] = olttyc.t_suspc;
 			sc[1] = 0;
-			if (olttyc.t_suspc == CTRL(z)) {
+			if (olttyc.t_suspc == CTRL('z')) {
 				for (i=0; i<=4; i++)
 					if (arrows[i].cap &&
-					    arrows[i].cap[0] == CTRL(z))
+					    arrows[i].cap[0] == CTRL('z'))
 						addmac(sc, NULL, NULL, arrows);
 			} else
 				addmac(sc, "\32", "susp", arrows);

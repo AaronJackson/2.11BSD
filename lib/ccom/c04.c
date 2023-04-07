@@ -2,6 +2,9 @@
  * C compiler
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c04.c	2.0 (2.11BSD) 2020/1/7";
+#endif
 #include "c0.h"
 
 /*
@@ -163,6 +166,8 @@ register union tree *p;
 
 	if (p==0 || ((t=p->t.type)&~TYPE) == 0)		/* not a reference */
 		return(1);
+	if ((t & TYPE) == VOID)
+		t = (t & ~TYPE) | CHAR; /* avoid void pointer errors */
 	p->t.type = decref(t);
 	l = length(p);
 	p->t.type = t;

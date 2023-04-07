@@ -5,9 +5,9 @@
  */
 
 #ifdef LIBC_SCCS
-	<@(#)index.s	1.2 (2.11BSD) 1996/1/12\0>
+	<@(#)index.s	1.3 (2.11BSD) 2020/1/7\0>
 	.even
-#endif LIBC_SCCS
+#endif /* LIBC_SCCS */
 
 /*
  * Find the first occurence of c in the string cp.
@@ -23,20 +23,20 @@
 _strchr = _index ^ .
 
 ENTRY(index)
-	mov	2(sp),r0	/ r0 = cp
-	mov	4(sp),r1	/ r1 = c
-	beq	3f		/ check for special case of c == '\0'
+	mov	2(sp),r0	// r0 = cp
+	mov	4(sp),r1	// r1 = c
+	beq	3f		// check for special case of c == '\0'
 1:
-	cmpb	(r0),r1		/ look for c ...
+	cmpb	(r0),r1		// look for c ...
 	beq	2f
-	tstb	(r0)+		/ but don't pass end of string ...
+	tstb	(r0)+		// but don't pass end of string ...
 	bne	1b
-	clr	r0		/ fell off the end of the string - return 0
+	clr	r0		// fell off the end of the string - return 0
 2:
-	rts	pc		/ return pointer
+	rts	pc		// return pointer
 3:
-	tstb	(r0)+		/ just find end of string
+	tstb	(r0)+		// just find end of string
 	bne	3b
-	dec	r0		/ back up to '\0'
-	rts	pc		/   and return pointer
+	dec	r0		// back up to '\0'
+	rts	pc		//   and return pointer
 

@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)net_xxx.s	1.3 (2.11BSD GTE) 1/12/95
+ *	@(#)net_xxx.s	1.4 (2.11BSD) 2020/1/7
  */
 
 #include "DEFS.h"
@@ -23,7 +23,7 @@
 ENTRY(delay)
 	mov	2(sp),r0		/ r0 = hiint(usec)
 	mov	4(sp),r1		/ r1 = loint(usec)
-	ashc	$1,r0			/ sob's ~= 1/2 micro second,
+	ashc	$1,r0			// sob's ~= 1/2 micro second,
 	beq	2f			/ oops, got passed a delay of 0L-leave
 	tst	r1
 	/*

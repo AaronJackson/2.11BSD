@@ -1,7 +1,3 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/sh.lex.c,v 3.0 1991/07/04 21:49:28 christos Exp $ */
-/*
- * sh.lex.c: Lexical analysis into tokens
- */
 /*-
  * Copyright (c) 1980, 1991 The Regents of the University of California.
  * All rights reserved.
@@ -35,17 +31,13 @@
  * SUCH DAMAGE.
  */
 #include "config.h"
-#if !defined(lint) && !defined(pdp11)
-static char *rcsid() 
-    { return "$Id: sh.lex.c,v 3.0 1991/07/04 21:49:28 christos Exp $"; }
+
+#if !defined(lint) && defined(DOSCCS)
+    static char *sccsid = "@(#)sh.lex.c 3.1 (2.11BSD) 2020/1/7";
 #endif
 
 #include "sh.h"
 #include "ed.h"
-
-/*
- * C shell
- */
 
 /*
  * These lexical routines read input and form lists of words.
@@ -55,7 +47,7 @@ static char *rcsid()
 static	Char		*word		__P((void));
 static	int	 	 getC1		__P((int));
 static	void	 	 getdol		__P((void));
-static	void	 	 getexcl	__P((int));
+static	void	 	 getexcl	__P((Char));
 static	struct Hist 	*findev		__P((Char *, bool));
 static	void	 	 setexclp	__P((Char *));
 static	int	 	 bgetc		__P((void));

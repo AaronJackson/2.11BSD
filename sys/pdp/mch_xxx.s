@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mch_xxx.s	1.6 (2.11BSD) 2000/11/20
+ *	@(#)mch_xxx.s	1.7 (2.11BSD) 2020/1/7
  */
 #include "DEFS.h"
 #include "../machine/mch_iopage.h"
@@ -27,7 +27,7 @@
 ENTRY(delay)
 	mov	2(sp),r0		/ r0 = hiint(usec)
 	mov	4(sp),r1		/ r1 = loint(usec)
-	ashc	$1,r0			/ sob's ~= 1/2 micro second,
+	ashc	$1,r0			// sob's ~= 1/2 micro second,
 	beq	2f			/ oops, got passed a delay of 0L-leave
 	tst	r1
 	/*
@@ -144,9 +144,9 @@ ENTRY(longjmp)
 ENTRY(resume)
 	mov	2(sp),r0		/ r0 = u
 	mov	4(sp),r1		/ r1 = env
-	SPL7				/ can't let anything in till we
-					/   (at least) get a valid stack ...
-	mov	r0,KDSA6		/ map new process' u structure in
+	SPL7				// can't let anything in till we
+					//   (at least) get a valid stack ...
+	mov	r0,KDSA6		// map new process' u structure in
 #ifdef INET
 	mov	r0,SDSA6		/ map supervisor stack area to same
 #endif
@@ -272,7 +272,7 @@ ENTRY(copystr)
 1:
 	movb	(r0)+,(r1)+		/ move a byte
 	beq	3f			/ (done when we cross the null)
-	sob	r2,1b			/ and loop as long as there's room
+	sob	r2,1b			// and loop as long as there's room
 2:
 	mov	$ENOENT,r0		/ ran out of room - indicate failure
 	br	4f			/   and exit ...
@@ -282,7 +282,7 @@ ENTRY(copystr)
 	tst	10.(sp)			/ does the caller want the copy length?
 	beq	5f
 	sub	6.(sp),r1		/ yes, figure out how much we copied:
-	mov	r1,*10.(sp)		/ *lencopied = r1 {toaddr'} - toaddr
+	mov	r1,*10.(sp)		// *lencopied = r1 {toaddr'} - toaddr
 5:
 	mov	(sp)+,r2		/ restore registers
 	rts	pc			/   and return

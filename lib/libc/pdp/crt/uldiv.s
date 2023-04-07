@@ -6,6 +6,7 @@
  *  Version	Date		Modification
  *	0.0	02Feb91		1. Initial inspiration struck.
  *	1.0	05Jun93		2. Released into the Public Domain.
+ *	1.1	07Jan20		3. ANSI style comments to avoid syntax errors
 */
 
 #include "DEFS.h"
@@ -33,12 +34,12 @@
 	.globl uldiv
 uldiv:
 ENTRY(uldiv)
-	jsr	pc,l2f		/ 2(sp) -> fr0
-	jsr	pc,l6f		/ 6(sp) -> fr3
-	tstf	fr3		/ check for zero divisor
-	cfcc			/   don't want to have an FP fault
-	beq	1f		/   in integer arithmetic
-	divf	fr3,fr0		/ fr0 /= rhs
+	jsr	pc,l2f		// 2(sp) -> fr0
+	jsr	pc,l6f		// 6(sp) -> fr3
+	tstf	fr3		// check for zero divisor
+	cfcc			//   don't want to have an FP fault
+	beq	1f		//   in integer arithmetic
+	divf	fr3,fr0		// fr0 /= rhs
 1:
 	movfi	fr0,-(sp)
 	mov	(sp)+,r0	/ return result
@@ -163,7 +164,7 @@ noadd:
 	mov	r4,r1		/ quo lo
 	cmp	(sp)+,(sp)+	/ remove quot adder
 	br	9b
-#endif KERNEL
+#endif /* KERNEL */
 
 /*
  * u_long ualdiv(lhs, rhs)
@@ -176,15 +177,15 @@ noadd:
 	.globl	ualdiv
 ualdiv:
 ENTRY(ualdiv)
-	mov	r2,-(sp)	/ need a register to point at the lhs
-	mov	8.(sp),-(sp)	/ The divide algorithm is long
-	mov	8.(sp),-(sp)	/   enough that it just doesn't make sense
-	mov	8.(sp),r2	/   to bother repeating it.  We just translate
-	mov	2(r2),-(sp)	/   the call for uldiv and let it do the work
-	mov	(r2),-(sp)	/   and return its results (also stuffing it
-	jsr	pc,uldiv	/   into *lhs)
-	add	$8.,sp		/ clean up stack
-	mov	r0,(r2)+	/ store high word,
-	mov	r1,(r2)		/   and low
-	mov	(sp)+,r2	/ restore r2
-	rts	pc		/   and return
+	mov	r2,-(sp)	// need a register to point at the lhs
+	mov	8.(sp),-(sp)	// The divide algorithm is long
+	mov	8.(sp),-(sp)	//   enough that it just doesn't make sense
+	mov	8.(sp),r2	//   to bother repeating it.  We just translate
+	mov	2(r2),-(sp)	//   the call for uldiv and let it do the work
+	mov	(r2),-(sp)	//   and return its results (also stuffing it
+	jsr	pc,uldiv	//   into *lhs)
+	add	$8.,sp		// clean up stack
+	mov	r0,(r2)+	// store high word,
+	mov	r1,(r2)		//   and low
+	mov	(sp)+,r2	// restore r2
+	rts	pc		//   and return

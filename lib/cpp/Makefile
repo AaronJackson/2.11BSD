@@ -1,19 +1,21 @@
-#	Makefile	1.4	(2.11BSD) 2001/11/19
+#	Makefile	2.0	(2.11BSD) 2020/1/7
 #
-CFLAGS=-O -Dpdp11=1 -DFLEXNAMES -DBSD2_11 -UBSD2_10
+
+# if machine has separate I/D
 SEPFLAG=-i
+VMPGS = 16
+# else
+# LDFLAGS =
+# VMPGS = 4
+# endif
 
-cpp :	cpp.o cpy.o
-	$(CC) $(CFLAGS) $(SEPFLAG) -o cpp cpp.o cpy.o
+CFLAGS=-O -DLIBVMF -I. -DNVMPGS=${VMPGS}
 
-cpy.c : cpy.y
-	yacc cpy.y
-	mv y.tab.c cpy.c
-
-cpy.o :	cpy.c yylex.c
+cpp :	cpp.o cpc.o token.o
+	$(CC) $(CFLAGS) $(SEPFLAG) -o cpp cpp.o cpc.o token.o -lvmf
 
 clean :
-	rm -f *.o cpy.c cpp
+	rm -f *.o cpp
 
 install : cpp
-	install -s cpp $(DESTDIR)/lib
+	install -s -m 755 -o root -g wheel cpp $(DESTDIR)/lib

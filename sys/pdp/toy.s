@@ -1,5 +1,6 @@
-/ April 9, 2000 - modified to probe for the TOY clock rather than checking
-/	the cpu type for 93 or 94.
+// January 7, 2020 - ANSI style comments to go with new cpp
+// April 9, 2000 - modified to probe for the TOY clock rather than checking
+//	the cpu type for 93 or 94.
 
 / the notes say that the TOY clock uses 24 hour time, but then later on
 / mention flags dealing with AM/PM...  So, code is present but disabled
@@ -8,8 +9,8 @@
 
 toy24=0
 
-/ extraneous flag bit possible in the day field.  this "should never
-/ happen", but if it does change the 0 to a 1 below.
+// extraneous flag bit possible in the day field.  this "should never
+// happen", but if it does change the 0 to a 1 below.
 
 dayflags=0
 

@@ -17,7 +17,7 @@
  *	RIGHTS, APPROPRIATE COPYRIGHT LEGENDS MAY BE PLACED ON THE
  *	DERIVATIVE WORK IN ADDITION TO THAT SET FORTH ABOVE.
  *
- *	@(#)mch_fpsim.s	1.4 (2.11BSD) 2019/10/11
+ *	@(#)mch_fpsim.s	1.5 (2.11BSD) 2020/1/7
  */
 #include "DEFS.h"
 
@@ -252,7 +252,7 @@ badins:				/ Illegal Instruction
 	mov	$SIGILL,r0
 	br	2b
 segfault:			/ Segmentation Violation
-	mov	uar0,r0		/ Don't update any registers, but
+	mov	uar0,r0		// Don't update any registers, but
 	sub	$2,2.(r0)	/ back up the pc to point to the instruction.
 	mov	$SIGSEGV,r0
 	br	2b
@@ -571,7 +571,7 @@ ffuiword:
 	mov	PS,-(sp)
 	SPLHIGH
 	mov	nofault,-(sp)
-	mov	$ferr2,nofault	/stack isn't in I space, so just bomb out.
+	mov	$ferr2,nofault	//stack isn't in I space, so just bomb out.
 	mfpi	(r1)
 	mov	(sp)+,r0
 	br	2f
@@ -696,7 +696,7 @@ i.tstx:
 	rts	pc
 	/this could be real easy, except that the lousy tstx instruction
 	/ does the fiuv trap AFTER execution, not before. So, since
-	/ normally this instruction doesn't get done until after the rts pc,
+	// normally this instruction doesn't get done until after the rts pc,
 	/ we explicitly do it here.
 2:
 	bit	$2,local(r5)
@@ -823,7 +823,7 @@ i.stx:
 	mov	(r2)+,(r3)+
 	mov	(r2)+,(r3)+
 2:
-	jmp	ret			/ does not set cc's
+	jmp	ret			// does not set cc's
 
 i.cmpx:
 	mov	$areg,r4; add	r5,r4

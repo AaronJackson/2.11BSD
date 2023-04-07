@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)scb.s	1.3 (2.11BSD GTE) 1/1/93
+ *	@(#)scb.s	1.4 (2.11BSD) 2020/1/7
  */
 
 #include "DEFS.h"
@@ -324,8 +324,8 @@ do_panic:
 /*
  * Start of locore interrupt entry thunks.
  */
-#define	HANDLER(handler)	.globl _/**/handler; \
-				handler: jsr r0,call; jmp _/**/handler
+#define	HANDLER(handler)	.globl _ ## handler; \
+				handler: jsr r0,call; jmp _ ## handler
 
 	HANDLER(cnrint)			/* KL-11, DL-11 */
 	HANDLER(cnxint)

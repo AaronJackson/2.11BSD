@@ -4,13 +4,18 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifdef LIBC_SCCS
-	<@(#)bunequal.s 1.2 (Berkeley) 1/8/87\0>
+#if	!defined(lint) && defined(def LIBC_SCCS)
+	<@(#)bunequal.s 1.3 (2.11BSD) 2020/1/7\0>
 	.even
-#endif LIBC_SCCS
+#endif
 
+#ifdef __STDC__
+#define	ENTRY(x)	.globl _ ## x; \
+		_ ## x:
+#else
 #define	ENTRY(x)	.globl _/**/x; \
 		_/**/x:
+#endif
 
 /*
  * This is taken from bcmp.s from 2.10.

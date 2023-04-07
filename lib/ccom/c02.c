@@ -1,6 +1,9 @@
 /*
  * C compiler
  */
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c02.c	2.0 (2.11BSD) 2020/1/7";
+#endif
 
 #include "c0.h"
 
@@ -52,6 +55,11 @@ extdef()
 				outcode("BS", SYMDEF, sclass==EXTERN?ds->name:"");
 				cfunc();
 				return;
+			} else if (peeksym == COMMA || peeksym == SEMI) {
+				/* clear potential named args */
+				blklev++;
+				blkend();
+				paraml = NULL;
 			}
 			if (paraml)
 				error("Inappropriate parameters");
@@ -687,6 +695,7 @@ funchead()
 	register char *st;
 
 	pl = STARG;
+	protokrchk(paraml);
 	while(paraml) {
 		parame->sparent = NULL;
 		cs = paraml;

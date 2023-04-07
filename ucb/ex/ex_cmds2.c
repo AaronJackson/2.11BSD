@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)ex_cmds2.c	7.4 (Berkeley) 6/7/85";
+static char *sccsid = "@(#)ex_cmds2.c	7.5 (2.11BSD) 2020/1/7";
 #endif
 
 #include "ex.h"
@@ -511,7 +511,7 @@ vcontin(ask)
 			 * Gobble ^Q/^S since the tty driver should be eating
 			 * them (as far as the user can see)
 			 */
-			while (peekkey() == CTRL(Q) || peekkey() == CTRL(S))
+			while (peekkey() == CTRL('Q') || peekkey() == CTRL('S'))
 				ignore(getkey());
 #endif
 			if(getkey() == ':') {

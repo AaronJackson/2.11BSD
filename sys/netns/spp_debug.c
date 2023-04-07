@@ -9,7 +9,7 @@
  * software without specific prior written permission. This software
  * is provided ``as is'' without express or implied warranty.
  *
- *      @(#)spp_debug.c	7.4 (Berkeley) 3/12/88
+ *      @(#)spp_debug.c	7.5 (2.11BSD) 2020/1/7
  */
 
 #include "param.h"
@@ -108,7 +108,7 @@ spp_trace(act, ostate, sp, si, req)
 		if (flags) {
 			char *cp = "<";
 #ifndef lint
-#define pf(f) { if (flags&SP_/**/f) { printf("%s%s", cp, "f"); cp = ","; } }
+#define pf(f) { if (flags&SP_ ## f) { printf("%s%s", cp, "f"); cp = ","; } }
 			pf(SP); pf(SA); pf(OB); pf(EM);
 #else
 			cp = cp;
@@ -116,7 +116,7 @@ spp_trace(act, ostate, sp, si, req)
 			printf(">");
 		}
 #ifndef lint
-#define p2(f)  { printf("%s = %x, ", "f", si->si_/**/f); }
+#define p2(f)  { printf("%s = %x, ", "f", si->si_ ## f); }
 		p2(sid);p2(did);p2(dt);p2(pt);
 #endif
 		ns_printhost(&si->si_sna);
@@ -141,7 +141,7 @@ spp_trace(act, ostate, sp, si, req)
 	if (sp == 0)
 		return;
 #ifndef lint
-#define p3(f)  { printf("%s = %x, ", "f", sp->s_/**/f); }
+#define p3(f)  { printf("%s = %x, ", "f", sp->s_ ## f); }
 	printf("\t"); p3(rack);p3(ralo);p3(smax);p3(flags); printf("\n");
 #endif
 #endif
