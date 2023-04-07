@@ -3,7 +3,8 @@
 #	using the Ritchie pass 2
 #
 #	1996/10/25 - 2.11BSD
-#
+#	2020/2/8 - remove unused malloc.c from SRCS
+#		   Add -O to CFLAGS.  "Don't use -O here" was a historical relic
 
 AS=		as -V
 C2=		/lib/c2
@@ -11,11 +12,11 @@ LD=		ld
 STRINGS=	f77_strings
 CFL=		-DTARGET=PDP11 -DFAMILY=DMR -DHERE=PDP11 -DOUTPUT=BINARY \
 		-DPOLISH=POSTFIX -DOVERLAID -DC_OVERLAY
-CFLAGS=		-w ${CFL}		# Don't use -O here.
+CFLAGS=		-O -w ${CFL}
 SEPFLAG= -i
 
 SRCS= 	data.c driver.c equiv.c error.c exec.c expr.c gram.c init.c \
-	intr.c io.c lex.c main.c malloc.c misc.c pdp11.c pdp11x.c \
+	intr.c io.c lex.c main.c misc.c pdp11.c pdp11x.c \
 	proc.c put.c putdmr.c
 
 PASS1OBJECTS=	data.o equiv.o error.o exec.o expr.o gram.o init.o \
