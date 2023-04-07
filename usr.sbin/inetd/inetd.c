@@ -36,8 +36,8 @@ static char copyright[] =
 "@(#) Copyright (c) 1983, 1991, 1993, 1994\n\
 	The Regents of the University of California.  All rights reserved.\n";
 
-static char sccsid[] = "@(#)inetd.c	8.4.1 (2.11BSD) 1996/10/30";
-#endif /* not lint */
+static char sccsid[] = "@(#)inetd.c	8.4.2 (2.11BSD) 2022/9/17";
+#endif
 
 /*
  * Inetd - Internet super-server
@@ -161,7 +161,6 @@ struct	servtab {
 */
 #define	__P(x)	()
 #define	memmove(dst,src,len)	bcopy(src,dst,len)
-#define	SEEK_SET	0	/* L_SET */
 #define	LINE_MAX	1024	/* we don't have this in syslimits.h */
 
 void		chargen_dg __P((int, struct servtab *));

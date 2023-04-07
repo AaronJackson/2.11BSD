@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	4.19.2 (2.11BSD) 1997/8/28
+#	@(#)Makefile	4.19.3 (2.11BSD) 2022/9/17
 #
 # The system has two monitoring schemes, utilizing either ``prof''
 # or ``gprof''. DFLMON determines the default profiler; mon.o
@@ -81,6 +81,7 @@ ${MACHINE}/csu ${ALL} net/${HOSTLOOKUP}: FRC
 	cd $@; make ${MFLAGS} DEFS=${DEFS}
 
 FRC:
+	@sleep 1
 
 install: libc.a libc_p.a
 	${INSTALL} libc.a ${DESTDIR}/lib/libc.a

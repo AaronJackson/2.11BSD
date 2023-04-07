@@ -14,9 +14,9 @@
 %right	'^'
 
 %{
-#ifndef lint
-static char sccsid[] = "@(#)beauty.y	4.1	(Berkeley)	2/11/83";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)beauty.y	4.2	(2.11BSD)	2022/9/17";
+#endif
 
 #include "b.h"
 #include <stdio.h>
@@ -129,7 +129,7 @@ oppred:	pred
 	|
 	;
 
-pred:	'(' expr ')'	=	{ t = checkneg($2,0);
+pred:	'(' expr ')'	=	{ t = (struct node *)checkneg($2,0);
 				yield(t,100);  freetree(t);	};
 
 expr:		'(' expr ')'	=	$$ = $2;
@@ -302,10 +302,10 @@ char *token;
 #define MID	1
 #define CONT	2
 
-	if (buffer == 0)
+	if (buffer == NULL)
 		{
-		buffer = malloc(xxmaxchars);
-		if (buffer == 0) error("malloc out of space","","");
+		buffer = (char *)malloc(xxmaxchars);
+		if (buffer == NULL) error("malloc out of space","","");
 		}
 	tlen = slength(token);
 	if (tlen == 0) return;

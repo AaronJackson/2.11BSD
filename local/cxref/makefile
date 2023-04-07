@@ -25,7 +25,7 @@ DOCS=  README makefile cxref.1
 PRINTS= $(INCLS) $(SRCS) $(DOCS)
 
 CFLAGS= -O
-LFLAGS= -i
+LFLAGS=
 
 ### system dependant definitions, change when you install cxref
 

@@ -1,8 +1,8 @@
 %{
 
-#ifndef lint
-static char sccsid[] = "@(#)lextab.l	4.1	(Berkeley)	2/11/83";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)lextab.l	4.2	(2.11BSD)	2022/9/17";
+#endif
 
 #include "y.tab.h"
 #include "b.h"
@@ -37,7 +37,7 @@ char *xxp;
 [=/,(]{D}+[h]			{
 				blflag = 1;
 				sscanf(&yytext[1],"%d",&xxn);
-				xxtbuff = malloc(2*xxn+3);
+				xxtbuff = (char *)malloc(2*xxn+3);
 				for (xxj = xxk = 1; xxj <= xxn; ++xxj)
 					{
 					xxtbuff[xxk] = ninput();
@@ -97,9 +97,9 @@ END			{fixval(); xxbp = -1; return(xxend); }
 \"([^"]|\"\")*\"		{fixval(); xxbp = -1; return(xxstring); }
 '([^']|'')*'				{
 					fixval();
-					xxp = yylval;
+					xxp = (char *)yylval;
 					xxn = slength(xxp);
-					xxtbuff = malloc(2*xxn+1);
+					xxtbuff = (char *)malloc(2*xxn+1);
 					xxtbuff[0] = '"';
 					for (xxj = xxk = 1; xxj < xxn-1; ++xxj)
 						{
@@ -116,7 +116,7 @@ END			{fixval(); xxbp = -1; return(xxend); }
 					xxtbuff[xxk++] = '"';
 					xxtbuff[xxk] = '\0';
 					free(xxp);
-					yylval = xxtbuff;
+					yylval = (int)xxtbuff;
 					xxbp = -1;
 					return(xxstring);
 					}
