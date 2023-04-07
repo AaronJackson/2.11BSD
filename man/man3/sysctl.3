@@ -29,9 +29,9 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\"	@(#)sysctl.3	8.1.1 (2.11BSD GTE) 1/13/95
+.\"	@(#)sysctl.3	8.1.2 (2.11BSD) 2020/3/2
 .\"
-.TH SYSCTL 3 "January 13, 1995"
+.TH SYSCTL 3 "March 2, 2020"
 .UC 4
 .SH NAME
 sysctl \- get or set system information
@@ -836,8 +836,9 @@ privilege may change the value.
 	Second level name	Type	Changeable
 	VM\_LOADAVG	struct loadavg	no
 	VM\_METER	struct vmtotal	no
-	VM\_SWAPMAP	struct map	no
-	VM\_COREMAP	struct map	no
+	VM\_SWAPMAP	struct mapent	no
+	VM\_COREMAP	struct mapent	no
+	VM\_NSWAP	int		no
 .fi
 .PP
 VM_LOADAVG
@@ -870,7 +871,15 @@ VM_COREMAP
 .in +.5i
 Same as for swapmap above except that the core allocation map is
 returned.
+.br
 .in -.5i
+.sp
+VM_NSWAP
+.br
+.in +.5i
+Return the number of sectors of swap space.  This is the value of the kernel
+variable 'nswap'.
+.br
 .SH RETURN VALUES
 If the call to
 \fBsysctl\fP
