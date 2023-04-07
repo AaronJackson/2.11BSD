@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)n8.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n8.c	4.2 (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
 
@@ -13,15 +13,15 @@ hyphenation
 char hbuf[NHEX];
 char *nexth = hbuf;
 int *hyend;
-extern int *wdstart, *wdend;
-extern int *hyptr[];
 extern int **hyp;
-extern int hyoff;
 extern int noscale;
 extern int xxx;
 #define THRESH 160 /*digram goodness threshold*/
 int thresh = THRESH;
 
+void digram(void);
+
+void
 hyphen(wp)
 int *wp;
 {
@@ -32,25 +32,25 @@ int *wp;
 		;
 	if (!alph(*--i))
 		return;
-	wdstart = i++;
+	eblk.wdstart = i++;
 	while(alph(*i++))
 		;
-	hyend = wdend = --i-1;
+	hyend = eblk.wdend = --i-1;
 	while(punct(*i++))
 		;
 	if (*--i)
 		return;
-	if ((wdend-wdstart-4) < 0)
+	if ((eblk.wdend-eblk.wdstart-4) < 0)
 		return;
-	hyp = hyptr;
+	hyp = eblk.hyptr;
 	*hyp = 0;
-	hyoff = 2;
+	eblk.hyoff = 2;
 	if (!exword() && !suffix())
 		digram();
 	*hyp++ = 0;
-	if (*hyptr) for(j = 1; j;) {
+	if (*eblk.hyptr) for(j = 1; j;) {
 		j = 0;
-		for(hyp = hyptr+1; *hyp != 0; hyp++) {
+		for(hyp = eblk.hyptr+1; *hyp != 0; hyp++) {
 			if (*(hyp-1) > *hyp) {
 				j++;
 				i = *hyp;
@@ -82,16 +82,18 @@ int i;
 		return(0);
 }
 
+void
 caseht()
 {
 	thresh = THRESH;
 	if (skip())
 		return;
 	noscale++;
-	thresh = atoi();
+	thresh = atoix();
 	noscale = 0;
 }
 
+void
 casehw()
 {
 	register i, k;
@@ -125,7 +127,7 @@ casehw()
 	}
 	return;
 full:
-	prstr("Exception word list full.\n");
+	warnx("Exception word list full.");
 	*nexth = 0;
 }
 
@@ -139,17 +141,17 @@ exword()
 	while(1) {
 		save = e;
 		if (*e == 0)return(0);
-		w = wdstart;
+		w = eblk.wdstart;
 		while((*e && (w <= hyend)) &&
 		      ((*e & 0177) == maplow(*w & CMASK))) {e++; w++;};
 		if (!*e) {
 			if (((w-1) == hyend) ||
-			   ((w == wdend) && (maplow(*w & CMASK) == 's'))) {
-				w = wdstart;
+			   ((w == eblk.wdend) && (maplow(*w & CMASK) == 's'))) {
+				w = eblk.wdstart;
 				for(e = save; *e; e++) {
 					if (*e & 0200)*hyp++ = w;
-					if (hyp > (hyptr+NHYP-1))
-						hyp = hyptr+NHYP-1;
+					if (hyp > (eblk.hyptr+NHYP-1))
+						hyp = eblk.hyptr+NHYP-1;
 					w++;
 				}
 				return(1);
@@ -178,7 +180,7 @@ again:
 			return(0);
 		s = s0 + i - 1;
 		w = hyend - 1;
-		while(((s > s0) && (w >= wdstart)) &&
+		while(((s > s0) && (w >= eblk.wdstart)) &&
 		   ((*s & 0177) == maplow(*w))) {
 			s--;
 			w--;
@@ -235,10 +237,11 @@ int i;
 int *chkvow(w)
 int *w;
 {
-	while(--w >= wdstart)if(vowel(*w & CMASK))return(w);
+	while(--w >= eblk.wdstart)if(vowel(*w & CMASK))return(w);
 	return(0);
 }
 
+void
 digram() {
 	register *w, val;
 	int *nhyend, *maxw, maxval;
@@ -251,10 +254,10 @@ again:
 	nhyend = w;
 	maxval = 0;
 	w--;
-	while((++w < hyend) && (w < (wdend-1))) {
+	while((++w < hyend) && (w < (eblk.wdend-1))) {
 		val = 1;
-		if (w == wdstart)val *= dilook('a',*w,bxh);
-		else if(w == wdstart+1)val *= dilook(*(w-1),*w,bxxh);
+		if (w == eblk.wdstart)val *= dilook('a',*w,bxh);
+		else if(w == eblk.wdstart+1)val *= dilook(*(w-1),*w,bxxh);
 		else val *= dilook(*(w-1),*w,xxh);
 		val *= dilook(*w, *(w+1), xhx);
 		val *= dilook(*(w+1), *(w+2), hxx);

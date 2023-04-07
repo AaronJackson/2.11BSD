@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)n7.c	4.3 1/5/88";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n7.c	4.4 (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
 extern
@@ -8,7 +8,6 @@ extern
 extern
 #include "v.h"
 #ifdef NROFF
-extern
 #include "tw.h"
 #endif
 #include "sdef.h"
@@ -38,208 +37,166 @@ extern int nflush;
 extern int ejf;
 extern int ascii;
 extern int donef;
-extern int nc;
-extern int wch;
 extern int dpn;
 extern int ndone;
-extern int lss;
 extern int pto;
 extern int pfrom;
 extern int print;
 extern int nlist[NTRAP];
 extern int mlist[NTRAP];
 extern int *pnp;
-extern int nb;
-extern int ic;
-extern int icf;
-extern int ics;
-extern int ne;
-extern int ll;
-extern int un;
-extern int un1;
-extern int in;
-extern int ls;
-extern int spread;
 extern int totout;
-extern int nwd;
-extern int *pendw;
-extern int *linep;
-extern int line[];
-extern int lastl;
 extern int ch;
-extern int ce;
-extern int fi;
 extern int nlflg;
-extern int pendt;
-extern int sps;
-extern int adsp;
-extern int pendnf;
 extern int over;
-extern int adrem;
-extern int nel;
-extern int ad;
-extern int ohc;
-extern int hyoff;
 extern int nhyp;
-extern int spflg;
-extern int word[];
-extern int *wordp;
-extern int wne;
-extern int chbits;
 extern int cwidth;
 extern int widthp;
-extern int hyf;
 extern int xbitf;
 extern int vflag;
-extern int ul;
-extern int cu;
-extern int font;
 extern int sfont;
-extern int it;
-extern int itmac;
-extern int *hyptr[NHYP];
 extern int **hyp;
-extern int *wdstart, *wdend;
-extern int lnmod;
-extern int admod;
-extern int nn;
-extern int nms;
-extern int ndf;
-extern int ni;
 extern int nform;
-extern int lnsize;
 extern int po;
 extern int ulbit;
 extern int *vlist;
 extern int nrbits;
-extern int nmbits;
 extern char trtab[];
 extern int xxx;
 int brflg;
 
+static void donum(void);
+static void nofill(void);
+static void storeline(int, int);
+void storeword(int,int);
+
+void
 tbreak(){
 	register *i, j, pad;
 	int res;
 
 	trap = 0;
-	if(nb)return;
+	if(eblk.nb)return;
 	if((dip == d) && (v.nl == -1)){
 		newline(1);
 		return;
 	}
-	if(!nc){
+	if(!eblk.nc){
 		setnel();
-		if(!wch)return;
-		if(pendw)getword(1);
+		if(!eblk.wch)return;
+		if(eblk.pendw)getword(1);
 		movword();
-	}else if(pendw && !brflg){
+	}else if(eblk.pendw && !brflg){
 		getword(1);
 		movword();
 	}
-	*linep = dip->nls = 0;
+	*eblk.linep = dip->nls = 0;
 #ifdef NROFF
 	if(dip == d)horiz(po);
 #endif
-	if(lnmod)donum();
-	lastl = ne;
+	if(eblk.lnmod)donum();
+	eblk.lastl = eblk.ne;
 	if(brflg != 1){
 		totout = 0;
-	}else if(ad){
-		if((lastl = (ll - un)) < ne)lastl = ne;
+	}else if(eblk.ad){
+		if((eblk.lastl = (eblk.ll - eblk.un)) < eblk.ne)eblk.lastl = eblk.ne;
 	}
-	if(admod && ad && (brflg != 2)){
-		lastl = ne;
-		adsp = adrem = 0;
+	if(eblk.admod && eblk.ad && (brflg != 2)){
+		eblk.lastl = eblk.ne;
+		eblk.adsp = eblk.adrem = 0;
 #ifdef NROFF
-		if(admod == 1)un +=  quant(nel/2,t.Adj);
+		if(eblk.admod == 1)eblk.un +=  quant(eblk.nel/2,t.Adj);
 #endif
 #ifndef NROFF
-		if(admod == 1)un += nel/2;
+		if(eblk.admod == 1)eblk.un += eblk.nel/2;
 #endif
-		else if(admod ==2)un += nel;
+		else if(eblk.admod ==2)eblk.un += eblk.nel;
 	}
 	totout++;
 	brflg = 0;
-	if((lastl+un) > dip->maxl)dip->maxl = (lastl+un);
-	horiz(un);
+	if((eblk.lastl+eblk.un) > dip->maxl)dip->maxl = (eblk.lastl+eblk.un);
+	horiz(eblk.un);
 #ifdef NROFF
-	if(adrem%t.Adj)res = t.Hor; else res = t.Adj;
+	if(eblk.adrem%t.Adj)res = t.Hor; else res = t.Adj;
 #endif
-	for(i = line;nc > 0;){
+	for(i = eblk.line;eblk.nc > 0;){
 		if(((j = *i++) & CMASK) == ' '){
 			pad = 0;
 			do{
 				pad += width(j);
-				nc--;
+				eblk.nc--;
 			  }while(((j = *i++) & CMASK) == ' ');
 			i--;
-			pad += adsp;
-			--nwd;
-			if(adrem){
-				if(adrem < 0){
+			pad += eblk.adsp;
+			--eblk.nwd;
+			if(eblk.adrem){
+				if(eblk.adrem < 0){
 #ifdef NROFF
 					pad -= res;
-					adrem += res;
+					eblk.adrem += res;
 				}else if((totout&01) ||
-					((adrem/res)>=(nwd))){
+					((eblk.adrem/res)>=(eblk.nwd))){
 					pad += res;
-					adrem -= res;
+					eblk.adrem -= res;
 #endif
 #ifndef NROFF
 					pad--;
-					adrem++;
+					eblk.adrem++;
 				}else{
 					pad++;
-					adrem--;
+					eblk.adrem--;
 #endif
 				}
 			}
 			horiz(pad);
 		}else{
 			pchar(j);
-			nc--;
+			eblk.nc--;
 		}
 	}
-	if(ic){
-		if((j = ll - un - lastl + ics) > 0)horiz(j);
-		pchar(ic);
+	if(eblk.ic){
+		if((j = eblk.ll - eblk.un - eblk.lastl + eblk.ics) > 0)horiz(j);
+		pchar(eblk.ic);
 	}
-	if(icf)icf++;
-		else ic = 0;
-	ne = nwd = 0;
-	un = in;
+	if(eblk.icf)eblk.icf++;
+		else eblk.ic = 0;
+	eblk.ne = eblk.nwd = 0;
+	eblk.un = eblk.in;
 	setnel();
 	newline(0);
 	if(dip != d){if(dip->dnl > dip->hnl)dip->hnl = dip->dnl;}
 	else{if(v.nl > dip->hnl)dip->hnl = v.nl;}
-	for(j=ls-1; (j >0) && !trap; j--)newline(0);
-	spread = 0;
+	for(j=eblk.ls-1; (j >0) && !trap; j--)newline(0);
+	eblk.spread = 0;
 }
+
+static void
 donum(){
 	register i, nw;
-	extern pchar();
 
-	nrbits = nmbits;
+	nrbits = eblk.nmbits;
 	nw = width('1' | nrbits);
-	if(nn){
-		nn--;
+	if(eblk.nn){
+		eblk.nn--;
 		goto d1;
 	}
-	if(v.ln%ndf){
+	if(v.ln%eblk.ndf){
 		v.ln++;
 	d1:
-		un += nw*(3+nms+ni);
+		eblk.un += nw*(3+eblk.nms+eblk.ni);
 		return;
 	}
 	i = 0;
 	if(v.ln<100)i++;
 	if(v.ln<10)i++;
-	horiz(nw*(ni+i));
+	horiz(nw*(eblk.ni+i));
 	nform = 0;
 	fnumb(v.ln,pchar);
-	un += nw*nms;
+	eblk.un += nw*eblk.nms;
 	v.ln++;
 }
+
+void
 text(){
 	register i;
 	static int spcnt;
@@ -247,18 +204,18 @@ text(){
 	nflush++;
 	if((dip == d) && (v.nl == -1)){newline(1); return;}
 	setnel();
-	if(ce || !fi){
+	if(eblk.ce || !eblk.fi){
 		nofill();
 		return;
 	}
-	if(pendw)goto t4;
-	if(pendt)if(spcnt)goto t2; else goto t3;
-	pendt++;
+	if(eblk.pendw)goto t4;
+	if(eblk.pendt){ if(spcnt)goto t2; else goto t3; }
+	eblk.pendt++;
 	if(spcnt)goto t2;
 	while(((i = GETCH()) & CMASK) == ' ')spcnt++;
 	if(nlflg){
 	t1:
-		nflush = pendt = ch = spcnt = 0;
+		nflush = eblk.pendt = ch = spcnt = 0;
 		callsp();
 		return;
 	}
@@ -266,44 +223,46 @@ text(){
 	if(spcnt){
 	t2:
 		tbreak();
-		if(nc || wch)goto rtn;
-		un += spcnt*sps;
+		if(eblk.nc || eblk.wch)goto rtn;
+		eblk.un += spcnt*eblk.sps;
 		spcnt = 0;
 		setnel();
 		if(trap)goto rtn;
 		if(nlflg)goto t1;
 	}
 t3:
-	if(spread)goto t5;
-	if(pendw || !wch)
+	if(eblk.spread)goto t5;
+	if(eblk.pendw || !eblk.wch)
 	t4:
 		if(getword(0))goto t6;
 	if(!movword())goto t3;
 t5:
-	if(nlflg)pendt = 0;
-	adsp = adrem = 0;
-	if(ad){
-/* jfr */	if (nwd==1) adsp=nel; else adsp=nel/(nwd-1);
+	if(nlflg)eblk.pendt = 0;
+	eblk.adsp = eblk.adrem = 0;
+	if(eblk.ad){
+/* jfr */	if (eblk.nwd==1) eblk.adsp=eblk.nel; else eblk.adsp=eblk.nel/(eblk.nwd-1);
 #ifdef NROFF
-		adsp = (adsp/t.Adj)*t.Adj;
+		eblk.adsp = (eblk.adsp/t.Adj)*t.Adj;
 #endif
-		adrem = nel - adsp*(nwd-1);
+		eblk.adrem = eblk.nel - eblk.adsp*(eblk.nwd-1);
 	}
 	brflg = 1;
 	tbreak();
-	spread = 0;
+	eblk.spread = 0;
 	if(!trap)goto t3;
 	if(!nlflg)goto rtn;
 t6:
-	pendt = 0;
+	eblk.pendt = 0;
 	ckul();
 rtn:
 	nflush = 0;
 }
+
+static void
 nofill(){
 	register i, j;
 
-	if(!pendnf){
+	if(!eblk.pendnf){
 		over = 0;
 		tbreak();
 		if(trap)goto rtn;
@@ -312,13 +271,13 @@ nofill(){
 			callsp();
 			return;
 		}
-		adsp = adrem = 0;
-		nwd = 10000;
+		eblk.adsp = eblk.adrem = 0;
+		eblk.nwd = 10000;
 	}
 	while((j = ((i = GETCH()) & CMASK)) != '\n'){
-		if(j == ohc)continue;
+		if(j == eblk.ohc)continue;
 		if(j == CONT){
-			pendnf++;
+			eblk.pendnf++;
 			nflush = 0;
 			flushi();
 			ckul();
@@ -326,42 +285,44 @@ nofill(){
 		}
 		storeline(i,-1);
 	}
-	if(ce){
-		ce--;
-		if((i=quant(nel/2,HOR)) > 0)un += i;
+	if(eblk.ce){
+		eblk.ce--;
+		if((i=quant(eblk.nel/2,HOR)) > 0)eblk.un += i;
 	}
-	if(!nc)storeline(FILLER,0);
+	if(!eblk.nc)storeline(FILLER,0);
 	brflg = 2;
 	tbreak();
 	ckul();
 rtn:
-	pendnf = nflush = 0;
+	eblk.pendnf = nflush = 0;
 }
 callsp(){
 	register i;
 
-	if(flss)i = flss; else i = lss;
+	if(flss)i = flss; else i = eblk.lss;
 	flss = 0;
-	casesp(i);
+	casespx(i);
 }
 ckul(){
-	if(ul && (--ul == 0)){
-			cu = 0;
-			font = sfont;
+	if(eblk.ul && (--eblk.ul == 0)){
+			eblk.cu = 0;
+			eblk.font = sfont;
 			mchbits();
 	}
-	if(it && (--it == 0) && itmac)control(itmac,0);
+	if(eblk.it && (--eblk.it == 0) && eblk.itmac)control(eblk.itmac,0);
 }
+
+static void
 storeline(c,w){
 	register i;
 
 	if((c & CMASK) == JREG){
-		if((i=findr(c>>BYTE)) != -1)vlist[i] = ne;
+		if((i=findr(c>>BYTE)) != -1)vlist[i] = eblk.ne;
 		return;
 	}
-	if(linep >= (line + lnsize - 1)){
+	if(eblk.linep >= (eblk.line + eblk.lnsize - 1)){
 		if(!over){
-			prstrfl("Line overflow.\n");
+			warnx("Line overflow.");
 			over++;
 		c = 0343;
 		w = -1;
@@ -371,15 +332,17 @@ storeline(c,w){
 	}
 s1:
 	if(w == -1)w = width(c);
-	ne += w;
-	nel -= w;
+	eblk.ne += w;
+	eblk.nel -= w;
 /*
- *	if( cu && !(c & MOT) && (trtab[(c & CMASK)] == ' '))
+ *	if( eblk.cu && !(c & MOT) && (trtab[(c & CMASK)] == ' '))
  *		c = ((c & ~ulbit) & ~CMASK) | '_';
  */
-	*linep++ = c;
-	nc++;
+	*eblk.linep++ = c;
+	eblk.nc++;
 }
+
+void
 newline(a)
 int a;
 {
@@ -388,14 +351,14 @@ int a;
 
 	if(a)goto nl1;
 	if(dip != d){
-		j = lss;
+		j = eblk.lss;
 		pchar1(FLSS);
-		if(flss)lss = flss;
-		i = lss + dip->blss;
+		if(flss)eblk.lss = flss;
+		i = eblk.lss + dip->blss;
 		dip->dnl += i;
 		pchar1(i);
 		pchar1('\n');
-		lss = j;
+		eblk.lss = j;
 		dip->blss = flss = 0;
 		if(dip->alss){
 			pchar1(FLSS);
@@ -409,22 +372,22 @@ int a;
 			if(control(dip->dimac,0)){trap++; dip->ditf++;}
 		return;
 	}
-	j = lss;
-	if(flss)lss = flss;
-	nlss = dip->alss + dip->blss + lss;
+	j = eblk.lss;
+	if(flss)eblk.lss = flss;
+	nlss = dip->alss + dip->blss + eblk.lss;
 	v.nl += nlss;
 #ifndef NROFF
 	if(ascii){dip->alss = dip->blss = 0;}
 #endif
 	pchar1('\n');
 	flss = 0;
-	lss = j;
+	eblk.lss = j;
 	if(v.nl < pl)goto nl2;
 nl1:
 	ejf = dip->hnl = v.nl = 0;
 	ejl = frame;
 	if(donef == 1){
-		if((!nc && !wch) || ndone)done1(0);
+		if((!eblk.nc && !eblk.wch) || ndone)done1(0);
 		ndone++;
 		donef = 0;
 		if(frame == stk)nflush++;
@@ -459,7 +422,7 @@ nl2:
 			trap = control(mlist[j],0);
 	} else if((i = findt(v.nl-nlss)) <= nlss){
 		if((j = findn1(v.nl-nlss+i)) == NTRAP){
-			prstrfl("Trap botch.\n");
+			warnx("Trap botch.");
 			done2(-5);
 		}
 		trap = control(mlist[j],0);
@@ -482,7 +445,6 @@ chkpn(){
 	pto = *(pnp++);
 	pfrom = pto & ~MOT;
 	if(pto == -1){
-		flusho();
 		done1(0);
 	}
 	if(pto & MOT){
@@ -519,8 +481,9 @@ findt1(){
 		else i = v.nl;
 	return(findt(i));
 }
-eject(a)
-struct s *a;
+
+void
+eject(struct s *a)
 {
 	register savlss;
 
@@ -530,10 +493,10 @@ struct s *a;
 		else ejl = frame;
 	if(trap)return;
 e1:
-	savlss = lss;
-	lss = findt(v.nl);
+	savlss = eblk.lss;
+	eblk.lss = findt(v.nl);
 	newline(0);
-	lss = savlss;
+	eblk.lss = savlss;
 	if(v.nl && !trap)goto e1;
 }
 movword(){
@@ -541,31 +504,31 @@ movword(){
 	int savwch, hys;
 
 	over = 0;
-	wp = wordp;
-	if(!nwd){
+	wp = eblk.wordp;
+	if(!eblk.nwd){
 		while(((i = *wp++) & CMASK) == ' '){
-			wch--;
-			wne -= width(i);
+			eblk.wch--;
+			eblk.wne -= width(i);
 		}
 		wp--;
 	}
-	if((wne > nel) &&
-	   !hyoff && hyf &&
-	   (!nwd || (nel > 3*sps)) &&
-	   (!(hyf & 02) || (findt1() > lss))
+	if((eblk.wne > eblk.nel) &&
+	   !eblk.hyoff && eblk.hyf &&
+	   (!eblk.nwd || (eblk.nel > 3*eblk.sps)) &&
+	   (!(eblk.hyf & 02) || (findt1() > eblk.lss))
 	  )hyphen(wp);
-	savwch = wch;
-	hyp = hyptr;
+	savwch = eblk.wch;
+	hyp = eblk.hyptr;
 	nhyp = 0;
 	while(*hyp && (*hyp <= wp))hyp++;
-	while(wch){
-		if((hyoff != 1) && (*hyp == wp)){
+	while(eblk.wch){
+		if((eblk.hyoff != 1) && (*hyp == wp)){
 			hyp++;
-			if(!wdstart ||
-			   ((wp > (wdstart+1)) &&
-			    (wp < wdend) &&
-			    (!(hyf & 04) || (wp < (wdend-1))) &&
-			    (!(hyf & 010) || (wp > (wdstart+2)))
+			if(!eblk.wdstart ||
+			   ((wp > (eblk.wdstart+1)) &&
+			    (wp < eblk.wdend) &&
+			    (!(eblk.hyf & 04) || (wp < (eblk.wdend-1))) &&
+			    (!(eblk.hyf & 010) || (wp > (eblk.wdstart+2)))
 			   )
 			  ){
 				nhyp++;
@@ -574,53 +537,53 @@ movword(){
 		}
 		i = *wp++;
 		w = width(i);
-		wne -= w;
-		wch--;
+		eblk.wne -= w;
+		eblk.wch--;
 		storeline(i,w);
 	}
-	if(nel >= 0){
-		nwd++;
+	if(eblk.nel >= 0){
+		eblk.nwd++;
 		return(0);
 	}
 	xbitf = 1;
 	hys = width(0200); /*hyphen*/
 m1:
 	if(!nhyp){
-		if(!nwd)goto m3;
-		if(wch == savwch)goto m4;
+		if(!eblk.nwd)goto m3;
+		if(eblk.wch == savwch)goto m4;
 	}
-	if(*--linep != IMP)goto m5;
+	if(*--eblk.linep != IMP)goto m5;
 	if(!(--nhyp))
-		if(!nwd)goto m2;
-	if(nel < hys){
-		nc--;
+		if(!eblk.nwd)goto m2;
+	if(eblk.nel < hys){
+		eblk.nc--;
 		goto m1;
 	}
 m2:
-	if(((i = *(linep-1) & CMASK) != '-') &&
+	if(((i = *(eblk.linep-1) & CMASK) != '-') &&
 	   (i != 0203)
 	  ){
-	*linep = (*(linep-1) & ~CMASK) | 0200;
-	w = width(*linep);
-	nel -= w;
-	ne += w;
-	linep++;
+	*eblk.linep = (*(eblk.linep-1) & ~CMASK) | 0200;
+	w = width(*eblk.linep);
+	eblk.nel -= w;
+	eblk.ne += w;
+	eblk.linep++;
 /*
 	hsend();
 */
 	}
 m3:
-	nwd++;
+	eblk.nwd++;
 m4:
-	wordp = wp;
+	eblk.wordp = wp;
 	return(1);
 m5:
-	nc--;
-	w = width(*linep);
-	ne -= w;
-	nel += w;
-	wne += w;
-	wch++;
+	eblk.nc--;
+	w = width(*eblk.linep);
+	eblk.ne -= w;
+	eblk.nel += w;
+	eblk.wne += w;
+	eblk.wch++;
 	wp--;
 	goto m1;
 }
@@ -631,14 +594,14 @@ int i;
 	if(i)pchar(makem(i));
 }
 setnel(){
-	if(!nc){
-		linep = line;
-		if(un1 >= 0){
-			un = un1;
-			un1 = -1;
+	if(!eblk.nc){
+		eblk.linep = eblk.line;
+		if(eblk.un1 >= 0){
+			eblk.un = eblk.un1;
+			eblk.un1 = -1;
 		}
-		nel = ll - un;
-		ne = adsp = adrem = 0;
+		eblk.nel = eblk.ll - eblk.un;
+		eblk.ne = eblk.adsp = eblk.adrem = 0;
 	}
 }
 getword(x)
@@ -648,24 +611,24 @@ int x;
 	int noword;
 
 	noword = 0;
-	if(x)if(pendw){
-		*pendw = 0;
+	if(x)if(eblk.pendw){
+		*eblk.pendw = 0;
 		goto rtn;
 	}
-	if(wordp = pendw)goto g1;
-	hyp = hyptr;
-	wordp = word;
-	over = wne = wch = 0;
-	hyoff = 0;
+	if ((eblk.wordp = eblk.pendw)) goto g1;
+	hyp = eblk.hyptr;
+	eblk.wordp = eblk.word;
+	over = eblk.wne = eblk.wch = 0;
+	eblk.hyoff = 0;
 	while(1){
 		j = (i = GETCH()) & CMASK;
 		if(j == '\n'){
-			wne = wch = 0;
+			eblk.wne = eblk.wch = 0;
 			noword = 1;
 			goto rtn;
 		}
-		if(j == ohc){
-			hyoff = 1;
+		if(j == eblk.ohc){
+			eblk.hyoff = 1;
 			continue;
 		}
 		if(j == ' '){
@@ -675,32 +638,32 @@ int x;
 		break;
 	}
 	swp = widthp;
-	storeword(' ' | chbits, -1);
-	if(spflg){
-		storeword(' ' | chbits, -1);
-		spflg = 0;
+	storeword(' ' | eblk.chbits, -1);
+	if(eblk.spflg){
+		storeword(' ' | eblk.chbits, -1);
+		eblk.spflg = 0;
 	}
 	widthp = swp;
 g0:
 	if(j == CONT){
-		pendw = wordp;
+		eblk.pendw = eblk.wordp;
 		nflush = 0;
 		flushi();
 		return(1);
 	}
-	if(hyoff != 1){
-		if(j == ohc){
-			hyoff = 2;
-			*hyp++ = wordp;
-			if(hyp > (hyptr+NHYP-1))hyp = hyptr+NHYP-1;
+	if(eblk.hyoff != 1){
+		if(j == eblk.ohc){
+			eblk.hyoff = 2;
+			*hyp++ = eblk.wordp;
+			if(hyp > (eblk.hyptr+NHYP-1))hyp = eblk.hyptr+NHYP-1;
 			goto g1;
 		}
 		if((j == '-') ||
 		   (j == 0203) /*3/4 Em dash*/
-		  )if(wordp > word+1){
-			hyoff = 2;
-			*hyp++ = wordp + 1;
-			if(hyp > (hyptr+NHYP-1))hyp = hyptr+NHYP-1;
+		  )if(eblk.wordp > eblk.word+1){
+			eblk.hyoff = 2;
+			*hyp++ = eblk.wordp + 1;
+			if(hyp > (eblk.hyptr+NHYP-1))hyp = eblk.hyptr+NHYP-1;
 		}
 	}
 	storeword(i,width(i));	/* XXX */
@@ -708,27 +671,29 @@ g1:
 	j = (i = GETCH()) & CMASK;
 	if(j != ' '){
 		if(j != '\n')goto g0;
-		j = *(wordp-1) & CMASK;
+		j = *(eblk.wordp-1) & CMASK;
 		if((j == '.') ||
 		   (j == '!') ||
-		   (j == '?'))spflg++;
+		   (j == '?'))eblk.spflg++;
 	}
-	*wordp = 0;
+	*eblk.wordp = 0;
 rtn:
-	wdstart = 0;
-	wordp = word;
-	pendw = 0;
+	eblk.wdstart = 0;
+	eblk.wordp = eblk.word;
+	eblk.pendw = 0;
 	*hyp++ = 0;
 	setnel();
 	return(noword);
 }
+
+void
 storeword(c,w)
 int c, w;
 {
 
-	if(wordp >= &word[WDSIZE - 1]){
+	if(eblk.wordp >= &eblk.word[WDSIZE - 1]){
 		if(!over){
-			prstrfl("Word overflow.\n");
+			warnx("Word overflow.");
 			over++;
 			c = 0343;
 			w = -1;
@@ -738,9 +703,9 @@ int c, w;
 	}
 s1:
 	if(w == -1)w = width(c);
-	wne += w;
-	*wordp++ = c;
-	wch++;
+	eblk.wne += w;
+	*eblk.wordp++ = c;
+	eblk.wch++;
 }
 #ifdef NROFF
 extern char trtab[];
@@ -749,9 +714,9 @@ gettch(){
 
 	if(!((i = getch()) & MOT) && (i & ulbit)){
 		j = i&CMASK;
-		if(cu && (trtab[j] == ' '))
+		if(eblk.cu && (trtab[j] == ' '))
 			i = ((i & ~ulbit)& ~CMASK) | '_';
-		if(!cu && (j>32) && (j<0370) && !(*t.codetab[j-32] & 0200))
+		if(!eblk.cu && (j>32) && (j<0370) && !(*t.codetab[j-32] & 0200))
 			i &= ~ulbit;
 	}
 	return(i);

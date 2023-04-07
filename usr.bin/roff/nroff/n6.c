@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)n6.c	4.2 11/26/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n6.c	4.3 (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
 extern
@@ -8,7 +8,6 @@ extern
 extern
 #include "v.h"
 #ifdef NROFF
-extern
 #include "tw.h"
 #endif
 
@@ -21,24 +20,16 @@ width functions, sizes and fonts
 extern  int     inchar[LNSIZE], *pinchar;       /* XXX */
 extern int eschar;
 extern int widthp;
-extern int ohc;
 extern int xfont;
 extern int smnt;
 extern int setwdf;
 extern char trtab[];
-extern int chbits;
 extern int nonumb;
 extern int noscale;
-extern int font;
-extern int font1;
-extern int pts;
-extern int sps;
 extern int nlflg;
 extern int nform;
 extern int dfact;
 extern int dfactd;
-extern int lss;
-extern int lss1;
 extern int vflag;
 extern int ch0;
 extern int level;
@@ -65,7 +56,7 @@ int c;
 		goto rtn;
 	}
 	if(i == PRESC)i = eschar;
-	if((i == ohc) ||
+	if((i == eblk.ohc) ||
 	   (i >= 0370))goto rtn;
 	if(j & ZBIT)goto rtn;
 	i = trtab[i] & BMASK;
@@ -84,7 +75,7 @@ setch(){
 
 	if((i = getrq()) == 0)return(0);
 	for(j=chtab;*j != i;j++)if(*(j++) == 0)return(0);
-	k = *(++j) | chbits;
+	k = *(++j) | eblk.chbits;
 	return(k);
 }
 find(i,j)
@@ -97,9 +88,10 @@ int i,j[];
 	return(k);
 }
 mchbits(){
-	chbits = (((pts)<<2) | font) << (BYTE + 1);
-	sps = width(' ' | chbits);
+	eblk.chbits = (((eblk.pts)<<2) | eblk.font) << (BYTE + 1);
+	eblk.sps = width(' ' | eblk.chbits);
 }
+void
 setps(){
 	register i,j;
 
@@ -119,10 +111,13 @@ setps(){
 		}
 	}
 }
+void
 caseft(){
 	skip();
 	setfont(1);
 }
+
+void
 setfont(a)
 int a;
 {
@@ -131,16 +126,18 @@ int a;
 	if(a)i = getrq();
 		else i = getsn();
 	if(!i || (i == 'P')){
-		j = font1;
+		j = eblk.font1;
 		goto s0;
 	}
 	if(i == 'S')return;
 	if((j = find(i,fontlab))  == -1)return;
 s0:
-	font1 = font;
-	font = j;
+	eblk.font1 = eblk.font;
+	eblk.font = j;
 	mchbits();
 }
+
+void
 setwd(){
 	register i, base, wid;
 	int delim, em, k;
@@ -156,8 +153,8 @@ setwd(){
 	pinchar = inchar;	/* XXX */
 	savlevel = level;
 	v.hp = level = 0;
-	savfont = font;
-	savfont1 = font1;
+	savfont = eblk.font;
+	savfont1 = eblk.font1;
 	setwdf++;
 	while((((i = getch()) & CMASK) != delim) && !nlflg){
 		wid += width(i);
@@ -179,13 +176,13 @@ setwd(){
 	for (p=inchar, q=tempinchar; p < pinchar; )	/* XXX */
 		*p++ = *q++;	/* XXX */
 	level = savlevel;
-	font = savfont;
-	font1 = savfont1;
+	eblk.font = savfont;
+	eblk.font1 = savfont1;
 	mchbits();
 	setwdf = 0;
 }
 vmot(){
-	dfact = lss;
+	dfact = eblk.lss;
 	vflag++;
 	return(mot());
 }
@@ -198,7 +195,7 @@ mot(){
 
 	j = HOR;
 	getch(); /*eat delim*/
-	if(i = atoi()){
+	if ((i = atoix())) {
 		if(vflag)j = VERT;
 		i = makem(quant(i,j));
 	}
@@ -231,6 +228,7 @@ int i;
 	if(vflag)j |= VMOT;
 	return(j);
 }
+void
 casefp(){
 	register i, j;
 
@@ -239,6 +237,7 @@ casefp(){
 	if(skip() || !(j = getrq()))return;
 	fontlab[i] = j;
 }
+void
 casevs(){
 	register i;
 
@@ -247,18 +246,18 @@ casevs(){
 	dfact = INCH; /*default scaling is points!*/
 	dfactd = 72;
 	res = VERT;
-	i = inumb(&lss);
-	if(nonumb)i = lss1;
+	i = inumb(&eblk.lss);
+	if(nonumb)i = eblk.lss1;
 	if(i < VERT)i = VERT;
-	lss1 = lss;
-	lss = i;
+	eblk.lss1 = eblk.lss;
+	eblk.lss = i;
 }
 xlss(){
 	register i, j;
 
 	getch();
-	dfact = lss;
-	i = quant(atoi(),VERT);
+	dfact = eblk.lss;
+	i = quant(atoix(),VERT);
 	dfact = 1;
 	getch();
 	if((j = i) < 0)j = -j;
@@ -266,11 +265,17 @@ xlss(){
 	if(i < 0)ch0 |= 040000;
 	return(((j & 077)<<9) | LX);
 }
+void
 casefz(){}
+void
 caseps(){}
+void
 caselg(){}
+void
 casecs(){}
+void
 casebd(){}
+void
 casess(){}
 getlg(i)
 int i;

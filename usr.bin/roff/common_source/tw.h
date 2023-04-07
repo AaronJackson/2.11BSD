@@ -1,7 +1,7 @@
-/*	tw.h	4.2	83/08/11	*/
+/*	tw.h	4.3	(2.11BSD) 2020/3/24 */
 
 /* typewriter driving table structure*/
-struct {
+struct tw {
 	int bset;
 	int breset;
 	int Hor;
@@ -27,4 +27,6 @@ struct {
 	char *left;
 	char *codetab[256-32];
 	char *zzz;
-	} t;
+};
+
+extern struct tw t;

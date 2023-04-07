@@ -1,15 +1,17 @@
-#ifndef lint
-static char sccsid[] = "@(#)n2.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n2.c	4.2 (2.11BSD) 2020/3/24";
+#endif
+
+#include <sgtty.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "tdef.h"
-#include <sgtty.h>
 extern
 #include "d.h"
 extern
 #include "v.h"
 #ifdef NROFF
-extern
 #include "tw.h"
 #endif
 #include "sdef.h"
@@ -23,13 +25,9 @@ output, cleanup
 */
 
 extern struct s *frame, *stk, *nxf;
-extern filep ip;
-extern filep offset;
 extern char *enda;
 
 
-extern char obuf[OBUFSZ];
-extern char *obufp;
 extern int dilev;
 extern int eschar;
 extern int tlss;
@@ -39,29 +37,22 @@ extern int print;
 extern char trtab[];
 extern int waitf;
 extern char ptname[];
-extern int ptid;
 extern int em;
-extern int ds;
 extern int mflg;
-extern filep woff;
 extern int nflush;
 extern int lgf;
-extern int app;
 extern int nfo;
 extern int donef;
-extern int *pendw;
 extern int nofeed;
 extern int trap;
 extern struct sgttyb ttys;
 extern int ttysave;
 extern int quiet;
-extern int pendnf;
 extern int ndone;
 extern int lead;
 extern int ralss;
 extern int paper;
 extern int gflag;
-extern char *unlkp;
 extern char nextf[];
 extern int pipeflg;
 extern int ejf;
@@ -75,6 +66,9 @@ int error;
 extern int acctf;
 #endif
 
+extern FILE *fptid;
+
+void
 pchar(c)
 int c;
 {
@@ -108,16 +102,18 @@ int c;
 	}
 	pchar1(i);
 }
+
+void
 pchar1(c)
 int c;
 {
 	register i, j, *k;
-	extern int chtab[];
 
 	j = (i = c) & CMASK;
 	if(dip != &d[0]){
 		wbf(i);
-		dip->op = offset;
+		dip->opb = offsb;
+		dip->opx = offsx;
 		return;
 	}
 	if(!tflg && !print){
@@ -127,51 +123,60 @@ int c;
 	if(no_out || (j == FILLER))return;
 #ifndef NROFF
 	if(ascii){
+		char *s;
+
 		if(i & MOT){
-			oput(' ');
+			fputc(' ', fptid);
 			return;
 		}
 		if(j < 0177){
-			oput(i);
+			fputc(i, fptid);
 			return;
 		}
 		switch(j){
 			case 0200:
 			case 0210:
-				oput('-');
+				s = "-";
 				break;
 			case 0211:
-				oputs("fi");
+				s = "fi";
 				break;
 			case 0212:
-				oputs("fl");
+				s = "fl";
 				break;
 			case 0213:
-				oputs("ff");
+				s = "ff";
 				break;
 			case 0214:
-				oputs("ffi");
+				s = "ffi";
 				break;
 			case 0215:
-				oputs("ffl");
+				s = "ffl";
 				break;
 			default:
+				s = NULL;
 				for(k=chtab; *++k != j; k++)
 					if(*k == 0)return;
-				oput('\\');
-				oput('(');
-				oput(*--k & BMASK);
-				oput(*k >> BYTE);
+				k--;
+				fprintf(fptid, "\\(%c%c",
+				    *k & BMASK, *k >> BYTE);
 		}
+		if (s)
+			fprintf(fptid, "%s", s);
 	}else
 #endif
 	ptout(i);
 }
+
+#if 0
 oput(i)
 char i;
 {
+#if 0
 	*obufp++ = i;
 	if(obufp == (obuf + OBUFSZ + ascii - 1))flusho();
+#endif
+	toolate |= putc(i, fptid);
 }
 oputs(i)
 char *i;
@@ -179,13 +184,8 @@ char *i;
 	while(*i != 0)oput(*i++);
 }
 flusho(){
+#if 0
 	if(!ascii)*obufp++ = 0;
-	if(!ptid){
-		while((ptid=open(ptname,1)) < 0){
-			if(++waitf <=2)prstr("Waiting for Typesetter.\n");
-			sleep(15);
-		}
-	}
 	if(no_out == 0){
 		if (!toolate) {
 			toolate++;
@@ -210,14 +210,18 @@ flusho(){
 		toolate += write(ptid, obuf, obufp-obuf);
 	}
 	obufp = obuf;
+#endif
 }
+#endif
+
+void
 done(x) int x;{
 	register i;
 
 	error |= x;
 	level = 0;
-	app = ds = lgf = 0;
-	if(i=em){
+	lgf = 0;
+	if ((i=em)) {
 		donef = -1;
 		em = 0;
 		if(control(i,0))longjmp(sjbuf,1);
@@ -225,12 +229,12 @@ done(x) int x;{
 	if(!nfo)done3(0);
 	mflg = 0;
 	dip = &d[0];
-	if(woff)wbt(0);
-	if(pendw)getword(1);
-	pendnf = 0;
+	if(woffb)wbt(0);
+	if(eblk.pendw)getword(1);
+	eblk.pendnf = 0;
 	if(donef == 1)done1(0);
 	donef = 1;
-	ip = 0;
+	ipb = 0;
 	frame = stk;
 	nxf = frame + 1;
 	if(!ejf)tbreak();
@@ -247,7 +251,6 @@ done1(x) int x; {
 	}
 	if(nofeed){
 		ptlead();
-		flusho();
 		done3(0);
 	}else{
 		if(!gflag)lead += TRAILER;
@@ -260,20 +263,17 @@ done2(x) int x; {
 	ptlead();
 #ifndef NROFF
 	if(!ascii){
-		oput(T_INIT);
-		oput(T_STOP);
-		if(!gflag)for(i=8; i>0; i--)oput(T_PAD);
-		if(stopmesg)prstr("Troff finished.\n");
+		fprintf(fptid, "%c%c", T_INIT, T_STOP);
+		if(!gflag)for(i=8; i>0; i--)fputc(T_PAD, fptid);
+		if(stopmesg)warnx("Troff finished.");
 	}
 #endif
-	flusho();
 	done3(x);
 }
 done3(x) int x;{
 	error |= x;
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
-	unlink(unlkp);
 #ifdef NROFF
 	twdone();
 #endif
@@ -290,14 +290,14 @@ done3(x) int x;{
 edone(x) int x;{
 	frame = stk;
 	nxf = frame + 1;
-	ip = 0;
+	ipb = 0;
 	done(x);
 }
 #ifndef NROFF
 report(){
 	struct {int use; int uid;} a;
 
-	if((ptid != 1) && paper ){
+	if((fptid != stdout) && paper ){
 		lseek(acctf,0L,2);
 		a.use = paper;
 		a.uid = getuid();
@@ -307,16 +307,21 @@ report(){
 }
 #endif
 #ifdef NROFF
-casepi(){
+
+void
+casepi(void){
 	register i;
 	int id[2];
 
 	if(toolate || skip() || !getname() || (pipe(id) == -1) ||
 	   ((i=fork()) == -1)){
-		prstr("Pipe not created.\n");
+		warnx("Pipe not created.");
 		return;
 	}
-	ptid = id[1];
+	if (id[1] != fileno(fptid)) {
+		dup2(id[1], fileno(fptid));
+		close(id[1]);
+	}
 	if(i>0){
 		close(id[0]);
 		toolate++;
@@ -327,9 +332,6 @@ casepi(){
 	dup(id[0]);
 	close(id[1]);
 	execl(nextf,nextf,0);
-	prstr("Cannot exec: ");
-	prstr(nextf);
-	prstr("\n");
-	exit(-4);
+	err(-4, "Cannot exec: %s", nextf);
 }
 #endif

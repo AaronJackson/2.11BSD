@@ -14,13 +14,13 @@
 # IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 # WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-#	@(#)Makefile	5.4.1 (2.11BSD) 1996/01/26
+#	@(#)Makefile	5.5 (2.11BSD) 2020/3/24
 #
 MDIR=	/usr/man/cat7
 SRCS=	ascii.7 environ.7 eqnchar.7 hier.7 hostname.7  intro.7 mailaddr.7 \
-	man.7 me.7 ms.7 term.7
+	man.7 me.7 ms.7 term.7 mdoc.7 mdoc.samples.7
 OBJS=	ascii.0 environ.0 eqnchar.0 hier.0 hostname.0 intro.0 mailaddr.0 \
-	man.0 me.0 ms.0 term.0
+	man.0 me.0 ms.0 term.0 mdoc.0 mdoc.samples.0
 
 .SUFFIXES: .7 .0
 
