@@ -1,4 +1,4 @@
-/*	dc.h	1.3	86/04/26	*/
+/*	dc.h	1.4	2022/10/2	*/
 
 #define FATAL 0
 #define NFATAL 1
@@ -44,7 +44,7 @@
 #define EMPTYS if(stkerr != 0){printf("stack empty\n"); return(1);}
 #define EMPTYSR(x) if(stkerr !=0){printf("stack empty\n");pushp(x);return(1);}
 #define error(p)	{printf(p); continue; }
-#define errorrt(p)	{printf(p); return(1); }
+#define errorrt(p,x)	{printf(p); return(x); }
 struct blk {
 	char	*rd;
 	char	*wt;

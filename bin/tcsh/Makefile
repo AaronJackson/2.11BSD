@@ -1,4 +1,4 @@
-#	Makefile	4.4	2019/12/17
+#	Makefile	4.5	2022/10/2
 #
 # C Shell with process control; VM/UNIX VAX Makefile
 # Bill Joy UC Berkeley; Jim Kulp IIASA, Austria
@@ -10,26 +10,13 @@ SHELL=/bin/sh
 VERSION=6.00
 BUILD=tcsh
 
-################################################################
-## CFLAGS.  For various -D things, see config.h
-################################################################
-# These are the default suffixes from .c to .o and -c to get there
-SUF=o
-CF=-c
-
 LFLAGS=-I.
 
 SYSDEFINE=pdp11
 CFLAGS= -I. -O -D${SYSDEFINE}
 
-################################################################
-## LDLAGS.  Define something here if you need to
-################################################################
 LDFLAGS=-i -X
 
-################################################################
-## LIBES.  Edit as needed.
-################################################################
 LIBES= -ltermcap		## BSD style things
 
 CC=	cc
@@ -53,28 +40,28 @@ ASSRCS=	sh.c sh.dir.c sh.dol.c sh.err.c sh.exec.c sh.char.c \
 	sh.set.c sh.time.c sh.char.h sh.dir.h sh.proc.h sh.h 
 PSSRCS= sh.decls.h glob.c glob.h
 SHSRCS= ${ASSRCS} ${PSSRCS}
-SHOBJS=	sh.${SUF} sh.dir.${SUF} sh.dol.${SUF} sh.err.${SUF} sh.exec.${SUF} \
-	sh.char.${SUF} sh.exp.${SUF} sh.func.${SUF} sh.glob.${SUF} \
-	sh.hist.${SUF} sh.init.${SUF} sh.lex.${SUF} sh.misc.${SUF} \
-	sh.parse.${SUF} sh.print.${SUF} sh.proc.${SUF} sh.sem.${SUF} \
-	sh.set.${SUF} sh.time.${SUF} glob.${SUF}
+SHOBJS=	sh.o sh.dir.o sh.dol.o sh.err.o sh.exec.o \
+	sh.char.o sh.exp.o sh.func.o sh.glob.o \
+	sh.hist.o sh.init.o sh.lex.o sh.misc.o \
+	sh.parse.o sh.print.o sh.proc.o sh.sem.o \
+	sh.set.o sh.time.o glob.o
 
 TWSRCS= tw.decls.h tw.h tw.help.c tw.init.c tw.parse.c tw.spell.c
-TWOBJS=	tw.help.${SUF} tw.init.${SUF} tw.parse.${SUF} tw.spell.${SUF}
+TWOBJS=	tw.help.o tw.init.o tw.parse.o tw.spell.o
 
 EDSRCS= ed.chared.c ed.decls.h ed.defns.c ed.h ed.init.c ed.inputl.c \
 	ed.refresh.c ed.screen.c ed.xmap.c
-EDOBJS=	ed.chared.${SUF} ed.refresh.${SUF} ed.screen.${SUF} ed.init.${SUF} \
-	ed.inputl.${SUF} ed.defns.${SUF} ed.xmap.${SUF}
+EDOBJS=	ed.chared.o ed.refresh.o ed.screen.o ed.init.o \
+	ed.inputl.o ed.defns.o ed.xmap.o
 
 TCSRCS= tc.alloc.c tc.bind.c tc.const.c tc.decls.h tc.disc.c \
 	tc.func.c tc.os.c tc.os.h tc.printf.c tc.prompt.c \
 	tc.sched.c tc.sig.c tc.sig.h tc.str.c sh.types.h tc.vers.c tc.wait.h \
 	tc.who.c tc.h
-TCOBJS=	tc.alloc.${SUF} tc.bind.${SUF} tc.const.${SUF} tc.disc.${SUF} \
-	tc.func.${SUF} tc.os.${SUF} tc.printf.${SUF} \
-	tc.prompt.${SUF} tc.sched.${SUF} tc.sig.${SUF} tc.str.${SUF} \
-	tc.vers.${SUF} tc.who.${SUF} 
+TCOBJS=	tc.alloc.o tc.bind.o tc.const.o tc.disc.o \
+	tc.func.o tc.os.o tc.printf.o \
+	tc.prompt.o tc.sched.o tc.sig.o tc.str.o \
+	tc.vers.o tc.who.o 
 
 PVSRCS= Makefile
 AVSRCS= Fixes MAKEDIFFS NewThings README FAQ WishList \
@@ -177,25 +164,19 @@ tcsh: $(OBJS)
 	-Y -ltermcap -lc
 	@-size $@
 
-.c.${SUF}: ${MKSTR}
+.c.o: ${MKSTR}
 	${MKSTR} - ${STRINGFILE} x $*.c
-	${CC} -E ${CFLAGS} x$*.c | ${XSTR} ${CF} -
+	${CC} -E ${CFLAGS} x$*.c | ${XSTR} -c -
 	rm -f x$*.c
-	${CC} ${CFLAGS} ${CF} x.c 
+	${CC} ${CFLAGS} -c x.c 
 	mv x.o $*.o
 	rm -f x.c
 
 strings.o: strings
 	${XSTR}
-	${CC} ${CF} xs.c
+	${CC} -c xs.c
 	mv -f xs.o strings.o
 	rm -f xs.c
-
-ed.init.o: ed.init.c
-	${CC} -E ${CFLAGS} $*.c | ${XSTR} ${CF} -
-	${CC} -R ${CF} ${CF} x.c 
-	mv -f x.o $*.o
-	rm -f x.c
 
 ed.defns.h: ed.defns.c
 	@rm -f $@
@@ -220,13 +201,13 @@ tc.const.h: tc.const.c sh.char.h config.h config_f.h sh.types.h sh.err.h
 	    sed -e 's/Char \([a-zA-Z0-9_]*\)\(.*\)/extern Char \1[];/' | \
 	    sort >> $@
 
-csh.prof: ${OBJS} sh.prof.${SUF} mcrt0.${SUF}
+csh.prof: ${OBJS} sh.prof.o mcrt0.o
 	rm -f csh.prof
-	ld -X mcrt0.${SUF} ${OBJS} -o csh.prof ${LIBES} -lc
+	ld -X mcrt0.o ${OBJS} -o csh.prof ${LIBES} -lc
 
-sh.prof.${SUF}:
+sh.prof.o:
 	cp sh.c sh.prof.c
-	${CC} ${CF} ${CFLAGS} -DPROF sh.prof.c
+	${CC} -c ${CFLAGS} -DPROF sh.prof.c
 
 lint: tc.const.h ed.defns.h
 	lint ${LFLAGS} sh*.c tw*.c ed*.c tc.*.c ${LIBES}
@@ -234,7 +215,7 @@ lint: tc.const.h ed.defns.h
 print:
 	@pr READ_ME
 	@pr makefile makefile.*
-	@(size -l a.out; size *.${SUF}) | pr -h SIZES
+	@(size -l a.out; size *.o) | pr -h SIZES
 	@${CXREF} sh*.c | pr -h XREF
 	@ls -l | pr 
 	@pr sh*.h [a-rt-z]*.h sh*.c alloc.c
@@ -251,7 +232,7 @@ tcsh.${CATSECT}:  tcsh.man
 
 clean:
 	${RM} -f a.out strings x.c xs.c tcsh _MAKE_LOG core ./mkprstr
-	${RM} -f *.${SUF} sh.prof.c ed.defns.h tc.const.h sh.err.h
+	${RM} -f *.o sh.prof.c ed.defns.h tc.const.h sh.err.h
 	${RM} -f ${STRINGFILE} tcsh.${CATSECT}
 
 veryclean: clean
@@ -273,22 +254,22 @@ tw.h: tw.decls.h
 ed.h: ed.decls.h
 
 # ed.h
-EDINC=sh.${SUF} sh.func.${SUF} sh.lex.${SUF} sh.print.${SUF} sh.proc.${SUF} \
-      sh.set.${SUF} tc.bind.${SUF} tc.os.${SUF} tc.prompt.${SUF} \
-      tc.sched.${SUF} tw.parse.${SUF}
+EDINC=sh.o sh.func.o sh.lex.o sh.print.o sh.proc.o \
+      sh.set.o tc.bind.o tc.os.o tc.prompt.o \
+      tc.sched.o tw.parse.o
 ${EDOBJS} ${EDINC} : ed.h
 
 # sh.h
 ${OBJS}: config.h sh.h
 
 # tw.h:
-TWINC=ed.chared.${SUF} ed.inputl.${SUF} sh.exec.${SUF} sh.func.${SUF} \
-      sh.set.${SUF} tc.func.${SUF}
+TWINC=ed.chared.o ed.inputl.o sh.exec.o sh.func.o \
+      sh.set.o tc.func.o
 ${TWOBJS} ${TWINC}: tw.h
 
 # glob.h
-glob.${SUF} sh.glob.${SUF}: glob.h
+glob.o sh.glob.o: glob.h
 
 # ed.defns.h
-EDDINC=tc.bind.${SUF} tc.func.${SUF} tc.os.${SUF}
+EDDINC=tc.bind.o tc.func.o tc.os.o
 ${EDOBJS} ${EDDINC}: ed.defns.h

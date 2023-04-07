@@ -36,8 +36,8 @@
  */
 #include "config.h"
 #if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)glob.c	5.12 (Berkeley) 6/24/91";
-#endif /* LIBC_SCCS and not lint */
+static char sccsid[] = "@(#)glob.c	5.13 (2.11BSD) 2022/10/2";
+#endif
 /*
  * Glob: the interface is a superset of the one defined in POSIX 1003.2,
  * draft 9.
@@ -218,7 +218,7 @@ Stat(fn, sb)
 
 static Char *
 Strchr(str, ch)
-    Char *str;
+    register Char *str;
     int ch;
 {
     do
@@ -648,7 +648,7 @@ globextend(path, pglob)
 	}
 	*npp = NULL;	/* no assumption that slots are NULL */
 	pglob->gl_p_v = pathv;
-	xfree(opathv);	/* free the old base pointer; data has been copied */
+	xfree((ptr_t) opathv);	/* free the old base pointer; data has been copied */
     } else {
 	/* still room for more */
 	pathv = pglob->gl_p_v;

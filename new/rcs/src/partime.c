@@ -26,12 +26,15 @@
  *		like midnight/noon?
  */
 
-#ifndef lint
+#if	!defined(lint) && defined(DOSCCS)
 static char rcsid[]=
-"$Header: /arthur/src/local/bin/rcs/src/RCS/partime.c,v 1.2 87/03/27 14:21:53 jenkins Exp $";
+"$Header: /arthur/src/local/bin/rcs/src/RCS/partime.c,v 1.3 2022/10/2 bqt Exp $";
 #endif
 
 /* $Log:	partime.c,v $
+ * Revision 1.3  2022/10/2  00:00:00  bqt
+ * Remove a compile time warning and unused static char array
+ * 
  * Revision 1.2  87/03/27  14:21:53  jenkins
  * Port to suns
  * 
@@ -40,16 +43,11 @@ static char rcsid[]=
  * 
  * Revision 1.1  82/05/06  11:38:26  wft
  * Initial revision
- * 
  */
 
 #include <stdio.h>
 #include <ctype.h>
 #include "time.h"
-
-#ifndef lint
-static char timeid[] = TIMEID;
-#endif
 
 struct tmwent {
 	char *went;
@@ -120,7 +118,7 @@ struct tmwent tmwords [] = {
 	{"pm",           2, TWTIME, TM_AMPM},
 	{"noon",         12,TWTIME+TW1200, 0},    /* Special frobs */
 	{"midnight",     0, TWTIME+TW1200, 0},
-	{"at",           ptnoise, TWSPEC, 0},    /* Noise word */
+	{"at",           (int)ptnoise, TWSPEC, 0},    /* Noise word */
 
 	{0, 0, 0, 0},             /* Zero entry to terminate searches */
 };
