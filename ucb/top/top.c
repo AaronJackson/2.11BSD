@@ -23,7 +23,7 @@
  * 06 29/08/2021 Changed and corrected uptime calculation.        bqt
  *               Changed header layout.
  *               Added %cpu time to header.
- *
+ * 07 26/8/2022  Truncate hostname by first period or 7 char.     bqt
  */
 /*
  * Using RAW removes the need for signal processing, but adds a requirement
@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <unistd.h>	/* usleep */
 #include <stdlib.h>	/* getopt */
+#include <string.h>
 #include <sys/param.h>	/* NGROUPS */
 #include <sys/sysctl.h>	/* boottime,.. */
 #include <ctype.h>	/* isdigit */
@@ -137,7 +138,7 @@ LOCAL FILE		*ut;
 LOCAL struct utmp	utmp;
 LOCAL int		nusers;
 LOCAL double		avenrun[3];
-LOCAL char		host[10];
+LOCAL char		host[8];
 
 LOCAL struct  map_s
 {
@@ -1263,6 +1264,7 @@ EXPORT int main(int argc, char *argv[])
 {
 	int 	status = 0;
 	char	ch;
+	char	*p;
 
 	if (argc < 2)
 	{
@@ -1309,6 +1311,7 @@ EXPORT int main(int argc, char *argv[])
 
 	gethostname(host, sizeof(host)-1);
 	host[sizeof(host)-1] = 0;
+	if (p = strchr(host, '.')) *p = 0;
 
 	if(config_tty(1) < 0)
 		return(1);
