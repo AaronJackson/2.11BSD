@@ -19,6 +19,7 @@
  * 02 07/03/2020 Removed kmem based nswap access (sysctl updated) DRST
  * 03 09/03/2020 added BADKEY_IGNORE, delay spec now in seconds   DRST
  * 04 12/03/2020 Changed to use curses, correct memory size info  bqt
+ * 05 21/03/2020 Corrected memory calculations to be unsigned     bqt
  *
  */
 /*
@@ -27,6 +28,7 @@
  */
 #define TTY_RAW    	0	/* use RAW/!CBRK for terminal */
 #define BADKEY_IGNORE	1	/* no abort on invalid commands */
+#define TIME_CHILD	0	/* include time of children in process */
 
 #include <stdio.h>
 #include <unistd.h>	/* usleep */
@@ -60,8 +62,10 @@ typedef struct udata_s
 	char	*o_uname;	/* login name of process owner */
 	time_t	o_utime;	/* u_utime */
 	time_t	o_stime;	/* u_stime */
+#if TIME_CHILD
 	time_t	o_cutime;	/* u_cutime */
 	time_t	o_cstime;	/* u_cstime */
+#endif
 	time_t	o_ttime;	/* u_utime + u_stime */
 	time_t	o_dtime;	/* o_ttime - o_LastTime */
 	int	o_sigs;		/* sum of SIGINT & SIGQUIT (2 => ignore both) */
@@ -382,24 +386,23 @@ char		noargs;
 	off_t			saddr;
 	struct user		user;		/* for reading user structs */
 	register struct	user	*up	= &user;
-	register struct	proc	*procp	= pp;
 	long			txtsiz, datsiz, stksiz;
 	int			septxt;
 	int			pifile;
 	int			i;
 
-	if(procp->p_flag & SLOAD)	/* in memory */
+	if(pp->p_flag & SLOAD)	/* in memory */
 	{
-		addr = ctob((off_t) procp->p_addr);
-		daddr = ctob((off_t) procp->p_daddr);
-		saddr = ctob((off_t) procp->p_saddr);
+		addr = ctob((off_t) pp->p_addr);
+		daddr = ctob((off_t) pp->p_daddr);
+		saddr = ctob((off_t) pp->p_saddr);
 		pifile = mem;
 	}
 	else				/* swapped */
 	{
-		addr = (off_t)procp->p_addr << 9;
-		daddr = (off_t)procp->p_daddr << 9;
-		saddr = (off_t)procp->p_saddr << 9;
+		addr = (off_t)pp->p_addr << 9;
+		daddr = (off_t)pp->p_daddr << 9;
+		saddr = (off_t)pp->p_saddr << 9;
 		pifile = swap;
 	}
 
@@ -430,15 +433,17 @@ char		noargs;
 	a->o_nswap	= 0;
 	a->o_nvcsw	= 0;
 	a->o_nicsw	= 0;
+#if TIME_CHILD
 	a->o_cutime	= 0;
 	a->o_cstime	= 0;
+#endif
 	a->o_ttime	= 0;
 	a->o_sigs	= 0;
 	a->o_dtime	= 0;
 	a->o_uname	= NULL;
 	a->o_comm[0]	= 0;
 
-	if(procp->p_stat == SZOMB)
+	if(pp->p_stat == SZOMB)
 		return(1);
 
 	a->o_tsize	= up->u_tsize;
@@ -447,9 +452,13 @@ char		noargs;
 	a->o_nswap	= up->u_ru.ru_nswap;
 	a->o_nvcsw	= up->u_ru.ru_nvcsw;
 	a->o_nicsw	= up->u_ru.ru_nivcsw;
+#if TIME_CHILD
 	a->o_cutime	= up->u_cru.ru_utime;
 	a->o_cstime	= up->u_cru.ru_stime;
 	a->o_ttime	= a->o_utime + a->o_stime + a->o_cutime + a->o_cstime;
+#else
+	a->o_ttime	= a->o_utime + a->o_stime;
+#endif
 	a->o_sigs	= (int)up->u_signal[SIGINT]+(int)up->u_signal[SIGQUIT];
 	if(a->o_LastStat && (pp->p_pid == a->o_LastPid))
 		a->o_dtime = a->o_ttime - a->o_LastTime;
@@ -460,7 +469,7 @@ char		noargs;
 	{
 		if(untab[i].uname[0] == 0)
 			break;
-		if(untab[i].uid == procp->p_uid)
+		if(untab[i].uid == pp->p_uid)
 		{
 			a->o_uname = untab[i].uname;
 			break;
@@ -469,7 +478,7 @@ char		noargs;
 	if((a->o_uname == NULL) && (i< MAXUSER))
 	{
 		/* name not found and space in table */
-		if(fuser(i, procp->p_uid) >= 0)
+		if(fuser(i, pp->p_uid) >= 0)
 			a->o_uname = untab[i].uname;	
 	}
 
@@ -583,17 +592,17 @@ LOCAL char states[] = { '?', 'S', 'W', 'R', 'I', 'Z', 'T' };
  *   freemem - available memory in bytes
  */
 LOCAL int GetMemStats(totmem, freemem)
-long *totmem;
-long *freemem;
+unsigned long *totmem;
+unsigned long *freemem;
 {
 	int		mib[2];
 	size_t		size;
 	static size_t	cmsz	= 0;
-	static long 	physmem	= 0;
+	static unsigned long 	physmem	= 0;
 	static char	*coremap = NULL;
 	struct mapent	*map;
 	int		i;
-	long		tfree;
+	unsigned long	tfree;
 
 	if(physmem == 0)
 	{
@@ -646,17 +655,17 @@ long *freemem;
  */
 
 LOCAL int GetSwapStats(totswap, freeswap)
-long *totswap;
-long *freeswap;
+unsigned long *totswap;
+unsigned long *freeswap;
 {
 	int		mib[2];
 	size_t		size;
 	static size_t	smsz	= 0;
-	static long 	nswap	= 0;
+	static unsigned long 	nswap	= 0;
 	static char	*swapmap = NULL;
 	struct mapent	*map;
-	int		i;
-	long		tfree;
+	unsigned int	i;
+	unsigned long	tfree;
 
 	if(nswap == 0)
 	{
@@ -698,7 +707,7 @@ long *freeswap;
 	for(tfree = i = 0; i < smsz / sizeof(struct mapent); i++)
 		tfree += map[i].m_size;
 	*totswap = nswap*512;
-	*freeswap = (long) tfree*512;
+	*freeswap = (unsigned long) tfree*512;
 	return(0);
 }
 
@@ -713,8 +722,8 @@ int npr;
 	static int calls = 0;
 	int	mib[2];
 	size_t	size;
-	long	memsize, memfree;
-	long	swapsize, swapfree;
+	unsigned long	memsize, memfree;
+	unsigned long	swapsize, swapfree;
 
 	/* get time */
 	time(&now);
@@ -897,7 +906,7 @@ long usec;
 			return(-1);
 		if((c == tc.t_intrc)||(c == tc.t_quitc))
 			c = 'q';
-		return(c);
+		return(c & 0x7f);
 	}
 	return(0);
 }
@@ -1223,13 +1232,7 @@ EXPORT int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		char *e;
-		e = getenv("TOP");
-		if (e)
-		{
-			argv[1] = e;
-			argc = 2;
-		}
+		if (argv[1] = getenv("TOP")) argc = 2;
 	}
 
 	while((ch = getopt(argc, argv, "hs:o:I")) != EOF)

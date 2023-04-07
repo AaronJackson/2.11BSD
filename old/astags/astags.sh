@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # astags
 # (c) 1979 Regents of the University of California
 grep '^[a-zA-Z_].*:' $* /dev/null >/tmp/$$

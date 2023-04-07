@@ -4,8 +4,8 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#if	!defined(lint) && defined(def LIBC_SCCS)
-	<@(#)bunequal.s 1.3 (2.11BSD) 2020/1/7\0>
+#if	!defined(lint) && defined(LIBC_SCCS)
+	<@(#)bunequal.s 1.4 (2.11BSD) 2020/3/20\0>
 	.even
 #endif
 

@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)prf.c	1.4 (2.11BSD) 1996/06/04
+ *	@(#)prf.c	1.5 (2.11BSD) 2020/3/20
  */
 
 #include "../machine/cons.h"
@@ -11,7 +11,7 @@
 #define	KLADDR	((struct dldevice *)0177560)
 #define LKS ((int *)0177546)
 
-#define	CTRL(x)	('x' & 037)
+#define	CTRL(x)	(x & 037)
 
 /*
  * Scaled down version of C Library printf.  Only %s %u %d (==%u) %o %x %D
@@ -159,7 +159,7 @@ gets(buf)
 		switch (c) {
 			default:
 				if (c < ' ' || c >= 127)
-					putchar(CTRL(G));
+					putchar(CTRL('G'));
 				else {
 					*lp++ = c;
 					putchar(c);
@@ -177,7 +177,7 @@ gets(buf)
 			case '\b':
 			case '#':
 				if (lp <= buf)
-					putchar(CTRL(G));
+					putchar(CTRL('G'));
 				else {
 					lp--;
 					putchar('\b');
@@ -186,7 +186,7 @@ gets(buf)
 				}
 				break;
 
-			case CTRL(U):
+			case CTRL('U'):
 			case '@':
 				while (lp > buf) {
 					lp--;
@@ -196,7 +196,7 @@ gets(buf)
 				}
 				break;
 
-			case CTRL(R):
+			case CTRL('R'):
 				putchar('^');
 				putchar('R');
 				putchar('\n');
