@@ -16,7 +16,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)cmds.c	5.18.1 (2.11BSD) 1997/10/2";
+static char sccsid[] = "@(#)cmds.c	5.18.2 (2.11BSD) 2022/10/31";
 #endif
 
 /*
@@ -590,24 +590,28 @@ usage:
 					    &yy, &mo, &day, &hour, &min, &sec);
 					tm = gmtime(&stbuf.st_mtime);
 					tm->tm_mon++;
-					if (tm->tm_year > yy%100)
+					if (tm->tm_year > yy - 1900)
 						return (1);
-					else if (tm->tm_year == yy%100) {
-						if (tm->tm_mon > mo)
-							return (1);
-					} else if (tm->tm_mon == mo) {
-						if (tm->tm_mday > day)
-							return (1);
-					} else if (tm->tm_mday == day) {
-						if (tm->tm_hour > hour)
-							return (1);
-					} else if (tm->tm_hour == hour) {
-						if (tm->tm_min > min)
-							return (1);
-					} else if (tm->tm_min == min) {
-						if (tm->tm_sec > sec)
-							return (1);
-					}
+					if (tm->tm_year == yy - 1900) {
+					  if (tm->tm_mon > mo)
+					    return (1);
+					  if (tm->tm_mon == mo) {
+					    if (tm->tm_mday > day)
+					      return (1);
+					    if (tm->tm_mday == day) {
+					      if (tm->tm_hour > hour)
+					        return (1);
+					      if (tm->tm_hour == hour) {
+					        if (tm->tm_min > min)
+						  return (1);
+						if (tm->tm_min == min) {
+						  if (tm->tm_sec > sec)
+						    return (1);
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
 				} else {
 					fputs(reply_string, stdout);
 					verbose = overbose;
