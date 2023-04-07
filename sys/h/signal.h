@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)signal.h	1.1 (2.10BSD Berkeley) 12/1/86
+ *	@(#)signal.h	1.3 (2.11BSD) 2022/1/21
  */
 
 #ifndef	NSIG
@@ -122,6 +122,10 @@ struct	sigcontext {
 #define sigmask(m)	((long)1 << ((m)-1))
 
 #ifndef KERNEL
-extern long	sigblock(), sigsetmask();
+extern	char	*sys_siglist[];
+
+extern	long	 sigblock(long);
+extern	long	 sigsetmask(long);
+
 #define	BADSIG	SIG_ERR
 #endif

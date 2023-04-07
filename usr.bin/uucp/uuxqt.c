@@ -1,5 +1,5 @@
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)uuxqt.c	5.8.1 (2.11BSD) 1997/10/2";
+static char sccsid[] = "@(#)uuxqt.c	5.9 (2.11BSD) 2022/1/21";
 #endif
 
 #include "uucp.h"
@@ -181,7 +181,7 @@ doprocess:
 	while (gtxfile(xfile) > 0) {
 		/* if /etc/nologin exists, exit cleanly */
 #if defined(BSD4_2) || defined(USG)
-		if (access(NOLOGIN) == 0) {
+		if (access(NOLOGIN, F_OK) == 0) {
 #else !BSD4_2 && ! USG
 		ultouch();
 		if (nologinflag) {

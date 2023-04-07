@@ -9,7 +9,7 @@ char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
 
-static char sccsid[] = "@(#)ifconfig.c	4.20.1 (2.11BSD GTE) 1/1/94";
+static char sccsid[] = "@(#)ifconfig.c	4.21 (2.11BSD) 2022/1/21";
 #endif
 
 #include <sys/types.h>
@@ -342,7 +342,7 @@ in_status(force)
 		sin = (struct sockaddr_in *)&ifr.ifr_dstaddr;
 		printf("--> %s ", inet_ntoa(sin->sin_addr));
 	}
-	printf("netmask %X ", ntohl(netmask.sin_addr.s_addr));
+	printf("netmask 0x%lx ", ntohl(netmask.sin_addr.s_addr));
 	if (flags & IFF_BROADCAST) {
 		if (ioctl(s, SIOCGIFBRDADDR, (caddr_t)&ifr) < 0) {
 			if (errno == EADDRNOTAVAIL)

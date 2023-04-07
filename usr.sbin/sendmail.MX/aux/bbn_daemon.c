@@ -2,9 +2,9 @@
 # include "sendmail.h"
 
 #ifndef DAEMON
-SCCSID(@(#)bbn_daemon.c	3.36+		12/13/82	(w/o daemon mode));
+SCCSID(@(#)bbn_daemon.c	3.37		2022/1/21	(w/o daemon mode));
 #else
-SCCSID(@(#)bbn_daemon.c	3.36+		12/13/82	(w/ daemon mode));
+SCCSID(@(#)bbn_daemon.c	3.37		2022/1/21	(w/ daemon mode));
 
 /*
 **  DAEMON.C -- routines to use when running as a daemon.
@@ -241,7 +241,7 @@ makeconnection(host, port, outfile, infile)
 
 # ifdef DEBUG
 	if (tTd(16, 1))
-		printf("makeconnection(%s=%X)\n", host, openparams.c_fcon._na_l);
+		printf("makeconnection(%s=%lx)\n", host, openparams.c_fcon._na_l);
 # endif DEBUG
 
 	s = open("/dev/net/net", &openparams);

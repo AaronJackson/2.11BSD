@@ -1,3 +1,6 @@
+#if     !defined(lint) && defined(DOSCCS)
+static char *sccsid = "@(#)bad144.c 1.2 (2.11BSD) 2022/1/21";
+#endif
 /*
  * bad144
  *
@@ -96,7 +99,7 @@ found:
 			exit(1);
 		}
 		lseek(f, 512 * (di->di_size - di->di_nsect), 0);
-		printf("bad block information at 0x%X in %s:\n",
+		printf("bad block information at 0x%lx in %s:\n",
 		    lseek(f,0L,1), name);
 		if (read(f, &dkbad, 512) != 512) {
 			fprintf(stderr, "%s: can't read bad block info (wrong type disk?)\n", name);

@@ -6,7 +6,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static	char	sccsid[] = "@(#)c03.c	2.0 (2.11BSD) 2020/1/7";
+static	char	sccsid[] = "@(#)c03.c	2.1 (2.11BSD) 2022/1/21";
 #endif
 #include "c0.h"
 
@@ -51,9 +51,7 @@ struct nmlist *tptr;
 	for (;;) {
 		mosflg = isadecl? ismos: 0;
 		o = symbol();
-		if (o==NAME && csym->hclass==TYPEDEF) {
-			if (tkw >= 0)
-				error("type clash");
+		if (o==NAME && csym->hclass==TYPEDEF && tkw < 0) {
 			tkw = csym->htype;
 			tptr->hsubsp = csym->hsubsp;
 			tptr->hstrp = csym->hstrp;
