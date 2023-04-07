@@ -1,5 +1,5 @@
 #if	defined(DOSCCS) && !defined(lint)
-static	char *sccsid = "@(#)size.c	4.4.1 (2.11BSD GTE) 1/1/94";
+static	char *sccsid = "@(#)size.c	4.5 (2.11BSD) 2020/3/19";
 #endif
 
 /*
@@ -8,6 +8,8 @@ static	char *sccsid = "@(#)size.c	4.4.1 (2.11BSD GTE) 1/1/94";
 
 #include	<stdio.h>
 #include 	<a.out.h>
+#include	<string.h>
+#include	<errno.h>
 
 int	header;
 
@@ -34,7 +36,7 @@ char **argv;
 	while(--argc) {
 		++argv;
 		if ((f = fopen(*argv, "r"))==NULL) {
-			printf("size: %s not found\n", *argv);
+			printf("size: %s: %s\n", *argv, strerror(errno));
 			err++;
 			continue;
 		}
