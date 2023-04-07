@@ -20,6 +20,9 @@
  * 03 09/03/2020 added BADKEY_IGNORE, delay spec now in seconds   DRST
  * 04 12/03/2020 Changed to use curses, correct memory size info  bqt
  * 05 21/03/2020 Corrected memory calculations to be unsigned     bqt
+ * 06 29/08/2021 Changed and corrected uptime calculation.        bqt
+ *               Changed header layout.
+ *               Added %cpu time to header.
  *
  */
 /*
@@ -49,12 +52,13 @@
 #include <pwd.h>
 #include <utmp.h>	/* PS_NAMESIZE, _PATH_UTMP */
 #include <curses.h>
+#include <sys/dk.h>	/* cpu stats */
+#include <nlist.h>
 #include "psdb.h"
 
 #define LOCAL	static
 #define EXPORT	/**/
 
-#define DIV60(t)	((t+30)/60)	/* x/60 rounded */
 typedef struct udata_s
 {
 	dev_t	o_ttyd;		/* u_ttyd */
@@ -93,6 +97,11 @@ LOCAL struct userdb_s
 	short	uid;
 } untab[MAXUSER];
 
+struct nlist nl[] = {
+#define X_CPTIME 0
+	{ "_cp_time" },
+	{ "" },
+};
 
 LOCAL long		upd_us = DRATE;	/* delay between updates */
 LOCAL struct proc	*proctab;	/* buffer to contain proc array */
@@ -724,6 +733,8 @@ int npr;
 	size_t	size;
 	unsigned long	memsize, memfree;
 	unsigned long	swapsize, swapfree;
+	long s_time[CPUSTATES], t, etime;
+	static long s1_time[CPUSTATES] = {0};
 
 	/* get time */
 	time(&now);
@@ -740,12 +751,11 @@ int npr;
 	{
 		int	days, hrs, mins;
 
-		uptime = now - boottime.tv_sec;
-		days = uptime / (60L*60L*24L);
-		uptime %= (60L*60L*24L);
-		hrs = uptime / (60L*60L);
-		uptime %= (60L*60L);
-		mins = DIV60(uptime);
+		uptime = (now - boottime.tv_sec + 30) / 60;
+		mins = uptime % 60;
+		uptime /= 60;
+		hrs = uptime % 24;
+		days = uptime / 24;
 
 		printw(" up %2d day%s", days, days != 1?"s":"");
 		printw(", %2d:%02d", hrs, mins);
@@ -798,6 +808,23 @@ int npr;
 		sleep, stop, zombie);
 
 	/* Cpu states */
+	lseek(kmem, (long)nl[X_CPTIME].n_value, L_SET);
+	read(kmem, s_time, sizeof s_time),
+	etime = 0;
+	for(i=0; i < CPUSTATES; ++i)
+	{
+		t = s_time[i];
+		s_time[i] -= s1_time[i];
+		s1_time[i] = t;
+		etime += s_time[i];
+	}
+	if(etime == 0) etime = 1;
+
+	printw("Cpu  : %5.1f%% us, %5.1f%% ni, %5.1f%% sy, %5.1f%% id\n",
+		((float)s_time[0] / etime) * 100.,
+		((float)s_time[1] / etime) * 100.,
+		((float)s_time[2] / etime) * 100.,
+		((float)s_time[3] / etime) * 100.);
 
 	/* Memory and Swap status */
 
@@ -806,10 +833,10 @@ int npr;
 	if(GetSwapStats(&swapsize, &swapfree) < 0)
 		return;
 	/* 2.11 BSD has static buffer cache so no need to display this */
-	printw("    Mem : %7.1fK total, %7.1fK free, %7.1fK used (%2ld%%)\n",
+	printw("Mem  : %7.1fK total, %7.1fK free, %7.1fK used (%2ld%%)\n",
 		memsize/1024.0, memfree/1024.0, (memsize-memfree)/1024.0,
 		(memsize-memfree)*100L/memsize);
-	printw("    Swap: %7.1fK total, %7.1fK free, %7.1fK used (%2ld%%)\n",
+	printw("Swap : %7.1fK total, %7.1fK free, %7.1fK used (%2ld%%)\n",
 		swapsize/1024.0, swapfree/1024.0, (swapsize-swapfree)/1024.0,
 		(swapsize-swapfree)*100L/swapsize);
 }
@@ -997,13 +1024,20 @@ LOCAL char *ReadLine()
  ********************* Main Program *******************
  */
 
-#define STATLINES (5)
+#define STATLINES (6)
 
 LOCAL int
 do_top()
 {
 	int			nread;
 	int			npr;
+
+	nlist("/vmunix", nl);
+	if(nl[0].n_type == 0)
+	{
+		fprintf(stderr, "no /vmunix namelist\n");
+		return(1);
+	}
 
 	/*
 	 * Open files required for obtaining system information:

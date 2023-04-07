@@ -1,4 +1,4 @@
-/*	@(#)if_qe.c	1.3 (2.11BSD) 1997/2/16 */
+/*	@(#)if_qe.c	1.4 (2.11BSD) 2021/8/24 */
  
 /****************************************************************
  *								*
@@ -25,6 +25,10 @@
  ****************************************************************/
 /* ---------------------------------------------------------------------
  * Modification History 
+ *
+ * 24-Aug-21 -- bqt@softjar.se
+ *	Added handling of both qe and qt driver configured
+ *	in the kernel.
  *
  * 16-Nov-90 -- sms@wlv.imsd.contel.com
  *	Ported from 4.3BSD to 2.11BSD as a replacement for the previous
@@ -101,6 +105,15 @@
  */
  
 #include "qe.h"
+
+/*
+ * qef is the flags for the two possible qbus ethernet controllers.
+ * If a unit has been allocated, the flag will be non-zero.
+ * (in fact, the code will write the CSR in there as an extra
+ * sanity check.)
+ */
+int qef[2] = {0,0};
+
 #if	NQE > 0
 /*
  * Digital Q-BUS to NI Adapter
@@ -226,8 +239,14 @@ qeattach(ui)
 	struct qedevice *addr = (struct qedevice *)ui->ui_addr;
 	register int i;
 	int	islqa = 0;
+	int	lqalock = 0;
 	extern int nextiv();
  
+	if (qef[ui->ui_unit] == ui->ui_addr) {
+		printf("qe%d@%o already attached by qt%d\n", ui->ui_unit, ui->ui_addr, ui->ui_unit);
+		return;
+	}
+
 	ifp->if_unit = ui->ui_unit;
 	ifp->if_name = "qe";
 	ifp->if_mtu = ETHERMTU;
@@ -240,10 +259,14 @@ qeattach(ui)
 		sc->setup_pkt[i][1] = sc->is_addr[i] = addr->qe_sta_addr[i] & 0xff;  
 	/*
  	 * Determine if this is a DEQNA or a DELQA...
-	*/
-	addr->qe_vector |= QE_VEC_ID;
+	 */
+	i = addr->qe_vector;
+	addr->qe_vector |= QE_VEC_ID | QE_VEC_MS;
 	if	(addr->qe_vector & QE_VEC_ID)
+		{
 		islqa = 1;
+		lqalock = (i & QE_VEC_MS) == 0;
+		}
 	addr->qe_vector &= ~QE_VEC_ID;
  
 	/*
@@ -277,7 +300,8 @@ qeattach(ui)
 	ifp->if_reset = 0;
 	if_attach(ifp);
 
-	printf("qe%d: DEC DE%sA addr %s\n",ifp->if_unit, islqa ? "LQ": "QN",
+	printf("qe%d: DEC DE%sA%s addr %s\n",ifp->if_unit, islqa ? "LQ": "QN",
+		lqalock ? " (locked to DEQNA)" : "",
 		ether_sprintf(&sc->is_addr));
 }
  
@@ -926,7 +950,7 @@ qerestart(sc)
 	qestart(ifp->if_unit);
 }
 
-qbaini(ifuba, num)
+static qbaini(ifuba, num)
 	struct ifuba *ifuba;
 	int num;
 {
