@@ -13,6 +13,7 @@ jobs:
             ./config GENERIC
             cd ../GENERIC
             make
+
   bin:
     runs-on: ubuntu-latest
     name: build /bin
