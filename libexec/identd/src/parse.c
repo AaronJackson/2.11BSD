@@ -505,7 +505,7 @@ int parse(fp, laddr, faddr)
 #ifdef SLEEP_BETWEEN_RETRIES
       {
 	/* Seed the generator: lport should be unique (among other concurrent identd's) */
-	if (try < 1) srandom(lport);
+	if (try < 1) srandom((long)lport);
 	/* This gives a max sleep of 0xffff = 65535 microsecs, about 32millisec average */
 	usleep(random()&0x00ffff);
       }

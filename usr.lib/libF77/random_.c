@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)random_.c	5.2	6/7/85
+ *	@(#)random_.c	5.3 (2.11BSD) 12/25/2018
  * 
  * Routines to return random values
  *
@@ -19,6 +19,8 @@
  *	Real values will range from 0.0 thru 1.0 .
  */
 
+#include <stdlib.h>
+
 #if	vax
 #define	RANDMAX		2147483647
 #else	vax
@@ -32,20 +34,20 @@
 long irandm_(iarg)
 long *iarg;
 {
-	if (*iarg) srandom((int)*iarg);
+	if (*iarg) srandom(*iarg);
 	return( random() );
 }
 
 float random_(iarg)
 long *iarg;
 {
-	if (*iarg) srandom((int)*iarg);
+	if (*iarg) srandom(*iarg);
 	return( (float)(random())/(float)RANDMAX );
 }
 
 double drandm_(iarg)
 long *iarg;
 {
-	if (*iarg) srandom((int)*iarg);
+	if (*iarg) srandom(*iarg);
 	return( (double)(random())/(double)RANDMAX );
 }

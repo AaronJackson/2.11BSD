@@ -1,5 +1,6 @@
+# @(#)Makefile 2.0 (2.11BSD) 2018/12/29
 FORTUNES=	scene obscene
-SOURCE=		fortune.c strfile.h strfile.c rnd.c unstr.c $(FORTUNES)
+SOURCE=		fortune.c strfile.h strfile.c unstr.c $(FORTUNES)
 TFILES=		Troff.mac Troff.sed Do_troff
 LIBDIR=		/usr/games/lib
 BINDIR=		/usr/games
@@ -15,11 +16,11 @@ DESTDIR=
 
 all: fortune strfile unstr fortunes.dat
 
-fortune: fortune.o rnd.o
-	$(CC) ${SEPFLAG} $(CFLAGS) -o fortune fortune.o rnd.o
+fortune: fortune.o
+	$(CC) ${SEPFLAG} $(CFLAGS) -o fortune fortune.o
 
-strfile: strfile.o rnd.o
-	$(CC) ${SEPFLAG} $(CFLAGS) -o strfile strfile.o rnd.o
+strfile: strfile.o
+	$(CC) ${SEPFLAG} $(CFLAGS) -o strfile strfile.o
 
 unstr: unstr.o
 	$(CC) ${SEPFLAG} $(CFLAGS) -o unstr unstr.o
@@ -35,8 +36,8 @@ fortunes: $(FORTUNES)
 	cat obscene >> fortunes
 
 lint:
-	lint -hxb $(DEFS) fortune.c rnd.c 2>&1 > fortune.lint
-	lint -hxb $(DEFS) strfile.c rnd.c 2>&1 > strfile.lint
+	lint -hxb $(DEFS) fortune.c 2>&1 > fortune.lint
+	lint -hxb $(DEFS) strfile.c 2>&1 > strfile.lint
 	lint -hxb $(DEFS) unstr.c 2>&1 > unstr.lint
 
 install: all install.data

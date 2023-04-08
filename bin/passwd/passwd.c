@@ -22,7 +22,7 @@ char copyright[] =
 #endif /* not lint */
 
 #ifndef lint
-static char sccsid[] = "@(#)passwd.c	4.35 (Berkeley) 3/16/89";
+static char sccsid[] = "@(#)passwd.c	4.36 (2.11BSD) 12/25/2018";
 #endif /* not lint */
 
 #include <sys/param.h>
@@ -35,6 +35,7 @@ static char sccsid[] = "@(#)passwd.c	4.35 (Berkeley) 3/16/89";
 #include <stdio.h>
 #include <ctype.h>
 #include <strings.h>
+#include <stdlib.h>
 
 uid_t uid;
 
@@ -245,7 +246,7 @@ getnewpasswd(pw, temp)
 		printf("Mismatch; try again, EOF to quit.\n");
 	}
 	/* grab a random printable character that isn't a colon */
-	(void)srandom((int)time((time_t *)NULL));
+	srandom(time((time_t *)NULL));
 	while ((salt[0] = random() % 93 + 33) == ':');
 	while ((salt[1] = random() % 93 + 33) == ':');
 	return(crypt(buf, salt));

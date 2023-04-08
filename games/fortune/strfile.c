@@ -1,6 +1,11 @@
-# include	<stdio.h>
-# include	<ctype.h>
-# include	"strfile.h"
+/* @(#)strfile.c 2.0 (2.11BSD) 2018/12/29 */
+
+#include	<stdio.h>
+#include	<ctype.h>
+#include	<stdlib.h>
+#include	<unistd.h>
+#include 	<time.h>
+#include	"strfile.h"
 
 /*
  *	This program takes a file composed of strings seperated by
@@ -31,9 +36,6 @@
  *	Added ordering options.
  */
 
-# define	TRUE	1
-# define	FALSE	0
-
 # define	DELIM_CH	'-'
 
 typedef struct {
@@ -57,10 +59,10 @@ char	*Infile		= NULL,		/* input file name */
 	NULL
 	};
 
-int	Sflag		= FALSE;	/* silent run flag */
-int	Oflag		= FALSE;	/* ordering flag */
-int	Iflag		= FALSE;	/* ignore case flag */
-int	Rflag		= FALSE;	/* randomize order flag */
+int	Sflag		= 0;	/* silent run flag */
+int	Oflag		= 0;	/* ordering flag */
+int	Iflag		= 0;	/* ignore case flag */
+int	Rflag		= 0;	/* randomize order flag */
 int	Delim		= 0;		/* current delimiter number */
 
 long	*Seekpts;
@@ -71,22 +73,18 @@ STRFILE	Tbl;				/* statistics table */
 
 STR	*Firstch;			/* first chars of each string */
 
-char	*fgets(), *malloc(), *strcpy(), *strcat();
-
-long	ftell();
-
 main(ac, av)
 int	ac;
 char	**av;
 {
 	register char		*sp, dc;
 	register long		*lp;
-	register unsigned int	curseek;	/* number of strings */
-	register long		*seekpts, li;	/* table of seek pointers */
-	register FILE		*inf, *outf;
-	register int		first;
-	register char		*nsp;
-	register STR		*fp;
+	unsigned int	curseek;	/* number of strings */
+	long		*seekpts, li;	/* table of seek pointers */
+	FILE		*inf, *outf;
+	int		first;
+	char		*nsp;
+	STR		*fp;
 	static char		string[257];
 
 	getargs(ac, av);		/* evalute arguments */
@@ -170,7 +168,7 @@ char	**av;
 					fp->first = *nsp;
 				fp->pos = *lp;
 				fp++;
-				first = FALSE;
+				first = 0;
 			}
 			fputs(sp, outf);
 		}
@@ -284,8 +282,8 @@ register char	**av;
  *	Order the strings alphabetically (possibly ignoring case).
  */
 do_order(seekpts, outf)
-long	*seekpts;
-FILE	*outf;
+	long	*seekpts;
+	FILE	*outf;
 {
 	register int	i;
 	register long	*lp;
@@ -351,15 +349,16 @@ STR	*p1, *p2;
  *	randomization is done within each block.
  */
 randomize(seekpts)
-register long	*seekpts;
+	long	*seekpts;
 {
-	register int	cnt, i, j, start;
-	register long	tmp;
-	register long	*origsp;
+	register int	i, j, cnt;
+	int	start;
+	long	tmp, *origsp;
 
 	Tbl.str_flags |= STR_RANDOM;
-	srnd(time((long *) NULL) + getpid());
+	srandom(time((long *) NULL) + getpid());
 	origsp = seekpts;
+
 	for (j = 0; j <= Delim; j++) {
 
 		/*
@@ -385,7 +384,7 @@ register long	*seekpts;
 		 */
 
 		for (seekpts = &origsp[start]; cnt > start; cnt--, seekpts++) {
-			i = rnd(cnt - start);
+			i = random() % (cnt - start);
 			tmp = seekpts[0];
 			seekpts[0] = seekpts[i];
 			seekpts[i] = tmp;
