@@ -2,7 +2,7 @@
 .\" All rights reserved.  The Berkeley software License Agreement
 .\" specifies the terms and conditions for redistribution.
 .\"
-.\"	@(#)mkstr.1	6.2.1 (2.11BSD) 1996/10/22
+.\"	@(#)mkstr.1	6.2.2 (2.11BSD) 2019/11/25
 .\"
 .TH MKSTR 1 "October 22, 1996"
 .UC
@@ -74,7 +74,7 @@ oops:
 			exit(1);
 		}
 	}
-	\fBif\fR (lseek(efil, (long) a1, 0) <= 0 |\||
+	\fBif\fR (lseek(efil, (long) a1, 0) < 0 |\||
 	    read(efil, buf, 256) <= 0)
 		\fBgoto\fR oops;
 	printf(buf, a2, a3, a4);

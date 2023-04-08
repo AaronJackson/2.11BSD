@@ -1,5 +1,5 @@
 #
-# pi Makefile - 1.2.1 1996/10/23
+# pi Makefile - 1.2.2 2019/11/24
 #
 
 DESTDIR=
@@ -65,6 +65,7 @@ pix: pix.c
 
 px_header.out: px_header.c
 	${CC} ${CFLAGS} ${DEFS} -o px_header.out px_header.c
+	strip px_header.out
 
 pi: ${OBJS} version
 	-if [ X${SEPFLAG} = X-i ]; then \
