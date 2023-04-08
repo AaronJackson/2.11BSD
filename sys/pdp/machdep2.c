@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)machdep2.c	2.9 (2.11BSD) 1999/2/19
+ *	@(#)machdep2.c	2.10 (2.11BSD) 2019/11/18
  */
 
 #include "param.h"
@@ -411,6 +411,7 @@ boot(dev, howto)
 		  }
 		}
 		printf("done\n");
+		fsclean();
 	}
 	(void) _splhigh();
 	if (howto & RB_HALT) {
