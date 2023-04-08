@@ -8,52 +8,16 @@ jobs:
       - uses: AaronJackson/2.11BSD-Action@v1.0
         with:
           path: /usr/src
+          patch_level: 457
           run: |
-            cd sys/conf
+            cd /usr/src/sys/conf
             ./config GENERIC
             cd ../GENERIC
             make
-  bin:
-    runs-on: ubuntu-latest
-    name: build /bin
-    steps:
-      - uses: AaronJackson/2.11BSD-Action@v1.0
-        with:
-          path: /usr/src
-          run: |
-            cd bin
+            cd /usr/src/bin
             make
-
-  sbin:
-    runs-on: ubuntu-latest
-    name: build /sbin
-    steps:
-      - uses: AaronJackson/2.11BSD-Action@v1.0
-        with:
-          path: /usr/src
-          run: |
-            cd sbin
+            cd /usr/src/sbin
             make
-
-  usr_bin:
-    runs-on: ubuntu-latest
-    name: build /usr/bin
-    steps:
-      - uses: AaronJackson/2.11BSD-Action@v1.0
-        with:
-          path: /usr/src
-          run: |
-            cd usr.bin
+            cd /usr/src/usr.bin
             make
-
-
-  usr_sbin:
-    runs-on: ubuntu-latest
-    name: build /usr/sbin
-    steps:
-      - uses: AaronJackson/2.11BSD-Action@v1.0
-        with:
-          path: /usr/src
-          run: |
-            cd usr.sbin
-            make
+            cd /usr/src/usr.sbin
