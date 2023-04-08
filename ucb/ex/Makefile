@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	7.13.1.3 (2.11BSD GTE) 1996/10/23
+#	@(#)Makefile	7.13.2 (2.11BSD) 2020/1/21
 #
 VERSION=3.7
 #
@@ -33,7 +33,7 @@ DEBUGFLAGS=	-DTRACE -g
 NONDEBUGFLAGS=	-O
 DEB=	${NONDEBUGFLAGS}	# or ${DEBUGFLAGS} to to debug
 #OPTIONS= -DLISPCODE -DCHDIR -DVFORK -DVMUNIX -DFASTTAG
-OPTIONS= -DLISPCODE -DCHDIR -DVFORK -DFASTTAG
+OPTIONS= -DLISPCODE -DCHDIR -DVFORK -DFASTTAG -DTEMP512K
 CFLAGS=	-DTABS=8 ${OPTIONS} ${DEB}
 LDFLAGS= -X
 SEPFLAG= -i

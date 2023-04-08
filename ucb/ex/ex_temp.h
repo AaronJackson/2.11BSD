@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ex_temp.h	7.4 (Berkeley) 5/31/85
+ *	@(#)ex_temp.h	7.5 (2.11BSD) 2020/1/21
  */
 
 /*
@@ -26,14 +26,29 @@
  * each time you create a new line in the temporary file you get a unique
  * number back, and this is a property used by marks.
  *
- * The following temp file parameters allow 256k bytes in the temporary
- * file.  By changing to the numbers in comments you can get 512k.
+ * If -DTEMP512K is set in the Makefile OPTIONS line you get 512KB in the 
+ * temporary file.  If that option is not set you get 256KB (the previous/old
+ * default value).
+ *
  * For VMUNIX you get more than you could ever want.
  * VMUNIX uses long (32 bit) integers giving much more
  * space in the temp file and no waste.  This doubles core
  * requirements but allows files of essentially unlimited size to be edited.
  */
+
 #ifndef VMUNIX
+
+#ifdef TEMP512K
+#define	BLKMSK	01777
+#define	BNDRY	16
+#define	INCRMT	0100
+#define	LBTMSK	0760
+#define	NMBLKS	1018
+#define	OFFBTS	6
+#define	OFFMSK	077
+#define	SHFT	3
+#else
+/* Old values allowed only 256KB temporary filesize */
 #define	BLKMSK	0777		/* 01777 */
 #define	BNDRY	8		/* 16 */
 #define	INCRMT	0200		/* 0100 */
@@ -42,7 +57,10 @@
 #define	OFFBTS	7		/* 6 */
 #define	OFFMSK	0177		/* 077 */
 #define	SHFT	2		/* 3 */
+#endif /* TEMP512K */
+
 #else
+
 #define	BLKMSK	077777
 #define	BNDRY	2
 #define	INCRMT	02000
@@ -51,7 +69,7 @@
 #define	OFFBTS	10
 #define	OFFMSK	01777
 #define	SHFT	0
-#endif
+#endif /* VMUNIX */
 
 /*
  * The editor uses three buffers into the temporary file (ed uses two
