@@ -2,23 +2,25 @@
 .\" All rights reserved.  The Berkeley software License Agreement
 .\" specifies the terms and conditions for redistribution.
 .\"
-.\"	@(#)date.1	6.5 (Berkeley) 3/24/87
+.\"	@(#)date.1	7.0 (2.11BSD) 2019/10/20
 .\"
-.TH DATE 1 "March 24, 1987"
+.TH DATE 1 "October 20, 2019"
 .UC 4
 .SH NAME
 date \- print and set the date
 .SH SYNOPSIS
 .B date
-.RB "[-nu] [-d dst] [-t timezone] [yymmddhhmm [" . "ss] ]"
+.RB "[-nu] [[[[yy]mm]dd]hhmm [" . "ss] ]"
 .SH DESCRIPTION
 If no arguments are given, the current date and time are printed.
 Providing an argument will set the desired date; only the superuser
-can set the date.  The \fI-d\fP and \fI-t\fP flags set the kernel's
-values for daylight savings time and minutes west of GMT.  If \fIdst\fP
-is non-zero, future calls to \fIgettimeofday\fP(2) will return a non-zero
-\fItz_dsttime\fP.  \fITimezone\fP provides the number of minutes returned
-by future calls to \fIgettimeofday\fP(2) in \fItz_minuteswest\fP.  The
+can set the date.
+.PP
+The kernel timezone structure is obsolete and is a historic relic. \fPdate(1)\fP
+\fBno longer\fP updates the kernel timezone structure (daylight savings time 
+and minutes west of GMT).
+.PP
+The
 \fI-u\fP flag is used to display or set the date in GMT (universal) time.
 .I yy
 represents the last two digits of the year;

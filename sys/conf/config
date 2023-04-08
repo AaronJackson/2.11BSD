@@ -1,6 +1,9 @@
 #! /bin/sh
 #	2.11BSD script to set up a new kernel configuration directory.
 #
+#       2019/10/18 - the kernel runs on GMT.  The kernel timezone structure
+#                   is obsolete, will be initialized to 0 now and only 
+#                   present for historical reference.
 #	1997/2/14 - LINEHZ removed from localopts.h.  The clock rate is
 #		    now known in _exactly 1_ place in the kernel (param.c)
 #		    rather than having references scattered all over the 
@@ -45,11 +48,11 @@ if [ ! "$MAXUSERS" ]; then
 fi
 
 if [ ! "$TIMEZONE" ]; then
-	TIMEZONE=480
+	TIMEZONE=0
 fi
 
 if [ ! "$DST" ]; then
-	DST=1
+	DST=0
 fi
 
 cat << EOF > $LO
