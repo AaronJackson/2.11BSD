@@ -2,7 +2,7 @@
 # include	"curses.h"
 
 /*
- * @(#)mille.h	1.1 (Berkeley) 4/1/82
+ * @(#)mille.h	1.2 (2.11BSD) 2018/12/29
  */
 
 /*
@@ -113,21 +113,6 @@
 # define	FILEPROMPT		6
 # define	EXTENSIONPROMPT		7
 # define	OVERWRITEFILEPROMPT	8
-
-# ifdef	SYSV
-# define	srandom(x)	srand(x)
-# define	random()	rand()
-
-# ifndef	attron
-#	define	erasechar()	_tty.c_cc[VERASE]
-#	define	killchar()	_tty.c_cc[VKILL]
-# endif
-# else
-# ifndef	erasechar
-#	define	erasechar()	_tty.sg_erase
-#	define	killchar()	_tty.sg_kill
-# endif
-# endif	SYSV
 
 typedef struct {
 	bool	coups[NUM_SAFE];

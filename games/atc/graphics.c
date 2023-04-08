@@ -3,14 +3,14 @@
  *
  * Copy permission is hereby granted provided that this notice is
  * retained on all partial or complete copies.
- *
- * For more info on this and all of my stuff, mail edjames@berkeley.edu.
+ */
+
+/*
+ * @(#)graphics.c  2.0 (2.11BSD) 2018/12/30
  */
 
 #include "include.h"
-#ifdef SYSV
 #include <errno.h>
-#endif
 
 #define C_TOPBOTTOM		'-'
 #define C_LEFTRIGHT		'|'
@@ -24,15 +24,7 @@ WINDOW	*radar, *cleanradar, *credit, *input, *planes;
 
 getAChar()
 {
-#ifdef BSD
 	return (getchar());
-#endif
-#ifdef SYSV
-	int c;
-
-	while ((c = getchar()) == -1 && errno == EINTR) ;
-	return(c);
-#endif
 }
 
 erase_all()
@@ -251,14 +243,9 @@ quit()
 	c = getchar();
 	if (c == EOF || c == 'y') {
 		/* disable timer */
-#ifdef BSD
 		itv.it_value.tv_sec = 0;
 		itv.it_value.tv_usec = 0;
 		setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-		alarm(0);
-#endif
 		fflush(stdout);
 		clear();
 		refresh();
@@ -280,15 +267,10 @@ planewin()
 	char	*command();
 	int	warning = 0;
 
-#ifdef BSD
 	wclear(planes);
-#endif
 
 	wmove(planes, 0,0);
 
-#ifdef SYSV
-	wclrtobot(planes);
-#endif
 	wprintw(planes, "Time: %-4d Safe: %d", clock, safe_planes);
 	wmove(planes, 2, 0);
 
@@ -322,19 +304,12 @@ loser(p, s)
 	char	*s;
 {
 	int			c;
-#ifdef BSD
 	struct itimerval	itv;
-#endif
 
 	/* disable timer */
-#ifdef BSD
 	itv.it_value.tv_sec = 0;
 	itv.it_value.tv_usec = 0;
 	setitimer(ITIMER_REAL, &itv, NULL);
-#endif
-#ifdef SYSV
-	alarm(0);
-#endif
 
 	wmove(input, 0, 0);
 	wclrtobot(input);
@@ -368,7 +343,6 @@ redraw()
 	wrefresh(input);
 	fflush(stdout);
 }
-
 
 done_screen()
 {

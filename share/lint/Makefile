@@ -1,7 +1,7 @@
 #
 # Public domain - 1996/10/23 - sms
 #
-#	@(#)Makefile	1.1 (2.11BSD) 1997/9/26
+#	@(#)Makefile	1.2 (2.11BSD) 2019/4/27
 #
 #  Makefile for the lint libraries.
 #
@@ -18,6 +18,7 @@ install:${SRCS}
 	-mkdir -p ${S}
 	-chmod a+r,a+x ${S}
 	install -c -m 444 ${SRCS} ${S}
+	make libs
 
 clean:
 

@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	5.4 (Berkeley) 8/9/85
+#	@(#)Makefile	5.5 (2.11BSD) 12/25/2018
 #
 # Makefile for f77 math & startup lib, libF77.a
 
@@ -316,7 +316,7 @@ mkvers:		mkvers.c
 		@$(CC) mkvers.c -o mkvers
 
 clean:;		@rm -f $(OBJS1) $(OBJS2) profiled/*.o $(LIBRARY) $(LIBRARY_P) \
-		Version
+		Version profiled/Version
 
 depend:;	@echo Construct dependencies manually
 

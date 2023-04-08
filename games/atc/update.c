@@ -7,11 +7,12 @@
  * For more info on this and all of my stuff, mail edjames@berkeley.edu.
  */
 
-#if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)update.c	1.3.1 (2.11BSD) 1999/10/25";
-#endif
+/*
+ * @(#)update.c	1.3.2 (2.11BSD) 2018/12/30
+ */
 
 #include "include.h"
+#include <stdlib.h>
 
 update()
 {
