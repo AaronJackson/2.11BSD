@@ -1,14 +1,6 @@
-# @(#)Makefile	1.7 Makefile (2.11BSD) 2019/10/29
+# @(#)Makefile	1.8 Makefile (2.11BSD) 2019/11/21
 
 DESTDIR=
-
-# If you want something other than Western United States time used on your
-# system, change the line below (after finding the zone you want in the
-# time zone files, or adding it to a time zone file).
-# Alternately, if you discover you've got the wrong time zone, you can just
-#	install -c -m 444 /usr/share/zoneinfo/right_zone /etc/localtime
-
-LOCALTIME=	US/Pacific
 
 # If you want code inspired by certain emerging standards, add
 #	-DSTD_INSPIRED
@@ -43,7 +35,6 @@ all:		zdump zic ${ZICMAN} ${ZDUMAN}
 
 install:	zic $(DATA) $(MAN)
 		(umask 22; ./zic -d ${SHARDIR} $(DATA))
-		install -c -m 444 -o bin -g bin ${SHARDIR}/${LOCALTIME} ${DESTDIR}/etc/localtime
 		install -c -m 444 -o bin -g bin $(ZICMAN) ${MANDIR}/${ZICMAN}
 		install -c -m 444 -o bin -g bin $(ZDUMAN) ${MANDIR}/${ZDUMAN}
 		install -c -s -m 755 -o bin -g bin zic ${DESTDIR}/usr/sbin/zic

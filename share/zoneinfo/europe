@@ -1,4 +1,4 @@
-# @(#)europe	3.1
+# @(#)europe	3.2
 
 # Europe, updated from 4.3BSD and various contributors
 # International country codes are used to identify countries' rules and
@@ -27,8 +27,9 @@ Rule	GB-Eire	1986	max	-	Oct	lastSun	1:00s	0	GMT
 Rule	W-Eur	1986	max	-	Mar	lastSun	1:00s	1:00	" DST"
 Rule	W-Eur	1986	max	-	Sep	lastSun	1:00s	0	-
 
-Rule	M-Eur	1986	max	-	Mar	lastSun	2:00s	1:00	" DST"
-Rule	M-Eur	1986	max	-	Sep	lastSun	2:00s	0	-
+Rule	C-Eur	1986	max	-	Mar	lastSun	2:00s	1:00	S
+Rule	C-Eur	1986	1995	-	Sep	lastSun	2:00s	0	-
+Rule	C-Eur	1996	max	-	Oct	lastSun	2:00s	0	-
 
 Rule	E-Eur	1986	max	-	Mar	lastSun	3:00s	1:00	" DST"
 Rule	E-Eur	1986	max	-	Sep	lastSun	3:00s	0	-
@@ -43,15 +44,15 @@ Rule	W-SU	1986	max	-	Sep	lastSun	2:00s	0	-
 Zone	GB-Eire		0:00	GB-Eire		%s
 Zone	WET		0:00	W-Eur		WET%s
 Zone	Iceland		0:00	-		WET
-Zone	MET		1:00	M-Eur		MET%s
+Zone	CET		1:00	C-Eur		CE%sT
 Zone	Poland		1:00	W-Eur		MET%s
 Zone	EET		2:00	E-Eur		EET%s
 Zone	Turkey		3:00	Turkey		EET%s
-Zone	W-SU		3:00	M-Eur		????
+Zone	W-SU		3:00	C-Eur		????
 
-# Tom Hoffman says that MET is also known as Central European Time
+# MET is an alternative name for CET
 
-Link	MET	CET
+Link	CET	MET
 
 #
 # And now, letters on the subject. . .
@@ -123,3 +124,12 @@ Link	MET	CET
 # dik t. winter, cwi, amsterdam, nederland
 # INTERNET   : dik@cwi.nl
 # BITNET/EARN: dik@mcvax
+#
+####################################################################
+#
+# Date: 21-Nov-2019
+#
+# This file have been updated with the current state for CET,
+# extracted from zonefiles for NetBSD.
+#
+# Johnny Billquist (bqt@softjar.se)
