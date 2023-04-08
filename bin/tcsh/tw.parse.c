@@ -1,4 +1,4 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/tw.parse.c,v 3.0 1991/07/04 21:49:28 christos Exp $ */
+/* $Header: $ */
 /*
  * tw.parse.c: Everyone has taken a shot in this futile effort to
  *	       lexically analyze a csh line... Well we cannot good
@@ -40,7 +40,7 @@
 #include "config.h"
 #if !defined(lint) && !defined(pdp11)
 static char *rcsid() 
-    { return "$Id: tw.parse.c,v 3.0 1991/07/04 21:49:28 christos Exp $"; }
+    { return "$Id: tw.parse.c,v 3.1 2019/11/21 19:12:00 bqt Exp $"; }
 #endif
 
 #include "sh.h"
@@ -416,6 +416,16 @@ quote_meta(word, trail_space)
     return (buffer);
 }
 
+char * unquote(s)
+  char *s;
+{
+  char *p = s;
+  while (*p) {
+    *p &= TRIM;
+    ++p;
+  }
+  return s;
+}
 
 /*
  * return true if check items initial chars in template
@@ -667,7 +677,7 @@ t_search(word, wp, command, max_word_length, look_command, list_max)
 	if ((dollar(dollar_dir, dir) == 0) ||
 	    (tilde(tilded_dir, dollar_dir) == 0) ||
 	    !(nd = dnormalize(*tilded_dir ? tilded_dir : STRdot)) ||
-	    ((dir_fd = opendir(short2str(nd))) == NULL)) {
+	    ((dir_fd = opendir(unquote(short2str(nd)))) == NULL)) {
 	    xfree((ptr_t) nd);
 	    if (SearchNoDirErr)
 		return (-2);
