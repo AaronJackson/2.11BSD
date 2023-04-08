@@ -1,4 +1,6 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/sh.decls.h,v 3.0 1991/07/04 23:34:26 christos Exp $ */
+/*
+ *      @(#)sh.decls.h 2.0 (2.11BSD) 2019/10/11
+*/
 /*
  * sh.decls	 External declarations from sh*.c
  */
@@ -169,7 +171,6 @@ extern	Char		 *globone	__P((Char *, int));
 extern	int		  Gmatch	__P((Char *, Char *));
 extern	void		  ginit		__P((void));
 extern	Char		**globall	__P((Char **));
-extern	void		  rscan		__P((Char **, void (*)()));
 extern	void		  tglob		__P((Char **));
 extern	void		  trim		__P((Char **));
 #ifdef FILEC

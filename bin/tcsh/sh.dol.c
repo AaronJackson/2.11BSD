@@ -1,4 +1,3 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/sh.dol.c,v 3.0 1991/07/04 21:49:28 christos Exp $ */
 /*
  * sh.dol.c: Variable substitutions
  */
@@ -37,7 +36,7 @@
 #include "config.h"
 #if !defined(lint) && !defined(pdp11)
 static char *rcsid() 
-    { return "$Id: sh.dol.c,v 3.0 1991/07/04 21:49:28 christos Exp $"; }
+    { return "$Id: sh.dol.c,v 3.1 2019/10/11 12:37:28 sms Exp $"; }
 #endif
 
 #include "sh.h"
@@ -86,7 +85,6 @@ static	void	 fixDolMod	__P((void));
 static	void	 setDolp	__P((Char *));
 static	void	 unDredc	__P((int));
 static	int	 Dredc		__P((void));
-static	void	 Dtestq		__P((int));
 
 /*
  * Fix up the $ expansions and quotations in the
@@ -672,12 +670,19 @@ Dredc()
 }
 
 static void
-Dtestq(c)
-    register int c;
+rscan(t)
+    register Char **t;
 {
+    register Char *p, c;
 
-    if (cmap(c, QUOTES))
-	gflag = 1;
+    while (p = *t++)
+          {
+	  while (c = *p++)
+                {
+                if (cmap(c, QUOTES))
+	           gflag = 1;
+                }
+          }
 }
 
 /*
@@ -713,7 +718,7 @@ heredoc(term)
     Dv[1] = NOSTR;
     gflag = 0;
     trim(Dv);
-    rscan(Dv, Dtestq);
+    rscan(Dv);
     quoted = gflag;
     ocnt = BUFSIZ;
     obp = obuf;
