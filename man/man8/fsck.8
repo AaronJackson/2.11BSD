@@ -7,7 +7,7 @@
 fsck \- file system consistency check and interactive repair
 .SH SYNOPSIS
 .B fsck
-.BR \-p "[ # ]"
+.BR \-p "[ # ] [ -f ]"
 [
 filesystem ...
 ]
@@ -17,6 +17,8 @@ filesystem ...
 .B \-y
 ] [
 .B \-n
+] [
+.B \-f
 ] [
 .BR \-s X
 ] [
@@ -146,6 +148,9 @@ to continue after essentially unlimited trouble has been encountered.
 Assume a no response to all questions asked by 
 .I fsck;
 do not open the file system for writing.
+.TP 6
+.B  \-\^f
+Force checking of file system, even if it is marked clean.
 .TP 6
 .BR \-\^s \fIX
 Ignore the actual free list and (unconditionally) reconstruct a new

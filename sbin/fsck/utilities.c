@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)utilities.c	5.2 (Berkeley) 9/10/85";
+static char sccsid[] = "@(#)utilities.c	5.3 (2.11BSD) 2019/11/18";
 #endif not lint
 
 #include <stdio.h>
@@ -48,6 +48,7 @@ reply(s)
 	printf("\n%s? ", s);
 	if (nflag || dfile.wfdes < 0) {
 		printf(" no\n\n");
+		noflag = 1;
 		return (0);
 	}
 	if (yflag) {
@@ -59,8 +60,8 @@ reply(s)
 	printf("\n");
 	if (line[0] == 'y' || line[0] == 'Y')
 		return (1);
-	else
-		return (0);
+	noflag = 1;
+	return (0);
 }
 
 getline(fp, loc, maxlen)

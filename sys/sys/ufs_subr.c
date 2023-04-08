@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ufs_subr.c	1.5 (2.11BSD GTE) 1996/9/13
+ *	@(#)ufs_subr.c	1.6 (2.11BSD) 2019/11/18
  */
 
 #include "param.h"
@@ -43,6 +43,38 @@ sync()
 		mp->m_flags &= ~MNT_ASYNC;
 		ufs_sync(mp);
 		mp->m_flags |= async;
+		}
+	updlock = 0;
+	}
+
+/*
+ * Go through the mount table marking filesystems clean.
+ */
+fsclean()
+{
+	register struct mount *mp;
+	register struct fs *fs;
+	int async;
+
+	if	(updlock)
+		return;
+	updlock++;
+	for	(mp = &mount[0]; mp < &mount[NMOUNT]; mp++)
+		{
+		if	(mp->m_inodp == NULL || mp->m_dev == NODEV)
+			continue;
+		fs = &mp->m_filsys;
+		if	(fs->fs_ronly == 1 || fs->fs_ilock || fs->fs_flock)
+			continue;
+		if (fs->fs_flags & MNT_WASCLEAN) {
+			async = mp->m_flags & MNT_ASYNC;
+			mp->m_flags &= ~MNT_ASYNC;
+			fs->fs_flags |= MNT_CLEAN;
+			fs->fs_fmod = 1;
+			ufs_sync(mp);
+			fs->fs_flags &= ~MNT_CLEAN;
+			mp->m_flags |= async;
+		    }
 		}
 	updlock = 0;
 	}

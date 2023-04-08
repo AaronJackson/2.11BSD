@@ -9,12 +9,13 @@ char copyright[] =
 "@(#) Copyright (c) 1980 Regents of the University of California.\n\
  All rights reserved.\n";
 
-static char sccsid[] = "@(#)main.c	5.4.1 (2.11BSD) 1996/2/3";
+static char sccsid[] = "@(#)main.c	5.5 (2.11BSD) 2019/11/18";
 #endif not lint
 
 #include <sys/param.h>
 #include <sys/inode.h>
 #include <sys/fs.h>
+#include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fstab.h>
@@ -58,6 +59,10 @@ main(argc, argv)
 
 		case 'p':
 			preen++;
+			break;
+
+		case 'f':	/* force check */
+			fflag++;
 			break;
 
 		case 'd':
@@ -168,13 +173,19 @@ checkfilesys(filesys)
 {
 	daddr_t n_ffree, n_bfree;
 	register ino_t *zp;
+	int i;
 
 	devname = filesys;
-	if (setup(filesys) == 0) {
+	if ((i = setup(filesys)) == 0) {
 		if (preen)
 			pfatal("CAN'T CHECK FILE SYSTEM.");
 		return;
 	}
+	if (i<0) {
+		pwarn("%sile system is clean; not checking\n", preen ? "f" : "** F");
+		return;
+	}
+
 	/*
 	 * 1: scan inodes tallying blocks used
 	 */
@@ -252,10 +263,30 @@ checkfilesys(filesys)
 	}
 	bzero(zlnlist, sizeof zlnlist);
 	bzero(duplist, sizeof duplist);
+
 	if (dfile.mod) {
 		(void)time(&sblock.fs_time);
 		sbdirty();
 	}
+
+	/* If the superblock wasn't marked clean, we'll
+	 * mark it clean now, and update it.
+	 *
+	 * Note: The root filesystem is special, since it
+	 *       is already mounted (hotroot). For this one
+	 *       we instead look at WASCLEAN, since it reflect
+	 *       the clean status at mount time.
+	 */
+	if ((sblock.fs_flags & MNT_CLEAN) == 0) {
+		if (!(hotroot && (sblock.fs_flags & MNT_WASCLEAN))) {
+			if (!noflag) {
+				pwarn("Marking file system clean\n");
+				sblock.fs_flags |= MNT_CLEAN|MNT_WASCLEAN;
+				sbdirty();
+			}
+		}
+	}
+
 	ckfini();
 	if (!dfile.mod)
 		return;
