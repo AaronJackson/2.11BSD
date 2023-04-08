@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)cmds.c	5.6 (Berkeley) 12/22/87";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)cmds.c	5.7 (2.11BSD) 2020/1/7";
+#endif
 
 #include "tip.h"
 /*
@@ -767,7 +767,7 @@ suspend(c)
 {
 
 	unraw();
-	kill(c == CTRL(y) ? getpid() : 0, SIGTSTP);
+	kill(c == CTRL('y') ? getpid() : 0, SIGTSTP);
 	raw();
 }
 

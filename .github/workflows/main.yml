@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     name: build kernel
     steps:
-      - uses: AaronJackson/2.11BSD-Action@v1.0
+      - uses: AaronJackson/2.11BSD-Action@main
         with:
           path: /usr/src
           patch_level: 459
@@ -18,6 +18,3 @@ jobs:
             make
             cd /usr/src/sbin
             make
-            cd /usr/src/usr.bin
-            make
-            cd /usr/src/usr.sbin

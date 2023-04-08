@@ -1,5 +1,5 @@
 /*
- *      @(#)sh.decls.h 2.0 (2.11BSD) 2019/10/11
+ *      @(#)sh.decls.h 2.1 (2.11BSD) 2020/1/7
 */
 /*
  * sh.decls	 External declarations from sh*.c
@@ -202,7 +202,7 @@ extern	int		  lex		__P((struct wordent *));
 extern	void		  prlex		__P((struct wordent *));
 extern	int		  readc		__P((bool));
 extern	void		  settell	__P((void));
-extern	void		  unreadc	__P((int));
+extern	void		  unreadc	__P((Char));
 
 
 /*

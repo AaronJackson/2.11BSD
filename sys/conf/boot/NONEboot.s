@@ -1,9 +1,9 @@
 /*
- *	SCCS id	@(#)NONEboot.s	1.2 (Berkeley)	2/19/87
+ *	SCCS id	@(#)NONEboot.s	1.3 (2.11BSD)	2020/1/7
  */
-/ The intention is for this file to be used if a boot program isn't
-/ available for a particulare drive/controller, or the autoboot
-/ feature isn't desired.
+// The intention is for this file to be used if a boot program isn't
+// available for a particulare drive/controller, or the autoboot
+// feature isn't desired.
 
 halt = 0
 

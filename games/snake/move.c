@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)move.c	5.1.1 (2.11BSD) 1997/3/28";
+static char sccsid[] = "@(#)move.c	5.2 (2.11BSD) 2020/1/7";
 #endif
 
 /*************************************************************************
@@ -403,8 +403,8 @@ char *s;{
 		case '\b':
 			bs();
 			break;
-		case CTRL(g):
-			outch(CTRL(g));
+		case CTRL('g'):
+			outch(CTRL('g'));
 			break;
 		default:
 			if (s[0] < ' ')break;

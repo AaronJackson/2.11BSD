@@ -5,11 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-char copyright[] =
-"@(#) Copyright (c) 1980 Regents of the University of California.\n\
- All rights reserved.\n";
-
-static char sccsid[] = "@(#)snake.c	5.1.1 (2.11BSD) 1997/7/29";
+static char sccsid[] = "@(#)snake.c	5.2 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -232,8 +228,8 @@ mainloop()
 		if (!fast) flushi();
 		lastc = c;
 		switch (c){
-		case CTRL(z):
-		case CTRL(c):
+		case CTRL('z'):
+		case CTRL('c'):
 			suspend();
 			continue;
 		case EOT:
@@ -263,7 +259,7 @@ mainloop()
 			putpad(KS);
 			putpad(TI);
 			point(&cursor,0,lcnt-1);
-		case CTRL(l):
+		case CTRL('l'):
 			setup();
 			winnings(cashvalue);
 			continue;
@@ -338,7 +334,7 @@ mainloop()
 						pchar(&you,ME);
 				}
 				break;
-			case CTRL(p):
+			case CTRL('p'):
 			case 'e':
 			case 'k':
 			case 'i':
@@ -351,7 +347,7 @@ mainloop()
 						pchar(&you,ME);
 				}
 				break;
-			case CTRL(n):
+			case CTRL('n'):
 			case 'c':
 			case 'j':
 			case LF:

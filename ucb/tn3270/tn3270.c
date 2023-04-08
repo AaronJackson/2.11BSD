@@ -21,7 +21,7 @@
 
 
 #if	defined(DOSCCS) && !defined(lint)
-static char sccsid[] = "@(#)tn3270.c	2.8\t1/1/94";
+static char sccsid[] = "@(#)tn3270.c	2.9 2020/1/7";
 #endif
 
 /*
@@ -97,7 +97,7 @@ static int	crmod = 0;
 static int	printnet = 0;
 static FILE	*NetTrace;
 static char	*prompt;
-static char	escape = CTRL(]);
+static char	escape = CTRL(']');
 
 static char	line[200];
 static int	margc;

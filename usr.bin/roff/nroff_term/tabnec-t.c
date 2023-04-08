@@ -1,4 +1,4 @@
-/*	tabnec-t.c	4.2	85/02/14	*/
+/*	tabnec-t.c	4.3	2020/1/7 */
 #define INCH 240
 /*
  * NEC Spinwriter 5500 or 7700 12 Pitch
@@ -233,7 +233,7 @@ struct {
 "\001+\b_",				/*plus-minus*/
 "\001U",				/*cup (union)*/
 "\001\200\140\203\136\245",		/*cap (intersection)*/
-#ifdef 0
+#if 0
 "\001\200(\341\206_\345\241_\306\250",		/*subset of*/
 "\001\341_\345\241_\306\207)\251",		/*superset of*/
 "\001\200(\341\206_\345\241_\307\241_\341\250",	/*improper subset*/

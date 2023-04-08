@@ -8,6 +8,10 @@
  *		This program tries to check against this.
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)setfiles.c      1.1 (2.11BSD) 2020/1/7";
+#endif
+
 #include "phant.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -38,14 +42,14 @@ char	stbuf[128];
 #endif
 	umask(077);
 	/* check where Phantasia lives */
-	if (stat(PATH",&fbuf) < 0)
+	if (stat(PATH,&fbuf) < 0)
 		{
-		perror(PATH");
+		perror(PATH);
 		exit(1);
 		/*NOTREACHED*/
 		}
 	if (fbuf.st_mode & S_IFDIR == 0)
-		Error("%s is not a directory.\n",PATH");
+		Error("%s is not a directory.\n",PATH);
 	/* try to create data files */
 	if ((fp = fopen(goldfile,"w")) == NULL)
 		Error("cannot create %s.\n",goldfile);

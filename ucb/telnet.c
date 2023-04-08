@@ -5,11 +5,7 @@
  */
 
 #if	defined(DOSCCS) && !defined(lint)
-char copyright[] =
-"@(#) Copyright (c) 1983 Regents of the University of California.\n\
- All rights reserved.\n";
-
-static char sccsid[] = "@(#)telnet.c	5.16.1 (2.11BSD GTE) 1/1/94";
+static char sccsid[] = "@(#)telnet.c	5.17 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -37,8 +33,6 @@ static char sccsid[] = "@(#)telnet.c	5.16.1 (2.11BSD GTE) 1/1/94";
 #include <setjmp.h>
 #include <netdb.h>
 #include <strings.h>
-
-
 
 #ifndef	FD_SETSIZE
 /*
@@ -108,8 +102,8 @@ int	telnetport = 1;
 
 
 char	*prompt;
-char	escape = CTRL(]);
-char	echoc = CTRL(E);
+char	escape = CTRL(']');
+char	echoc = CTRL('E');
 
 int	SYNCHing = 0;		/* we are in TELNET SYNCH mode */
 int	flushout = 0;		/* flush output */
@@ -1899,8 +1893,8 @@ char	*argv[];
 	}
     }
     return 1;
-#undef	doset(sl)
-#undef	dotog(tl)
+#undef	doset
+#undef	dotog
 }
 
 /*

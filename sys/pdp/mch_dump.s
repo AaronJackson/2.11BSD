@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mch_dump.s	1.3 (2.11BSD GTE) 12/24/92
+ *	@(#)mch_dump.s	1.4 (2.11BSD) 2020/1/7
  */
 #include "DEFS.h"
 #include "../machine/mch_iopage.h"
@@ -88,7 +88,7 @@ ASENTRY(dump)
 	 * starting at location 4 (physical)
 	 */
 	inc	$-1			/ check for first time
-	bne	1f			/ if not, don't save registers again
+	bne	1f			// if not, don't save registers again
 	mov	r0,300
 	mov	$302,r0
 	mov	r1,(r0)+

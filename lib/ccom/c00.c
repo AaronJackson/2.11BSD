@@ -1,12 +1,14 @@
 /* C compiler
  *
- *	2.1	(2.11BSD)	1996/01/04
- *
  * Called from cc:
  *   c0 source temp1 temp2 [ profileflag ]
  * temp1 gets most of the intermediate code;
  * strings are put on temp2, which c1 reads after temp1.
  */
+
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c00.c	2.2 (2.11BSD) 2020/1/7";
+#endif
 
 #include "c0.h"
 
@@ -49,6 +51,11 @@ struct kwtab {
 	"typedef",	TYPEDEF,
 	"enum",		ENUM,
 	"asm",		ASM,
+
+	/* new keywords */
+	"const",	CONST,
+	"volatile",	VOLATIL,
+	"signed",	SIGNED,
 	0,		0,
 };
 
@@ -63,7 +70,8 @@ char	*argv[];
 	register unsigned i;
 	register struct kwtab *ip;
 	char	buf1[BUFSIZ],
-		buf2[BUFSIZ];
+		buf2[BUFSIZ],
+		buf3[BUFSIZ];
 
 	if (argc>1 && strcmp(argv[1], "-u")==0) {
 		argc--;
@@ -85,6 +93,7 @@ char	*argv[];
 	}
 	setbuf(stdout,buf2);	/* stdio sbrk problems */
 	setbuf(sbufp, sbuf);
+	protosetup(buf3);
 	/*
 	 * Overlays: allow an extra word on the stack for
 	 * each stack from to store the overlay number.
@@ -235,7 +244,9 @@ loop:
 			peekc = getchar();
 		}
 		if (peekc != '\n') {
+#ifdef notdef
 			error("Illegal #");
+#endif
 			while (getchar()!='\n' && eof==0)
 				;
 		}
@@ -299,6 +310,15 @@ loop:
 		return(0);
 
 	case PERIOD:
+		if ((c = getchar()) == '.') {
+			if ((c = getchar()) == '.')
+				return ELLIPS;
+			error("Too many '.'");
+		} else {
+			ungetc(c, stdin);
+			c = '.';
+		}
+		/* FALLTHROUGH */
 	case DIGIT:
 		peekc = c;
 		return(getnum());
@@ -458,13 +478,17 @@ register max;
 		max = 10000;
 	} else
 		outcode("B", BDATA);
-	while ((c = mapch('"')) >= 0) {
+more:	while ((c = mapch('"')) >= 0) {
 		if (nchstr < max) {
 			nchstr++;
 			if (nchstr%15 == 0)
 				outcode("0B", BDATA);
 			outcode("1N", c & 0377);
 		}
+	}
+	if (nextchar() == '"') {
+		peekc = 0;
+		goto more;
 	}
 	if (nchstr < max) {
 		nchstr++;
@@ -479,8 +503,12 @@ cntstr()
 	register int c;
 
 	nchstr = 1;
-	while ((c = mapch('"')) >= 0) {
+more:	while ((c = mapch('"')) >= 0) {
 		nchstr++;
+	}
+	if (nextchar() == '"') {
+		peekc = 0;
+		goto more;
 	}
 }
 
@@ -615,9 +643,11 @@ advanc:
 		}
 		if (cs->hclass==0 && cs->htype==0)
 			if(nextchar()=='(') {
+				static int pstore;
 				/* set function */
 				cs->hclass = EXTERN;
 				cs->htype = FUNC;
+				cs->hsubsp = &pstore;	/* no prototype */
 			} else {
 				cs->hclass = STATIC;
 				error("%s undefined; func. %s", cs->name,

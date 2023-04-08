@@ -3,18 +3,23 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)SYS.h	1.5 (2.11BSD GTE) 1995/05/08
+ *	@(#)SYS.h	1.6 (2.11BSD) 2020/1/7
  */
 
 #include <syscall.h>
 
 .comm	_errno,2
 
-#define	ENTRY(x)	.globl _/**/x; \
-		_/**/x: \
-			PROFCODE(_/**/x);
-
-#define	ASENTRY(x)	.globl x; \
+#ifdef __STDC__
+#define __CONC(x,y)		x ## y
+#else
+#define __CONC(x,y)		x/**/y
+#endif
+ 
+#define ENTRY(x)	.globl __CONC(_,x); \
+		__CONC(_,x): \
+			PROFCODE(__CONC(_,x));
+#define ASENTRY(x)	.globl x; \
 		x: \
 			PROFCODE(x);
 
@@ -25,15 +30,15 @@
 			.globl	mcount; \
 			mov	$1b, r0; \
 			jsr	pc,mcount;
-#else !PROF
+#else /* !PROF */
 #define	PROFCODE(x)	;
-#endif PROF
+#endif /* PROF */
 
-#define	SYS(s)		sys	SYS_/**/s.
+#define	SYS(s)		sys	__CONC(SYS_,s).
 
 #define	SYSCALL(s, r)	ENTRY(s); \
 			SYS(s); \
-			EXIT_/**/r
+			__CONC(EXIT_,r)
 
 		.globl	x_norm, x_error
 

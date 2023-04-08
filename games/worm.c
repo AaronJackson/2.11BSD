@@ -4,15 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-char copyright[] =
-"@(#) Copyright (c) 1980 Regents of the University of California.\n\
- All rights reserved.\n";
-#endif not lint
-
-#ifndef lint
-static char sccsid[] = "@(#)worm.c	5.2 (Berkeley) 6/25/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)worm.c	5.3 (2.11BSD) 2020/1/7";
+#endif
 
 /*
  * Worm.  Written by Michael Toy
@@ -30,7 +24,7 @@ static char sccsid[] = "@(#)worm.c	5.2 (Berkeley) 6/25/85";
 #define RUNLEN 8
 #define when break;case
 #define otherwise break;default
-#define CNTRL(p) ('p'-'A'+1)
+#define CNTRL(p) (p-'A'+1)
 #ifndef baudrate
 # define	baudrate()	_tty.sg_ospeed
 #endif
@@ -190,9 +184,9 @@ char ch;
 		when 'K': y--; running = RUNLEN/2; ch = tolower(ch);
 		when 'L': x++; running = RUNLEN; ch = tolower(ch);
 		when '\f': setup(); return;
-		when CNTRL(Z): suspend(); return;
-		when CNTRL(C): crash(); return;
-		when CNTRL(D): crash(); return;
+		when CNTRL('Z'): suspend(); return;
+		when CNTRL('C'): crash(); return;
+		when CNTRL('D'): crash(); return;
 		otherwise: if (! running) alarm(1);
 			   return;
 	}

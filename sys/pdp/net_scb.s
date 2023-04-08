@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)net_scb.s	1.2 (2.11BSD GTE) 10/13/92
+ *	@(#)net_scb.s	1.3 (2.11BSD) 2020/1/7
  */
 
 #include "acc.h"
@@ -20,8 +20,8 @@
  * Entry points for interrupt vectors from kernel low-core
  */
 
-#define	HANDLER(handler)	.globl handler, _/**/handler; \
-				handler: jsr r0,call; jmp _/**/handler
+#define	HANDLER(handler)	.globl handler, _ ## handler; \
+				handler: jsr r0,call; jmp _ ## handler
 
 #if NACC > 0
 	HANDLER(accrint)

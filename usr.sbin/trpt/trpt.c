@@ -4,14 +4,8 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-char copyright[] =
-"@(#) Copyright (c) 1983 Regents of the University of California.\n\
- All rights reserved.\n";
-#endif not lint
-
-#ifndef lint
-static char sccsid[] = "@(#)trpt.c	5.2 (Berkeley) 9/18/85";
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)trpt.c	5.3 (2.11BSD) 2020/1/7";
 #endif not lint
 
 #include <sys/param.h>
@@ -277,7 +271,7 @@ tcp_trace(act, ostate, atp, tp, ti, req)
 		flags = ti->ti_flags;
 		if (flags) {
 			char *cp = "<";
-#define pf(f) { if (ti->ti_flags&TH_/**/f) { printf("%s%s", cp, "f"); cp = ","; } }
+#define pf(f) { if (ti->ti_flags&TH_ ## f) { printf("%s%s", cp, "f"); cp = ","; } }
 			pf(SYN); pf(ACK); pf(FIN); pf(RST); pf(PUSH); pf(URG);
 			printf(">");
 		}

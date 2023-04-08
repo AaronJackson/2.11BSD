@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)lexi.c	5.4 (Berkeley) 9/10/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)lexi.c	5.5 (2.11BSD) 2020/1/7";
+#endif /* not lint */
 
 /*-
  *
@@ -71,8 +71,8 @@ static char sccsid[] = "@(#)lexi.c	5.4 (Berkeley) 9/10/85";
  * the type of token scanned. 
  */
 
-#include "indent_globs.h";
-#include "indent_codes.h";
+#include "indent_globs.h"
+#include "indent_codes.h"
 #include "ctype.h"
 
 #define alphanum 1

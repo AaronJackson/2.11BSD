@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)io.c	5.3 (Berkeley) 9/8/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)io.c	5.4 (2.11BSD) 2020/1/7";
+#endif
 
 /*-
  *			  Copyright (C) 1976
@@ -65,7 +65,7 @@ static char sccsid[] = "@(#)io.c	5.3 (Berkeley) 9/8/85";
  *	initial coding 	November 1976	D A Willcox of CAC
  *
  */
-#include "indent_globs.h";
+#include "indent_globs.h"
 
 
 
@@ -311,7 +311,6 @@ compute_label_target()
  * buffer from temporary buffer 
  *
  */
-int
 fill_buffer()
 {				/* this routine reads stuff from the input */
     int         count;

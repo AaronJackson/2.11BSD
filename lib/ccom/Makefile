@@ -6,10 +6,11 @@ DESTDIR =
 LIB=/lib
 
 all: c0 c1 cvopt
-c0: c00.o c01.o c02.o c03.o c04.o c05.o
-	${CC} ${LDC0FLAGS} ${CFLAGS} -o c0 c00.o c01.o c02.o c03.o c04.o c05.o
+c0: c00.o c01.o c02.o c03.o c04.o c05.o ansi.o
+	${CC} ${LDC0FLAGS} ${CFLAGS} -o c0 c00.o c01.o c02.o c03.o c04.o \
+	c05.o ansi.o
 
-c00.o c01.o c02.o c03.o c04.o c05.o: c0.h
+c00.o c01.o c02.o c03.o c04.o c05.o ansi.o: c0.h
 
 c1: c10.o c11.o c12.o c13.o table.o
 	${CC} ${LDC1FLAGS} ${CFLAGS} -o c1 c10.o c11.o c12.o c13.o table.o

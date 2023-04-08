@@ -1,7 +1,3 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/sh.set.c,v 3.0 1991/07/04 21:49:28 christos Exp $ */
-/*
- * sh.set.c: Setting and Clearing of variables
- */
 /*-
  * Copyright (c) 1980, 1991 The Regents of the University of California.
  * All rights reserved.
@@ -35,9 +31,9 @@
  * SUCH DAMAGE.
  */
 #include "config.h"
-#if !defined(lint) && !defined(pdp11)
-static char *rcsid() 
-    { return "$Id: sh.set.c,v 3.0 1991/07/04 21:49:28 christos Exp $"; }
+
+#if !defined(lint) && defined(DOSCCS)
+    static char *sccsid = "@(#)sh.set.c 3.1 (2.11BSD) 2020/1/7";
 #endif
 
 #include "sh.h"
@@ -51,16 +47,12 @@ static	Char		*getinx		__P((Char *, int *));
 static	void		 asx		__P((Char *, int, Char *));
 static	struct varent 	*getvx		__P((Char *, int));
 static	Char		*xset		__P((Char *, Char ***));
-static	Char		*operate	__P((int, Char *, Char *));
+static	Char		*operate	__P((Char, Char *, Char *));
 static	void	 	 putn1		__P((int));
 static	struct varent	*madrof		__P((Char *, struct varent *));
 static	void		 unsetv1	__P((struct varent *));
 static	void		 exportpath	__P((Char **));
 static	void		 balance	__P((struct varent *, int, int));
-
-/*
- * C Shell
- */
 
 void
 doset(v)

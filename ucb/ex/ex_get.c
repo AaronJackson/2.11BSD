@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)ex_get.c	7.6 (Berkeley) 6/7/85";
+static char *sccsid = "@(#)ex_get.c	7.7 (2.11BSD) 2020/1/7";
 #endif
 
 #include "ex.h"
@@ -30,7 +30,7 @@ getchar()
 
 	do
 		c = getcd();
-	while (!globp && c == CTRL(d));
+	while (!globp && c == CTRL('d'));
 	return (c);
 }
 
@@ -44,7 +44,7 @@ again:
 		return (c);
 	c &= TRIM;
 	if (!inopen)
-		if (!globp && c == CTRL(d))
+		if (!globp && c == CTRL('d'))
 			setlastchar('\n');
 		else if (junk(c)) {
 			checkjunk(c);
@@ -71,7 +71,7 @@ peekcd()
 getach()
 {
 	register int c;
-	static char inline[BUFSIZ];
+	static char xinline[BUFSIZ];
 	struct stat statb;
 
 	c = peekc;
@@ -96,25 +96,25 @@ top:
 	}
 	flush();
 	if (intty) {
-		c = read(0, inline, sizeof inline - 4);
+		c = read(0, xinline, sizeof xinline - 4);
 		if (c < 0)
 			return (lastc = EOF);
-		if (c == 0 || inline[c-1] != '\n')
-			inline[c++] = CTRL(d);
-		if (inline[c-1] == '\n')
+		if (c == 0 || xinline[c-1] != '\n')
+			xinline[c++] = CTRL('d');
+		if (xinline[c-1] == '\n')
 			noteinp();
-		inline[c] = 0;
+		xinline[c] = 0;
 		for (c--; c >= 0; c--)
-			if (inline[c] == 0)
-				inline[c] = QUOTE;
-		input = inline;
+			if (xinline[c] == 0)
+				xinline[c] = QUOTE;
+		input = xinline;
 		goto top;
 	}
-	c = read(0, inline, sizeof inline - 1);
+	c = read(0, xinline, sizeof xinline - 1);
 	if(c <= 0)
 		return(lastc = EOF);
-	inline[c] = '\0';
-	input = inline;
+	xinline[c] = '\0';
+	input = xinline;
 	goto top;
 }
 
@@ -148,7 +148,7 @@ gettty()
 				lastin = lindent(dot + 1);
 #endif
 			tab(lastin + offset);
-			while ((c = getcd()) == CTRL(d)) {
+			while ((c = getcd()) == CTRL('d')) {
 				if (lastin == 0 && isatty(0) == -1) {
 					holdcm = 0;
 					return (EOF);
@@ -161,7 +161,7 @@ gettty()
 			case '^':
 			case '0':
 				ch = getcd();
-				if (ch == CTRL(d)) {
+				if (ch == CTRL('d')) {
 					if (c == '0')
 						lastin = 0;
 					if (!OS) {

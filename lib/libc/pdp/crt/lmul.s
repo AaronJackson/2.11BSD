@@ -5,9 +5,9 @@
  */
 
 #ifdef LIBC_SCCS
-	<@(#)lmul.s	2.3 (Berkeley) 1/28/87\0>
+	<@(#)lmul.s	2.4 (2.11BSD) 2020/1/7\0>
 	.even
-#endif LIBC_SCCS
+#endif /* LIBC_SCCS */
 
 /*
  * lmul(lhs, rhs)
@@ -29,8 +29,8 @@ ASENTRY(lmul)
 	mov	12.(sp),r0	/ r0 = loint(rhs)
 	sxt	r3		/ r3 = sxt(loint(rhs)) - hiint(rhs)
 	sub	10.(sp),r3
-	mul	r0,r1		/ MAGIC = loint(rhs) * hiint(lhs)'
-	mul	r2,r3		/       + loint(lhs) * hiint(rhs)'
+	mul	r0,r1		/ MAGIC = loint(rhs) * hiint(lhs)
+	mul	r2,r3		/       + loint(lhs) * hiint(rhs)
 	add	r1,r3
 	mul	r2,r0		/ prod (r0:r1) = loint(lhs)*loint(rhs)
 	sub	r3,r0		/ hiint(prod) -= MAGIC

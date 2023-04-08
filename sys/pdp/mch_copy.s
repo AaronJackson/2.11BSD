@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mch_copy.s	1.3 (2.11BSD GTE) 1/9/94
+ *	@(#)mch_copy.s	1.4 (2.11BSD) 2020/1/7
  */
 
 #include "DEFS.h"
@@ -468,7 +468,7 @@ ENTRY(copyinstr)
 	tst	16(sp)			/ does the caller want the copy length?
 	beq	6f
 	sub	12(sp),r2		/ yes, figure out how much we copied:
-	mov	r2,*16(sp)		/ *lencopied = r2 {toaddr'} - toaddr
+	mov	r2,*16(sp)		// *lencopied = r2 {toaddr'} - toaddr
 6:
 	mov	(sp)+,nofault		/ restore error trap
 	mov	(sp)+,r3		/ restore registers

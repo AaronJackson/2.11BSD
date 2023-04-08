@@ -9,7 +9,7 @@
  * software without specific prior written permission. This software
  * is provided ``as is'' without express or implied warranty.
  *
- *	@(#)tcp_debug.c	7.2.1 (2.11BSD) 1995/10/11
+ *	@(#)tcp_debug.c	7.3 (2.11BSD) 2020/1/7
  */
 
 #ifdef	TCPDEBUG
@@ -110,7 +110,7 @@ tcp_trace(act, ostate, tp, ti, req)
 		if (flags) {
 #ifndef lint
 			char *cp = "<";
-#define pf(f) { if (ti->ti_flags&TH_/**/f) { printf("%s%s", cp, "f"); cp = ","; } }
+#define pf(f) { if (ti->ti_flags&TH_ ## f) { printf("%s%s", cp, "f"); cp = ","; } }
 			pf(SYN); pf(ACK); pf(FIN); pf(RST); pf(PUSH); pf(URG);
 #endif
 			printf(">");

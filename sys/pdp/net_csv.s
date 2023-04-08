@@ -5,7 +5,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(KERNEL) && !defined(SUPERVISOR)
-	<@(#)csv.s	2.4 (2.11BSD GTE) 12/24/92\0>
+	<@(#)csv.s	2.5 (2.11BSD) 2020/1/7\0>
 	.even
 #endif
 
@@ -104,8 +104,8 @@ __ovno:	0
  * branch to ovhndlr which sets the overlay, simulates a csv and transfers to
  * (r1) (~foo+4).  Thus, the function's call to csv is bypassed.
  */
-#define	ovh(x, n)	.globl	ovhndlr/**/x; \
-		ovhndlr/**/x: \
+#define	ovh(x, n)	.globl	ovhndlr ## x; \
+		ovhndlr ## x: \
 			mov	$n,r0; \
 			br	ovhndlr;
 

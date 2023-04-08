@@ -5,9 +5,9 @@
  */
 
 #ifdef SYSLIBC_SCCS
-_sccsid: <@(#)sigaction.s	1.0 (2.11BSD) 1997/8/23\0>
+_sccsid: <@(#)sigaction.s	1.1 (2.11BSD) 2020/1/7\0>
 	.even
-#endif SYSLIBC_SCCS
+#endif /* SYSLIBC_SCCS */
 
 /*
  * error = sigaction(sig, vec, ovec)
@@ -85,7 +85,7 @@ iot	= 4
 sigtramp:
 	jsr	pc,(r0)			/ transfer to signal action routine
 	mov	sp,r0			/ compute address of sigcontext
-	add	$SIG_SC,r0		/   (can't use "mov sp,-(sp)")
+	add	$SIG_SC,r0		//   (can't use "mov sp,-(sp)")
 	mov	r0,-(sp)
 	jsr	pc,_sigreturn		/   and perform a sigreturn
 	iot				/ die if the sigreturn fails ...

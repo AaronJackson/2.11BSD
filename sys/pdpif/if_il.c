@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)if_il.c	2.2 (2.11BSD GTE) 1/6/95
+ *	@(#)if_il.c	2.3 (2.11BSD) 2020/1/7
  *
  *	1/6/95 - sms: start of network data was already computed in sys_net.c,
  *		it should no longer be done in this driver.  Using 'startnet'
@@ -704,7 +704,7 @@ ilioctl(ifp, cmd, data)
 	register struct il_softc *is = &il_softc[ifp->if_unit];
 	int s = splimp(), error = 0;
 
-/*	printf("\tilioctl new:%X\n", ntohl(IA_SIN(ifa)->sin_addr.s_addr));/**/
+/*	printf("\tilioctl new:%X\n", ntohl(IA_SIN(ifa)->sin_addr.s_addr));*/
 	switch (cmd) {
 
 	case SIOCSIFADDR:
