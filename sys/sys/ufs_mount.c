@@ -3,13 +3,14 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ufs_mount.c	2.2 (2.11BSD) 2019/11/18
+ *	@(#)ufs_mount.c	2.3 (2.11BSD) 2019/12/17
  */
 
 #include "param.h"
 #include "../machine/seg.h"
 
 #include "systm.h"
+#include "kernel.h"
 #include "user.h"
 #include "inode.h"
 #include "fs.h"
@@ -293,6 +294,7 @@ found:
 		  fs->fs_fmod = 1;		/* SB update needed */
 		  fs->fs_flags |= MNT_CLEAN;	/* File system is now clean */
 		}
+		fs->fs_time = time.tv_sec;
 	}
 
 	ufs_sync(mp);

@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ufs_alloc.c	1.4 (2.11BSD) 2000/10/14
+ *	@(#)ufs_alloc.c	1.5 (2.11BSD) 2019/12/17
  */
 
 #include "param.h"
@@ -76,7 +76,6 @@ balloc(ip, flags)
 		 */
 		bp = getblk(ip->i_dev, SUPERB);
 		fs->fs_fmod = 0;
-		fs->fs_time = time.tv_sec;
 		{
 			register struct fs *fps;
 

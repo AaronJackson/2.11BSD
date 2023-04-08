@@ -1,5 +1,5 @@
 /*
- * 	@(#) 	ufs_syscalls2.c	  1.5 (2.11BSD) 1997/1/31
+ * 	@(#) 	ufs_syscalls2.c	  1.6 (2.11BSD) 2019/12/17
  *
  * ufs_syscalls was getting too large.  Various UFS related system calls were
  * relocated to this file.
@@ -151,7 +151,6 @@ ufs_sync(mp)
 		{
 		bp =  getblk(mp->m_dev, SUPERB);
 		fs->fs_fmod = 0;
-		fs->fs_time = time.tv_sec;
 		bcopy(fs, mapin(bp), sizeof (struct fs));
 		mapout(bp);
 		bwrite(bp);
