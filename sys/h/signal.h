@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)signal.h	1.2 (2.11BSD) 1997/8/28
+ *	@(#)signal.h	1.1 (2.10BSD Berkeley) 12/1/86
  */
 
 #ifndef	NSIG
@@ -14,12 +14,30 @@
 #define	SIGQUIT	3	/* quit */
 #define	SIGILL	4	/* illegal instruction (not reset when caught) */
 #define	    ILL_RESAD_FAULT	0x0	/* reserved addressing fault */
+#define	    ILL_PRIVIN_FAULT	0x1	/* privileged instruction fault */
+#define	    ILL_RESOP_FAULT	0x2	/* reserved operand fault */
 /* CHME, CHMS, CHMU are not yet given back to users reasonably */
 #define	SIGTRAP	5	/* trace trap (not reset when caught) */
 #define	SIGIOT	6	/* IOT instruction */
 #define	SIGABRT	SIGIOT	/* compatibility */
 #define	SIGEMT	7	/* EMT instruction */
 #define	SIGFPE	8	/* floating point exception */
+#define	    FPE_INTOVF_TRAP	0x1	/* integer overflow */
+#define	    FPE_INTDIV_TRAP	0x2	/* integer divide by zero */
+#define	    FPE_FLTOVF_TRAP	0x3	/* floating overflow */
+#define	    FPE_FLTDIV_TRAP	0x4	/* floating/decimal divide by zero */
+#define	    FPE_FLTUND_TRAP	0x5	/* floating underflow */
+#define	    FPE_DECOVF_TRAP	0x6	/* decimal overflow */
+#define	    FPE_SUBRNG_TRAP	0x7	/* subscript out of range */
+#define	    FPE_FLTOVF_FAULT	0x8	/* floating overflow fault */
+#define	    FPE_FLTDIV_FAULT	0x9	/* divide by zero floating fault */
+#define	    FPE_FLTUND_FAULT	0xa	/* floating underflow fault */
+#ifdef pdp11
+#define     FPE_CRAZY		0xb	/* illegal return code - FPU crazy */
+#define     FPE_OPCODE_TRAP	0xc	/* bad floating point op code */
+#define     FPE_OPERAND_TRAP	0xd	/* bad floating point operand */
+#define     FPE_MAINT_TRAP	0xe	/* maintenance trap */
+#endif
 #define	SIGKILL	9	/* kill (cannot be caught or ignored) */
 #define	SIGBUS	10	/* bus error */
 #define	SIGSEGV	11	/* segmentation violation */
@@ -44,52 +62,11 @@
 #define SIGUSR1 30	/* user defined signal 1 */
 #define SIGUSR2 31	/* user defined signal 2 */
 
-#define	SIG_ERR		(int (*)())-1
-#define	SIG_DFL		(int (*)())0
-#define	SIG_IGN		(int (*)())1
-
 #ifndef KERNEL
 int	(*signal())();
 #endif
 
-typedef unsigned long sigset_t;
-
 /*
- * Signal vector "template" used in sigaction call.
- */
-struct	sigaction {
-	int	(*sa_handler)();	/* signal handler */
-	sigset_t sa_mask;		/* signal mask to apply */
-	int	sa_flags;		/* see signal options below */
-};
-
-#define SA_ONSTACK	0x0001	/* take signal on signal stack */
-#define SA_RESTART	0x0002	/* restart system on signal return */
-#define	SA_DISABLE	0x0004	/* disable taking signals on alternate stack */
-#define SA_NOCLDSTOP	0x0008	/* do not generate SIGCHLD on child stop */
-
-/*
- * Flags for sigprocmask:
- */
-#define	SIG_BLOCK	1	/* block specified signal set */
-#define	SIG_UNBLOCK	2	/* unblock specified signal set */
-#define	SIG_SETMASK	3	/* set specified signal set */
-
-typedef	int (*sig_t)();		/* type of signal function */
-
-/*
- * Structure used in sigaltstack call.
- */
-struct	sigaltstack {
-	char	*ss_base;		/* signal stack base */
-	int	ss_size;		/* signal stack length */
-	int	ss_flags;		/* SA_DISABLE and/or SA_ONSTACK */
-};
-#define	MINSIGSTKSZ	128			/* minimum allowable stack */
-#define	SIGSTKSZ	(MINSIGSTKSZ + 384)	/* recommended stack size */
-
-/*
- * 4.3 compatibility:
  * Signal vector "template" used in sigvec call.
  */
 struct	sigvec {
@@ -97,12 +74,11 @@ struct	sigvec {
 	long	sv_mask;		/* signal mask to apply */
 	int	sv_flags;		/* see signal options below */
 };
-#define SV_ONSTACK	SA_ONSTACK	/* take signal on signal stack */
-#define SV_INTERRUPT	SA_RESTART	/* same bit, opposite sense */
-#define sv_onstack sv_flags		/* isn't compatibility wonderful! */
+#define SV_ONSTACK	0x0001	/* take signal on signal stack */
+#define SV_INTERRUPT	0x0002	/* do not restart system on signal return */
+#define sv_onstack sv_flags	/* isn't compatibility wonderful! */
 
 /*
- * 4.3 compatibility:
  * Structure used in sigstack call.
  */
 struct	sigstack {
@@ -129,20 +105,23 @@ struct	sigcontext {
 	int	sc_ovno			/* overlay to restore */
 };
 
+#define	BADSIG		(int (*)())-1
+#define	SIG_DFL		(int (*)())0
+#define	SIG_IGN		(int (*)())1
+
+#ifdef KERNEL
+#define	SIG_CATCH	(int (*)())2
+#define	SIG_HOLD	(int (*)())3
+#endif
+#endif
+
 /*
  * Macro for converting signal number to a mask suitable for
  * sigblock().
  */
-#define sigmask(m)		(1L << ((m)-1))
-#define sigaddset(set, signo)	(*(set) |= 1L << ((signo) - 1), 0)
-#define sigdelset(set, signo)	(*(set) &= ~(1L << ((signo) - 1)), 0)
-#define sigemptyset(set)	(*(set) = (sigset_t)0, (int)0)
-#define sigfillset(set)         (*(set) = ~(sigset_t)0, (int)0)
-#define sigismember(set, signo) ((*(set) & (1L << ((signo) - 1))) != 0)
+#define sigmask(m)	((long)1 << ((m)-1))
 
 #ifndef KERNEL
 extern long	sigblock(), sigsetmask();
 #define	BADSIG	SIG_ERR
 #endif
-
-#endif /* NSIG */
