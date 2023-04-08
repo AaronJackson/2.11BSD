@@ -1,5 +1,5 @@
-#ifndef lint
-static char sccsid[] = "@(#)wwgets.c	3.9 4/24/85";
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)wwgets.c	3.10 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -41,7 +41,7 @@ register struct ww *w;
 			break;
 		} else {
 			if (p >= buf + n - 1)
-				wwputc(ctrl(g), w);
+				wwputc(ctrl('g'), w);
 			else
 				wwputs(unctrl(*p++ = c), w);
 		}

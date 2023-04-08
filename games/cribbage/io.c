@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)io.c	5.1 (Berkeley) 5/30/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)io.c	5.2 (2.11BSD) 2020/1/7";
+#endif
 
 # include	<curses.h>
 # include	<ctype.h>
@@ -20,15 +20,15 @@ static char sccsid[] = "@(#)io.c	5.1 (Berkeley) 5/30/85";
 # ifdef CTRL
 # undef CTRL
 # endif
-# define	CTRL(X)			('X' - 'A' + 1)
+# define	CTRL(X)			(X - 'A' + 1)
 
-# ifndef	erasechar()
+# ifndef	erasechar
 #	define	erasechar()	_tty.sg_erase
-# endif		erasechar()
+# endif		/* erasechar() */
 
-# ifndef	killchar()
+# ifndef	killchar
 #	define	killchar()	_tty.sg_kill
-# endif		killchar()
+# endif		/* killchar() */
 
 char		linebuf[ LINESIZE ];
 
@@ -496,7 +496,7 @@ over:
     while (read(0, &c, 1) <= 0)
 	if (cnt++ > 100)	/* if we are getting infinite EOFs */
 	    bye();		/* quit the game */
-    if (c == CTRL(L)) {
+    if (c == CTRL('L')) {
 	wrefresh(curscr);
 	goto over;
     }
@@ -546,7 +546,7 @@ getline()
 	else if (sp == linebuf && c == ' ')
 	    continue;
 	if (sp >= &linebuf[LINESIZE-1] || !(isprint(c) || c == ' '))
-	    putchar(CTRL(G));
+	    putchar(CTRL('G'));
 	else {
 	    if (islower(c))
 		c = toupper(c);

@@ -5,6 +5,9 @@
  * externals.
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c03.c	2.0 (2.11BSD) 2020/1/7";
+#endif
 #include "c0.h"
 
 /*
@@ -86,6 +89,11 @@ struct nmlist *tptr;
 			strdec(ismos, cval);
 			cval = INT;
 			goto types;
+
+		case CONST:
+		case VOLATIL:
+		case SIGNED:
+			continue;
 
 		case UNION:
 		case STRUCT:
@@ -338,7 +346,7 @@ struct nmlist *atptr, *absname;
 	if (tptr->hsubsp) {
 		type = tptr->htype;
 		for (a=0; type&XTYPE;) {
-			if ((type&XTYPE)==ARRAY)
+			if ((type&XTYPE)==ARRAY || ((type&XTYPE)==FUNC))
 				dim.dimens[dim.rank++] = tptr->hsubsp[a++];
 			type >>= TYLEN;
 		}
@@ -384,7 +392,9 @@ struct nmlist *atptr, *absname;
 		} else
 			defsym = dsym = pushdecl(dsym);
 	}
-	if (dim.rank == 0)
+	if ((dsym->htype&XTYPE)==FUNC) {
+		declproto(dsym, &dim);	/* for functions check prototype */
+	} else if (dim.rank == 0)
 		dsym->hsubsp = NULL;
 	else {
 		/*
@@ -393,20 +403,22 @@ struct nmlist *atptr, *absname;
 		 * and .c file both declare a variable.
 		 */
 		if (dsym->hsubsp) {
-			for (a=0, t1 = dsym->htype;
-			    a<dim.rank && (t1&XTYPE)==ARRAY;
-			    a++, t1 >>= TYLEN)
-				/*
-				 * If we haven't seen a declaration for this
-				 * dimension yet, take what's been given now.
-				 */
-				if (!dsym->hsubsp[a])
-					dsym->hsubsp[a] = dim.dimens[a];
-				else if (dim.dimens[a]
-				    && dim.dimens[a] != dsym->hsubsp[a])
-					redec();
-			if (a<dim.rank || (t1&XTYPE)==ARRAY)
-				redec();
+			for (a=0, t1 = dsym->htype; t1&XTYPE; t1 >>= TYLEN) {
+				if ((t1 & XTYPE) == PTR)
+					continue;
+				if ((t1 & XTYPE) == FUNC) {
+					/* protocheck() */ ;
+				} else { /* (t1 & XTYPE) == ARRAY */
+					if (!dsym->hsubsp[a])
+						dsym->hsubsp[a] = dim.dimens[a];
+					else if (dim.dimens[a]
+					    && dim.dimens[a] != dsym->hsubsp[a])
+						redec();
+				}
+				a++;
+			}
+			if (a != dim.rank)
+				error("compiler array botch");
 		} else {
 			dp = (int *)Dblock(dim.rank*sizeof(dim.rank));
 			for (a=0; a<dim.rank; a++)
@@ -604,15 +616,14 @@ struct nmlist *absname;
 		switch(o=symbol()) {
 
 		case LPARN:
-			if (blklev==0) {
-				blklev++;
-				ds = defsym;
-				declare(ARG1, &argtype, 0);
-				defsym = ds;
-				blklev--;
-			} else
-				if ((o=symbol()) != RPARN)
-					goto syntax;
+			blklev++;
+			ds = defsym;
+			dimp->dimens[dimp->rank++] = ansidecl();
+			defsym = ds;
+			blklev--;
+
+			if ((o=symbol()) != RPARN)
+				goto syntax;
 			if (type&BIGTYPE) {
 				typov();
 				type = 0;

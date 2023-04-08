@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)disklabel.h	8.1.1 (2.11BSD) 1995/04/13
+ *	@(#)disklabel.h	8.2 (2.11BSD) 2020/1/7
  */
 
 #ifndef	_SYS_DISKLABEL_H_
@@ -267,20 +267,20 @@ struct partinfo {
  * Disk-specific ioctls.
  */
 		/* get and set disklabel; DIOCGPART used internally */
-#define DIOCGDINFO	_IOR(d, 101, struct disklabel)	/* get */
-#define DIOCSDINFO	_IOW(d, 102, struct disklabel)	/* set */
-#define DIOCWDINFO	_IOW(d, 103, struct disklabel)	/* set, update disk */
-#define DIOCGPART	_IOW(d, 104, struct partinfo)	/* get partition */
+#define DIOCGDINFO	_IOR('d', 101, struct disklabel)	/* get */
+#define DIOCSDINFO	_IOW('d', 102, struct disklabel)	/* set */
+#define DIOCWDINFO	_IOW('d', 103, struct disklabel)	/* set, update disk */
+#define DIOCGPART	_IOW('d', 104, struct partinfo)	/* get partition */
 
 /* do format operation, read or write */
-#define DIOCRFORMAT	_IOWR(d, 105, struct format_op)
-#define DIOCWFORMAT	_IOWR(d, 106, struct format_op)
+#define DIOCRFORMAT	_IOWR('d', 105, struct format_op)
+#define DIOCWFORMAT	_IOWR('d', 106, struct format_op)
 
-#define DIOCSSTEP	_IOW(d, 107, int)	/* set step rate */
-#define DIOCSRETRIES	_IOW(d, 108, int)	/* set # of retries */
-#define DIOCWLABEL	_IOW(d, 109, int)	/* write en/disable label */
+#define DIOCSSTEP	_IOW('d', 107, int)	/* set step rate */
+#define DIOCSRETRIES	_IOW('d', 108, int)	/* set # of retries */
+#define DIOCWLABEL	_IOW('d', 109, int)	/* write en/disable label */
 
-#define DIOCSBAD	_IOW(d, 110, struct dkbad)	/* set kernel dkbad */
+#define DIOCSBAD	_IOW('d', 110, struct dkbad)	/* set kernel dkbad */
 
 #ifndef	KERNEL
 struct disklabel *getdiskbyname();

@@ -4,15 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-char copyright[] =
-"@(#) Copyright (c) 1980 Regents of the University of California.\n\
- All rights reserved.\n";
-#endif not lint
-
-#ifndef lint
-static char sccsid[] = "@(#)indent.c	5.4 (Berkeley) 9/10/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)indent.c	5.5 (2.11BSD) 2020/1/7";
+#endif
 
 /*-
   
@@ -44,8 +38,8 @@ changed, set the variable ps.ind_level.  If the indentation level for
 the following line should be changed, set the variable ps.i_l_follow.
 
 */
-#include "indent_globs.h";
-#include "indent_codes.h";
+#include "indent_globs.h"
+#include "indent_codes.h"
 
 char       *in_name = "Standard Input";	/* will always point to name of
 					 * input file */

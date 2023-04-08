@@ -1,3 +1,7 @@
+#if     !defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)getguess.c    1.1 (2.11BSD) 2020/1/7";
+#endif
+
 # include	"hangman.h"
 
 /*
@@ -23,7 +27,7 @@ getguess()
 			else
 				break;
 		}
-		else if (ch == CTRL(D))
+		else if (ch == CTRL('D'))
 			die();
 		else
 			mvprintw(MESGY, MESGX, "Not a valid guess: '%s'",
@@ -60,7 +64,7 @@ readch()
 			if (++cnt > 100)
 				die();
 		}
-		else if (ch == CTRL(L)) {
+		else if (ch == CTRL('L')) {
 			wrefresh(curscr);
 			mvcur(0, 0, curscr->_cury, curscr->_curx);
 		}

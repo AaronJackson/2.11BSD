@@ -1,5 +1,5 @@
-#ifndef lint
-static char sccsid[] = "@(#)win.c	3.14 4/24/85";
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)win.c	3.15 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -277,7 +277,7 @@ char always;
 	w->ww_unctrl = 0;
 	wwputs("\033E", w);
 	w->ww_unctrl = uc;
-	return c == ctrl([) ? 2 : 1;
+	return c == ctrl('[') ? 2 : 1;
 }
 
 waitnl1(w, prompt)

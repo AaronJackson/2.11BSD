@@ -8,6 +8,10 @@
  *  specifies the terms and conditions for redistribution.
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)hunt.c      1.1 (2.11BSD) 2020/1/7";
+#endif
+
 # include	<errno.h>
 # include	<curses.h>
 # include	"hunt.h"
@@ -598,7 +602,7 @@ intr()
 			fflush(stdout);
 			explained = TRUE;
 		}
-		(void) putchar(CTRL(G));
+		(void) putchar(CTRL('G'));
 		(void) fflush(stdout);
 	}
 }

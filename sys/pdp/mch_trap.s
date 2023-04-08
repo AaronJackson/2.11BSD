@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mch_trap.s	2.2 (2.11BSD GTE) 1/9/94
+ *	@(#)mch_trap.s	2.3 (2.11BSD) 2020/1/7
  */
 #include "DEFS.h"
 #include "../machine/mch_iopage.h"
@@ -77,13 +77,13 @@ ASENTRY(call)
 	 * _knetisr to schedule network activity at a later time when the
 	 * system IPL is low and things are ``less hectic'' ...
 	 */
-	mov	PS,-(sp)		/ set SPL7 so _knetisr doesn't get
-	SPL7				/   changed while we're looking at it
-	tst	_knetisr		/ if (_knetisr != 0
+	mov	PS,-(sp)		// set SPL7 so _knetisr doesn't get
+	SPL7				//   changed while we're looking at it
+	tst	_knetisr		// if (_knetisr != 0
 	beq	2f
-	bit	$340,20(sp)		/  && interrupted IPL == 0
-	bne	2f			/  [shouldn't we check against SPLNET?]
-	cmp	sp,$_u			/  && sp > _u (not on interrupt stack))
+	bit	$340,20(sp)		//  && interrupted IPL == 0
+	bne	2f			//  [shouldn't we check against SPLNET?]
+	cmp	sp,$_u			//  && sp > _u (not on interrupt stack))
 	blos	2f
 #ifdef UCB_METER
 	inc	_cnt+V_SOFT		/   increment soft interrupt counter,
@@ -104,7 +104,7 @@ ASENTRY(call)
 	 */
 	bit	$20000,10(sp)		/ previous mode = user??
 	beq	4f
-	tstb	_runrun			/ yep, is the user's time up?
+	tstb	_runrun			// yep, is the user's time up?
 	beq	3f
 	mov	$T_SWITCHTRAP,(sp)	/ yep, set code to T_SWITCHTRAP
 	jsr	pc,_trap		/   and give up cpu
@@ -112,7 +112,7 @@ ASENTRY(call)
 	/*
 	 * Trap from user space: toss code and reset user's stack pointer.
 	 */
-	tst	(sp)+			/ toss code, reset user's sp
+	tst	(sp)+			// toss code, reset user's sp
 	mtpd	sp			/   and enter common cleanup code
 	br	5f
 4:
@@ -181,7 +181,7 @@ ASENTRY(syscall)
 	mov	r0,-(sp)
 	cmp	-(sp),-(sp)		/ fake __ovno and nps - not needed
 	mov	r1,-(sp)
-	mfpd	sp			/ grab user's sp for argument addresses
+	mfpd	sp			// grab user's sp for argument addresses
 	tst	-(sp)			/ fake code - not needed
 	jsr	pc,_syscall		/ call syscall and start cleaning up
 	tst	(sp)+
@@ -200,14 +200,14 @@ ASENTRY(syscall)
  */
 ASENTRY(emt)
 	mov	PS,saveps		/ save PS just in case we need to trap
-	bit	$20000,PS		/ if the emt isn't from user mode,
-	beq	trap2			/   or, the process isn't overlaid,
-	tst	_u+U_OVBASE		/   or the requested overlay number
-	beq	trap2			/   isn't valid, enter _trap
+	bit	$20000,PS		// if the emt isn't from user mode,
+	beq	trap2			//   or, the process isn't overlaid,
+	tst	_u+U_OVBASE		//   or the requested overlay number
+	beq	trap2			//   isn't valid, enter _trap
 	cmp	r0,$NOVL
 	bhi	trap2
-	mov	r0,-(sp)		/ everything's cool, save r0 and r1
-	mov	r1,-(sp)		/   so they don't get trashed
+	mov	r0,-(sp)		// everything's cool, save r0 and r1
+	mov	r1,-(sp)		//   so they don't get trashed
 	mov	r0,_u+U_CUROV		/ u.u_curov = r0
 	mov	$RO,-(sp)		/ map the overlay in read only
 #ifdef UCB_METER
@@ -216,7 +216,7 @@ ASENTRY(emt)
 	add	$1,_u+U_RU+RU_OVLY+2	/ u.u_ru.ru_ovly++
 	adc	_u+U_RU+RU_OVLY
 	jsr	pc,_choverlay		/ and get choverlay to bring the overlay in
-	tst	(sp)+			/ toss choverlay's paramter,
+	tst	(sp)+			// toss choverlay's paramter,
 	mov	(sp)+,r1		/   restore r0 and r1,
 	mov	(sp)+,r0
 	rtt				/   and return from the trap
@@ -231,8 +231,8 @@ ASENTRY(emt)
 ASENTRY(trap)
 	mov	PS,saveps		/ save PS for call1
 trap1:
-	tst	nofault			/ if someone's already got this trap
-	bne	catchfault		/   scoped out, give it to them
+	tst	nofault			// if someone's already got this trap
+	bne	catchfault		//   scoped out, give it to them
 	/*
 	 * save current values of memory management registers in case we
 	 * want to back up the instruction that failed

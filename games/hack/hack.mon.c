@@ -1,9 +1,14 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* hack.mon.c - version 1.0.3 */
+
+#if     !defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)hack.mon.c    1.1 (2.11BSD) 2020/1/7";
+#endif
 
 #include "hack.h"
 #include "hack.mfndpos.h"
+#ifndef NULL
 #define	NULL	(char *) 0
+#endif
 extern struct monst *makemon();
 extern struct obj *mkobj_at();
 

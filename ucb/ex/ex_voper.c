@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)ex_voper.c	7.4 (Berkeley) 6/7/85";
+static char *sccsid = "@(#)ex_voper.c	7.5 (2.11BSD) 2020/1/7";
 #endif
 
 #include "ex.h"
@@ -390,7 +390,7 @@ fixup:
 	 * ^H		Back a character.
 	 */
 	case 'h':
-	case CTRL(h):
+	case CTRL('h'):
 		dir = -1;
 		/* fall into ... */
 
@@ -484,7 +484,7 @@ errlab:
 	 *		console of the VAX since it puts console in LSI mode.
 	 */
 	case 'k':
-	case CTRL(p):
+	case CTRL('p'):
 		wdot = dot - cnt;
 		if (vmoving == 0)
 			vmoving = 1, vmovcol = column(cursor);
@@ -531,7 +531,7 @@ errlab:
 	 *
 	 * LF		Linefeed is a convenient synonym for ^N.
 	 */
-	case CTRL(n):
+	case CTRL('n'):
 	case 'j':
 	case NL:
 		wdot = dot + cnt;

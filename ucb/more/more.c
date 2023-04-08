@@ -5,11 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-char copyright[] =
-"@(#) Copyright (c) 1980 Regents of the University of California.\n\
- All rights reserved.\n";
-
-static char sccsid[] = "@(#)more.c	5.4.2 (2.11BSD) 1997/10/18";
+static char sccsid[] = "@(#)more.c	5.5 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -48,7 +44,7 @@ static char sccsid[] = "@(#)more.c	5.4.2 (2.11BSD) 1997/10/18";
 
 #define TBUFSIZ	1024
 #define LINSIZ	256
-#define ctrl(letter)	('letter' & 077)
+#define ctrl(letter)	(letter & 077)
 #define RUBOUT	'\177'
 #define ESC	'\033'
 #define QUIT	'\034'
@@ -627,7 +623,7 @@ register int n;
     *sptr++ = n % 10 + '0';
 }
 
-static char bell = ctrl(G);
+static char bell = ctrl('G');
 
 /* See whether the last component of the path name "path" is equal to the
 ** string "string"
@@ -954,7 +950,7 @@ register FILE *f;
 		done++;
 	    break;
 	case 'b':
-	case ctrl(B):
+	case ctrl('B'):
 	    {
 		register int initline;
 
@@ -1000,7 +996,7 @@ register FILE *f;
 	    else if (comchar == 'z') dlines = nlines;
 	    ret (nlines);
 	case 'd':
-	case ctrl(D):
+	case ctrl('D'):
 	    if (nlines != 0) nscroll = nlines;
 	    ret (nscroll);
 	case 'q':

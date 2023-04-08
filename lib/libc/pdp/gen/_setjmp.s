@@ -5,9 +5,9 @@
  */
 
 #ifdef LIBC_SCCS
-	<@(#)_setjmp.s	1.2 (Berkeley) 1/5/87\0>
+	<@(#)_setjmp.s	1.3 (2.11BSD) 2020/1/7\0>
 	.even
-#endif LIBC_SCCS
+#endif /* LIBC_SCCS */
 
 /*
  * val = _setjmp(env)
@@ -43,13 +43,13 @@ emt	= 0104000			/ overlay switch - ovno in r0
 .globl	__ovno
 
 ENTRY(_setjmp)
-	mov	2(sp),r0		/ r0 = env
-	mov	__ovno,(r0)+		/ save caller's current overlay
-	mov	r5,(r0)+		/   and frame pointer
-	mov	sp,(r0)			/ calculate caller's pre jsr pc,
-	add	$2,(r0)+		/   _setjmp sp as (sp + ret addr)
-	mov	(sp),(r0)		/ save return pc
-	clr	r0			/    and return a zero
+	mov	2(sp),r0		// r0 = env
+	mov	__ovno,(r0)+		// save caller's current overlay
+	mov	r5,(r0)+		//   and frame pointer
+	mov	sp,(r0)			// calculate caller's pre jsr pc,
+	add	$2,(r0)+		//   _setjmp sp as (sp + ret addr)
+	mov	(sp),(r0)		// save return pc
+	clr	r0			//    and return a zero
 	rts	pc
 
 /*

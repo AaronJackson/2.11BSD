@@ -1,7 +1,7 @@
-/* $Header: /home/hyperion/mu/christos/src/sys/tcsh-6.00/RCS/tc.decls.h,v 3.0 1991/07/04 23:34:26 christos Exp $ */
 /*
- * tc.decls.h: Function declarations from all the tcsh modules
+ * tw.decls.h: Tenex external declarations
  */
+
 /*-
  * Copyright (c) 1980, 1991 The Regents of the University of California.
  * All rights reserved.
@@ -34,6 +34,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+
+#if !defined(lint) && defined(DOSCCS)
+    static char *sccsid = "@(#)tw.decls.h 3.1 (2.11BSD) 2020/1/7";
+#endif
+
 #ifndef _h_tc_decls
 #define _h_tc_decls
 
@@ -155,7 +160,9 @@ extern	int		  getv		__P((Char *));
  * tc.printf.h
  */
 extern	void		  xprintf	__P((char *, ...));
+#if 0
 extern	void		  mkprintf	__P((long, ...));
+#endif
 extern	void		  xsprintf	__P((char *, char *, ...));
 extern	void		  xvprintf	__P((char *, va_list));
 extern	void		  xvsprintf	__P((char *, char *, va_list));

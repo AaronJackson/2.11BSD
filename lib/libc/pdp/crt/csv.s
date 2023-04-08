@@ -5,7 +5,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(KERNEL) && !defined(SUPERVISOR)
-	<@(#)csv.s	2.4 (2.11BSD GTE) 12/24/92\0>
+	<@(#)csv.s	2.5 (2.11BSD) 2020/1/7\0>
 	.even
 #endif
 
@@ -104,8 +104,8 @@ __ovno:	0
  * branch to ovhndlr which sets the overlay, simulates a csv and transfers to
  * (r1) (~foo+4).  Thus, the function's call to csv is bypassed.
  */
-#define	ovh(x, n)	.globl	ovhndlr/**/x; \
-		ovhndlr/**/x: \
+#define	ovh(x, n)	.globl	__CONC(ovhndlr,x); \
+		__CONC(ovhndlr,x): \
 			mov	$n,r0; \
 			br	ovhndlr;
 
@@ -117,7 +117,7 @@ ovh(d,015);	ovh(e,016);	ovh(f,017)
 #ifndef KERNEL
 emt	= 0104000		/ overlays switched by emulator trap
 				/ overlay number is placed in r0
-#endif KERNEL
+#endif /* KERNEL */
 
 /*
  * ovhndlr(ov::r0, ~foo+4::r1, _foo+8::r5)
@@ -255,10 +255,10 @@ cret:
 #ifdef SUPERVISOR
 	tst	-(r2)		/ skip over overlay slot
 #else
-	mov	-(r2),r4	/ r4 = old __ovno - if non-zero we've started
-	bne	2f		/   using overlays so we'll have to make
-				/   sure the old overlay is mapped if we're
-				/   returning to the overlay area
+	mov	-(r2),r4	// r4 = old __ovno - if non-zero we've started
+	bne	2f		//   using overlays so we'll have to make
+				//   sure the old overlay is mapped if we're
+				//   returning to the overlay area
 1:
 #endif
 	mov	-(r2),r4	/ restore registers, reset stack, pop frame
@@ -292,11 +292,11 @@ cret:
 	mov	(sp)+,PS	/ restore PS, unmask interrupts
 	br	1b
 #else
-	mov	r0,r3		/ (sigh) returning to a different overlay -
-	mov	r4,r0		/   have to save r0 because we can't trash
-	emt			/   a function result and ask UNIX to switch
-	mov	r4,__ovno	/   the old overlay in
-	mov	r3,r0		/ note that as with ovhndlr the pair "emt"
-	br	1b		/   "mov r4,__ovno" can be interrupted
+	mov	r0,r3		// (sigh) returning to a different overlay -
+	mov	r4,r0		//   have to save r0 because we can't trash
+	emt			//   a function result and ask UNIX to switch
+	mov	r4,__ovno	//   the old overlay in
+	mov	r3,r0		// note that as with ovhndlr the pair "emt"
+	br	1b		//   "mov r4,__ovno" can be interrupted
 #endif
 #endif /* !SUPERVISOR */

@@ -1,6 +1,3 @@
-/*
- * sh.glob.c: Regular expression expansion
- */
 /*-
  * Copyright (c) 1980, 1991 The Regents of the University of California.
  * All rights reserved.
@@ -34,9 +31,9 @@
  * SUCH DAMAGE.
  */
 #include "config.h"
-#if !defined(lint) && !defined(pdp11)
-static char *rcsid() 
-    { return "$Id: sh.glob.c,v 3.1 2019/10/11 13:06:28 sms Exp $"; }
+
+#if !defined(lint) && defined(DOSCCS)
+    static char *sccsid = "@(#)sh.glob.c 3.2 (2.11BSD) 2020/1/7";
 #endif
 
 #include "sh.h"
@@ -85,7 +82,7 @@ static	Char	**libglob	__P((Char **));
 static	Char	**globexpand	__P((Char **));
 static	int	  globbrace	__P((Char *, Char *, Char ***));
 static	void	  pword		__P((void));
-static	void	  psave		__P((int));
+static	void	  psave		__P((Char));
 static	void	  backeval	__P((Char *, bool));
 
 static Char *

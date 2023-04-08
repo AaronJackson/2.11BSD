@@ -1,5 +1,5 @@
-#ifndef lint
-static char sccsid[] = "@(#)wwwrite.c	3.23 5/2/86";
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)wwwrite.c	3.24 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -148,10 +148,10 @@ int n;
 			case '\r':
 				w->ww_cur.c = w->ww_w.l;
 				break;
-			case ctrl(g):
-				ttputc(ctrl(g));
+			case ctrl('g'):
+				ttputc(ctrl('g'));
 				break;
-			case ctrl([):
+			case ctrl('['):
 				w->ww_wstate = 1;
 				break;
 			}

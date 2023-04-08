@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)ex_cmdsub.c	7.7 (Berkeley) 6/7/85";
+static char *sccsid = "@(#)ex_cmdsub.c	7.8 (2.11BSD) 2020/1/7";
 #endif
 
 #include "ex.h"
@@ -1108,7 +1108,7 @@ mapcmd(un, ab)
 	ignore(skipwh());
 	for (p=lhs; ; ) {
 		c = getchar();
-		if (c == CTRL(v)) {
+		if (c == CTRL('v')) {
 			c = getchar();
 		} else if (!un && any(c, " \t")) {
 			/* End of lhs */
@@ -1131,7 +1131,7 @@ mapcmd(un, ab)
 		error("Missing rhs");
 	for (p=rhs; ; ) {
 		c = getchar();
-		if (c == CTRL(v)) {
+		if (c == CTRL('v')) {
 			c = getchar();
 		} else if (endcmd(c) && c!='"') {
 			ungetchar(c);

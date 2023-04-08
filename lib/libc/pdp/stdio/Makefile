@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	5.6.1 (2.11BSD GTE) 4/9/94
+#	@(#)Makefile	5.6.2 (2.11BSD) 2020/1/7
 #
 # SRCS=	doprnt.s ffltpr.s fgetc.s fgets.s fltpr.s fputc.s puts.s gets.s
 # OBJS=	doprnt.o ffltpr.o fgetc.o fgets.o fltpr.o fputc.o puts.o gets.o
@@ -13,10 +13,10 @@ CFLAGS= -O ${DEFS}
 TAGSFILE=tags
 
 .s.o:
-	/lib/cpp -E -DPROF ${DEFS} $< | sed -e 's;^#;/;' | as -V -o $@
+	/lib/cpp -t -E -DPROF ${DEFS} $< | sed -e 's;^#;/;' | as -V -o $@
 	-ld -X -r $*.o
 	mv a.out profiled/$*.o
-	/lib/cpp -E ${DEFS} $< | sed -e 's;^#;/;' | as -V -o $@
+	/lib/cpp -t -E ${DEFS} $< | sed -e 's;^#;/;' | as -V -o $@
 	-ld -x -r $*.o
 	mv a.out $*.o
 

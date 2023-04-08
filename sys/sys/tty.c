@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)tty.c	1.5 (2.11BSD GTE) 1997/5/4
+ *	@(#)tty.c	1.6 (2.11BSD) 2020/1/7
  */
 
 #include "param.h"
@@ -924,7 +924,7 @@ ttyinput(c, tp)
 		if (tp->t_rawq.c_cc > TTYHOG) {
 			if (tp->t_outq.c_cc < TTHIWAT(tp) &&
 			    tp->t_line == NTTYDISC)
-				(void) ttyoutput(CTRL(g), tp);
+				(void) ttyoutput(CTRL('g'), tp);
 		} else if (putc(c, &tp->t_rawq) == 0) {
 			ttwakeup(tp);
 			ttyecho(c, tp);
@@ -993,7 +993,7 @@ ttyinput(c, tp)
 	 */
 	if (tp->t_rawq.c_cc+tp->t_canq.c_cc >= TTYHOG) {
 		if (tp->t_line == NTTYDISC)
-			(void) ttyoutput(CTRL(g), tp);
+			(void) ttyoutput(CTRL('g'), tp);
 		goto endcase;
 	}
 
