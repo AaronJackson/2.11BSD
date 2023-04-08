@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ufs_mount.c	2.1 (2.11BSD GTE) 1997/6/29
+ *	@(#)ufs_mount.c	2.2 (2.11BSD) 2019/11/18
  */
 
 #include "param.h"
@@ -228,12 +228,14 @@ found:
 	fs->fs_flock = 0;
 	fs->fs_nbehind = 0;
 	fs->fs_lasti = 1;
+	if (fs->fs_flags & MNT_CLEAN) flags |= MNT_WASCLEAN;
 	fs->fs_flags = flags;
 	if (ip) {
 		ip->i_flag |= IMOUNT;
 		cacheinval(ip);
 		IUNLOCK(ip);
 	}
+	if (fs->fs_fmod) ufs_sync(mp);
 	return (fs);
 out:
 	if (error == 0)
@@ -283,6 +285,16 @@ found:
 	nchinval(dev);	/* flush the name cache */
 	aflag = mp->m_flags & MNT_ASYNC;
 	mp->m_flags &= ~MNT_ASYNC;	/* Don't want async when unmounting */
+
+	if ((mp->m_flags & MNT_RDONLY) == 0) {
+		struct fs *fs;
+		fs = &mp->m_filsys;
+		if (fs->fs_flags & MNT_WASCLEAN) {
+		  fs->fs_fmod = 1;		/* SB update needed */
+		  fs->fs_flags |= MNT_CLEAN;	/* File system is now clean */
+		}
+	}
+
 	ufs_sync(mp);
 
 #ifdef QUOTA

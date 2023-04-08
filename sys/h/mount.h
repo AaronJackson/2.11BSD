@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mount.h	7.2.5 (2.11BSD GTE) 1997/6/29
+ *	@(#)mount.h	7.3 (2.11BSD) 2019/11/18
  */
 
 /*
@@ -90,6 +90,8 @@ struct	xmount
  * support will never be a problem we can avoid making the flags into a 'long.
 */
 #define	MNT_UPDATE	0x1000		/* not a real mount, just an update */
+#define MNT_CLEAN	0x2000		/* file system is clean */
+#define MNT_WASCLEAN	0x4000		/* file system was clean at mount */
 
 /*
  * Flags for various system call interfaces.
