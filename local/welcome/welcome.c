@@ -1,3 +1,9 @@
+/*
+ *       welcome program
+ *
+ *      @(#) welcome.c 3.1 (2.11BSD) 2019/10/11
+ */
+
 #include <stdio.h>
 #include <sys/param.h>
 #include <sys/sysctl.h>
@@ -123,8 +129,8 @@ main()
 	x = 40 - (strlen(days[det->tm_wday]) / 2);
 	y = (69 - x);
 	printf("\033[8;%dH%s", y, days[det->tm_wday]);
-	sprintf(bot, "%s %d, 19%d %d:%02d %cM", mons[det->tm_mon],
-	        det->tm_mday, det->tm_year, det->tm_hour,
+	sprintf(bot, "%s %d, %d %d:%02d %cM", mons[det->tm_mon],
+	        det->tm_mday, det->tm_year+1900, det->tm_hour,
 		det->tm_min, ap);
 	a = 40 -(strlen(bot) / 2);
 	b = (54 - a);
