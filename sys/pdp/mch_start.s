@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mch_start.s	1.4 (2.11BSD GTE) 8/23/93
+ *	@(#)mch_start.s	1.5 (2.11BSD) 2020/1/7
  */
 
 #include "DEFS.h"
@@ -73,7 +73,7 @@ ASENTRY(start)
 1:
 	clr	r0			/ r0:r1 = (long)r1
 	div	$10.,r0			/ r0 = r0:r1 / 10; r1 = r0:r1 % 10
-	add	$'0,r1			/ bias by ASCII '0'
+	add	$060,r1			/ bias by ASCII '0'
 	movb	r1,-(r2)		/   and stuff into _initflags
 	mov	r0,r1			/ shift quotient and continue
 	bne	1b			/   if non-zero

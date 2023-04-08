@@ -5,9 +5,9 @@
  */
 
 #ifdef LIBC_SCCS
-	<@(#)ldexp.s	2.3 (Berkeley) 6/12/88\0>
+	<@(#)ldexp.s	2.4 (2.11BSD) 2020/1/7\0>
 	.even
-#endif LIBC_SCCS
+#endif /* LIBC_SCCS */
 
 /*
  * double
@@ -28,8 +28,8 @@
 
 #include "DEFS.h"
 
-ERANGE	= 34.			/ can't include <errno.h> because of the
-.comm	_errno,2		/   comments on each line ... (sigh)
+ERANGE	= 34.			// can't include <errno.h> because of the
+.comm	_errno,2		//   comments on each line ... (sigh)
 
 .data
 huge:	077777; 0177777; 0177777; 0177777

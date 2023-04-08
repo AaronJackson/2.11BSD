@@ -1,4 +1,7 @@
-static	char sccsid[] = "@(#)cc.c 4.13 9/18/85";
+#if !defined(lint) && defined(DOSCCS)
+static	char sccsid[] = "@(#)cc.c 5.0 (2.11BSD) 2020/1/7";
+#endif
+
 /*
  * cc - front end for C compiler
  */
@@ -184,12 +187,13 @@ main(argc, argv)
 			assource = tmp3;
 		if (pflag)
 			tmp4 = setsuf(clist[i], 'i');
-		av[0] = "cpp"; av[1] = clist[i];
-		na = 2;
-		if (!exflag)
-			av[na++] = tmp4;
+		av[0] = "cpp";
+		na = 1;
 		for (j = 0; j < np; j++)
 			av[na++] = plist[j];
+		av[na++] = clist[i];
+		if (!exflag)
+			av[na++] = tmp4;
 		av[na++] = 0;
 		if (callsys(cpp, av)) {
 			exfail++;

@@ -9,7 +9,7 @@ char copyright[] =
 "@(#) Copyright (c) 1980 Regents of the University of California.\n\
  All rights reserved.\n";
 
-static char sccsid[] = "@(#)stty.c	5.4.3 (2.11BSD GTE) 1997/5/7";
+static char sccsid[] = "@(#)stty.c	5.5 (2.11BSD) 2020/1/7";
 #endif
 
 /*
@@ -257,8 +257,8 @@ args:
 		}
 		if (eq("dec")){
 			mode.sg_erase = 0177;
-			mode.sg_kill = CTRL(u);
-			tc.t_intrc = CTRL(c);
+			mode.sg_kill = CTRL('u');
+			tc.t_intrc = CTRL('c');
 			ldisc = NTTYDISC;
 			lmode &= ~LPRTERA;
 			lmode |= LCRTBS|LCTLECH|LDECCTQ;

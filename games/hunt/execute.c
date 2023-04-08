@@ -8,10 +8,14 @@
  *  specifies the terms and conditions for redistribution.
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)execute.c      1.1 (2.11BSD) 2020/1/7";
+#endif
+
 # include	"hunt.h"
 
 # undef CTRL
-# define	CTRL(x)	('x' & 037)
+# define	CTRL(x)	(x & 037)
 
 # ifdef MONITOR
 /*
@@ -25,7 +29,7 @@ register PLAYER	*pp;
 
 	ch = pp->p_cbuf[pp->p_ncount++];
 	switch (ch) {
-	  case CTRL(L):
+	  case CTRL('L'):
 		sendcom(pp, REDRAW);
 		break;
 	  case 'q':
@@ -49,7 +53,7 @@ register PLAYER	*pp;
 # ifdef	FLY
 	if (pp->p_flying >= 0) {
 		switch (ch) {
-		  case CTRL(L):
+		  case CTRL('L'):
 			sendcom(pp, REDRAW);
 			break;
 		  case 'q':
@@ -61,7 +65,7 @@ register PLAYER	*pp;
 # endif	FLY
 
 	switch (ch) {
-	  case CTRL(L):
+	  case CTRL('L'):
 		sendcom(pp, REDRAW);
 		break;
 	  case 'h':

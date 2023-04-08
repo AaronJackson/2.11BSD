@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)hk.c	2.4 (2.11BSD) 2001/8/13
+ *	@(#)hk.c	2.5 (2.11BSD) 2020/1/7
  */
 
 /*
@@ -430,7 +430,7 @@ hkustart(unit)
 		disk->dk_flags &= ~DKF_ONLINE;
 		goto done;
 		}
-#ifdef NHK > 1
+#if NHK > 1
 	if (bp->b_cylin == hk_cyl[unit])
 		goto done;
 	hkaddr->hkcyl = bp->b_cylin;
@@ -446,7 +446,7 @@ hkustart(unit)
 	}
 #endif
 	return (didie);
-#endif NHK > 1
+#endif /* NHK > 1 */
 
 done:
 	if (dp->b_active != 2) {
@@ -965,4 +965,4 @@ hkabsbn(bp)
 	pi = &disk->dk_parts[dkpart(bp->b_dev)];
 	return(bp->b_blkno + pi->p_offset);
 	}
-#endif NHK > 0
+#endif /* NHK > 0 */

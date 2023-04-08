@@ -2,6 +2,9 @@
  * 	C compiler-- first pass header
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c0.h	2.0 (2.11BSD) 2020/1/7";
+#endif
 #include <stdio.h>
 
 /*
@@ -364,6 +367,10 @@ int	mossym;
 #define	ENUMTAG	22
 #define	ENUMCON	24
 
+#define	SIGNED	5
+#define	CONST	16
+#define	VOLATIL	17
+
 /*
   keywords
 */
@@ -385,6 +392,7 @@ int	mossym;
 /*
   characters
 */
+#define	ELLIPS	116
 #define	BSLASH	117
 #define	SHARP	118
 #define	INSERT	119

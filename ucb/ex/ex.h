@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ex.h	7.7.1.1 (Berkeley) 8/12/86
+ *	@(#)ex.h	7.8 (2.11BSD) 2020/1/7
  */
 
 #ifdef V6
@@ -157,9 +157,9 @@ extern	 struct	option options[NOPTS + 1];
 #define	QUOTE	0200
 #define	TRIM	0177
 #undef CTRL
-#define	CTRL(c)	('c' & 037)
-#define	NL	CTRL(j)
-#define	CR	CTRL(m)
+#define	CTRL(c)	(c & 037)
+#define	NL	CTRL('j')
+#define	CR	CTRL('m')
 #define	DELETE	0177		/* See also ATTN, QUIT in ex_tune.h */
 #define	ESCAPE	033
 

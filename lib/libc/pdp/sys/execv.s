@@ -5,9 +5,9 @@
  */
 
 #ifdef SYSLIBC_SCCS
-_sccsid: <@(#)execv.s	2.6 (2.11BSD GTE) 1995/05/08\0>
+_sccsid: <@(#)execv.s	2.7 (2.11BSD) 2020/1/7\0>
 	.even
-#endif SYSLIBC_SCCS
+#endif
 
 /*
  * XXX - this routine can't use SYSCALL!!!
@@ -17,10 +17,10 @@ _sccsid: <@(#)execv.s	2.6 (2.11BSD GTE) 1995/05/08\0>
 .globl	_environ
 
 ENTRY(execv)
-	mov	_environ,-(sp)	/ pass default environment,
-	mov	6(sp),-(sp)	/   argv list pointer,
-	mov	6(sp),-(sp)	/   name
-	tst	-(sp)		/ simulate return address stack spacing
-	SYS(execve)		/   and go for it ...
-	add	$8.,sp		/ if we get back it's an error
+	mov	_environ,-(sp)	// pass default environment,
+	mov	6(sp),-(sp)	//   argv list pointer,
+	mov	6(sp),-(sp)	//   name
+	tst	-(sp)		// simulate return address stack spacing
+	SYS(execve)		//   and go for it ...
+	add	$8.,sp		// if we get back it's an error
 	jmp	x_error

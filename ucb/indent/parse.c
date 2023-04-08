@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)parse.c	5.3 (Berkeley) 9/8/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)parse.c	5.4 (2.11BSD) 2020/1/7";
+#endif /* not lint */
 
 /*-
  *
@@ -53,8 +53,8 @@ static char sccsid[] = "@(#)parse.c	5.3 (Berkeley) 9/8/85";
  *
  */
 
-#include "./indent_globs.h";
-#include "./indent_codes.h";
+#include "./indent_globs.h"
+#include "./indent_codes.h"
 
 
 
@@ -188,7 +188,7 @@ parse(tk)
 	    case_ind = ps.i_l_follow + ps.case_indent;	/* cases should be one
 							 * level down from
 							 * switch */
-	    ps.i_l_follow + = ps.case_indent + 1;	/* statements should be
+	    ps.i_l_follow += ps.case_indent + 1;	/* statements should be
 						 * two levels in */
 	    ps.search_brace = btype_2;
 	    break;

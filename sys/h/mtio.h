@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)mtio.h	7.1.2 (2.11BSD) 1998/3/7
+ *	@(#)mtio.h	7.2 (2.11BSD) 2020/1/7
  */
 
 /*
@@ -69,10 +69,10 @@ struct	mtget	{
 #define	MTF_WRITTEN	0x10		/* Tape has been written */
 
 /* mag tape io control commands */
-#define	MTIOCTOP	_IOW(m, 1, struct mtop)		/* do a mag tape op */
-#define	MTIOCGET	_IOR(m, 2, struct mtget)	/* get tape status */
-#define MTIOCIEOT	_IO(m, 3)			/* ignore EOT error */
-#define MTIOCEEOT	_IO(m, 4)			/* enable EOT error */
+#define	MTIOCTOP	_IOW('m', 1, struct mtop)	/* do a mag tape op */
+#define	MTIOCGET	_IOR('m', 2, struct mtget)	/* get tape status */
+#define MTIOCIEOT	_IO('m', 3)			/* ignore EOT error */
+#define MTIOCEEOT	_IO('m', 4)			/* enable EOT error */
 
 #ifndef KERNEL
 #define	DEFTAPE	"/dev/rmt8"

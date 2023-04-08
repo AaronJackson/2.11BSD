@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)pr_comment.c	5.3 (Berkeley) 9/8/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)pr_comment.c	5.4 (2.11BSD) 2020/1/7";
+#endif /* not lint */
 
 /*-
  *
@@ -49,7 +49,7 @@ static char sccsid[] = "@(#)pr_comment.c	5.3 (Berkeley) 9/8/85";
  * tabs from the beginning of the input line are removed 
  */
 
-#include "indent_globs.h";
+#include "indent_globs.h"
 
 
 pr_comment()

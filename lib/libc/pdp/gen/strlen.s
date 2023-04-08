@@ -5,9 +5,9 @@
  */
 
 #ifdef LIBC_SCCS
-	<@(#)strlen.s	1.1 (Berkeley) 1/20/87\0>
+	<@(#)strlen.s	1.2 (2.11BSD) 2020/1/7\0>
 	.even
-#endif LIBC_SCCS
+#endif /* LIBC_SCCS */
 
 /*
  * Return the length of cp (not counting '\0').
@@ -18,10 +18,10 @@
 #include "DEFS.h"
 
 ENTRY(strlen)
-	mov	2(sp),r0	/ r0 = cp
+	mov	2(sp),r0	// r0 = cp
 1:
-	tstb	(r0)+		/ find end os string
+	tstb	(r0)+		// find end os string
 	bne	1b
-	sub	2(sp),r0	/ length = location('\0')+1 - cp - 1
+	sub	2(sp),r0	// length = location('\0')+1 - cp - 1
 	dec	r0
 	rts	pc

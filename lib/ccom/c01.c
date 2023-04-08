@@ -2,7 +2,13 @@
  * C compiler
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static	char	sccsid[] = "@(#)c01.c	2.0 (2.11BSD) 2020/1/7";
+#endif
+
 #include "c0.h"
+
+union tree *protochk();
 
 /*
  * Called from tree, this routine takes the top 1, 2, or 3
@@ -135,7 +141,8 @@ build(op)
 		}
 		if ((t1&XTYPE) != FUNC)
 			error("Call of non-function");
-		*cp++ = block(CALL,decref(t1),p1->t.subsp,p1->t.strp,p1,p2);
+		p2 = protochk(p1->t.subsp[0], p2);
+		*cp++ = block(CALL,decref(t1),p1->t.subsp+1,p1->t.strp,p1,p2);
 		return;
 
 	case STAR:
@@ -238,6 +245,7 @@ build(op)
 		t = t1;
 		if (op==ASSIGN) {
 			if (cvn==PTI) {
+				if (t1 != (PTR|VOID) && t2 != (PTR|VOID))
 				if (t1!=t2 || ((t1&TYPE)==STRUCT && p1->t.strp!=p2->t.strp))
 					werror("mixed pointer assignment");
 				cvn = leftc = 0;

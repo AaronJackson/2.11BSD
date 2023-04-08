@@ -8,6 +8,10 @@
  *  specifies the terms and conditions for redistribution.
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)hunt.h      1.1 (2.11BSD) 2020/1/7";
+#endif
+
 # include	<stdio.h>
 # ifndef OLDIPC
 # include	<sgtty.h>
@@ -140,8 +144,8 @@
 # define	FALSE	0
 # endif TRUE
 # ifndef CTRL
-# define	CTRL(x)	('x' & 037)
-# endif CTRL
+# define	CTRL(x)	(x & 037)
+# endif /* CTRL */
 
 # define	BULSPD		5		/* bullets movement speed */
 # define	ISHOTS		15

@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)vars.c	5.2 (Berkeley) 12/22/87";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)vars.c	5.3 (2.11BSD) 2020/1/7";
+#endif
 
 #include "tip.h"
 
@@ -31,7 +31,7 @@ value_t vtable[] = {
 	{ "exceptions",	STRING|INIT|IREMOTE,	(READ|WRITE)<<PUBLIC,
 	  "ex",		(char *)&EX },
 	{ "force",	CHAR,			(READ|WRITE)<<PUBLIC,
-	  "fo",		(char *)CTRL(p) },
+	  "fo",		(char *)CTRL('p') },
 	{ "framesize",	NUMBER|IREMOTE|INIT,	(READ|WRITE)<<PUBLIC,
 	  "fr",		(char *)&FS },
 	{ "host",	STRING|IREMOTE|INIT,	READ<<PUBLIC,
@@ -45,7 +45,7 @@ value_t vtable[] = {
 	{ "raise",	BOOL,			(READ|WRITE)<<PUBLIC,
 	  "ra",		(char *)FALSE },
 	{ "raisechar",	CHAR,			(READ|WRITE)<<PUBLIC,
-	  "rc",		(char *)CTRL(a) },
+	  "rc",		(char *)CTRL('a') },
 	{ "record",	STRING|INIT|IREMOTE,	(READ|WRITE)<<PUBLIC,
 	  "rec",	(char *)&RE },
 	{ "remote",	STRING|INIT|IREMOTE,	READ<<PUBLIC,

@@ -1,16 +1,15 @@
 /*  INTERMEDIATE CODE GENERATION FOR D. M. RITCHIE C COMPILERS */
-#if FAMILY != DMR
-	WRONG put FILE !!!!
-#endif
 
 #include "defs"
 #include "string_defs"
 #include "dmrdefs"
 
+#if FAMILY != DMR
+	WRONG put FILE !!!!
+#endif
 
 extern int ops2[];
 extern int types2[];
-
 
 puthead(s, class)
 char *s;
@@ -22,7 +21,8 @@ if( ! headerdone )
 	p2op2(P2SETREG, ARGREG-maxregvar);
 	p2op(P2PROG);	/* .text */
 /*
- * 11/12/92, sms@192.26.147.1 
+ * 2020/1/7 - changes for ANSI cpp
+ * 11/12/92, sms
  * The optimizer (/lib/c2) works on blocks of code delimited by .globl
  * statements.  Without the addition below the fortran program ends up
  * being one huge block which was causing the optimizer to blow up.  Large
@@ -44,33 +44,20 @@ if( ! headerdone )
 	}
 }
 
-
-
-
 putnreg()
 {
 p2op2(P2SETREG, ARGREG-nregvar);
 }
-
-
-
-
-
 
 puteof()
 {
 p2op(P2EOF);
 }
 
-
-
 putstmt()
 {
 p2op2(P2EXPR, lineno);
 }
-
-
-
 
 /* put out code for if( ! p) goto l  */
 putif(p,l)
@@ -93,17 +80,12 @@ else
 	}
 }
 
-
-
-
-
 /* put out code for  goto l   */
 putgoto(label)
 int label;
 {
 p2op2(P2GOTO, label);
 }
-
 
 /* branch to address constant or integer variable */
 putbranch(p)
@@ -122,8 +104,6 @@ p2op2(P2JUMP, P2INT);
 putstmt();
 }
 
-
-
 /* put out label  l:     */
 putlabel(label)
 int label;
@@ -131,19 +111,12 @@ int label;
 p2op2(P2LABEL, label);
 }
 
-
-
-
 putexpr(p)
 expptr p;
 {
 putex1(p);
 putstmt();
 }
-
-
-
-
 
 prarif(p, neg, zero, pos)
 expptr p;
@@ -156,8 +129,6 @@ p2i(zero);
 p2i(pos);
 p2i(lineno);
 }
-
-
 
 putcmgo(index, nlab, labs)
 expptr index;
@@ -343,8 +314,6 @@ switch(p->tag)
 	}
 }
 
-
-
 LOCAL putop(p)
 register expptr p;
 {
@@ -483,8 +452,6 @@ p2op2(P2FORCE, (t==TYSHORT ? P2SHORT : (t==TYLONG ? P2LONG : P2DREAL)) );
 putstmt();
 }
 
-
-
 LOCAL putpower(p)
 expptr p;
 {
@@ -537,9 +504,6 @@ if(t2)
 frexpr(p);
 }
 
-
-
-
 LOCAL struct addrblock *intdouble(p, ncommap)
 struct addrblock *p;
 int *ncommap;
@@ -551,10 +515,6 @@ t = mktemp(TYDREAL, NULL);
 putassign(cpexpr(t), p);
 return(t);
 }
-
-
-
-
 
 LOCAL putcxeq(p)
 register struct exprblock *p;
@@ -577,8 +537,6 @@ free(p);
 return(lp);
 }
 
-
-
 LOCAL putcxop(p)
 expptr p;
 {
@@ -589,8 +547,6 @@ ncomma = 0;
 putaddr( putcx1(p, &ncomma), NO);
 putcomma(ncomma, TYINT, NO);
 }
-
-
 
 LOCAL struct addrblock *putcx1(p, ncommap)
 register expptr p;
@@ -740,9 +696,6 @@ free(p);
 return(resp);
 }
 
-
-
-
 LOCAL putcxcmp(p)
 register struct exprblock *p;
 {
@@ -815,9 +768,6 @@ switch(p->tag)
 /* NOTREACHED */
 }
 
-
-
-
 LOCAL putchop(p)
 expptr p;
 {
@@ -827,9 +777,6 @@ ncomma = 0;
 putaddr( putch1(p, &ncomma) , NO );
 putcomma(ncomma, TYCHAR, YES);
 }
-
-
-
 
 LOCAL putcheq(p)
 register struct exprblock *p;
@@ -855,9 +802,6 @@ frexpr(p->vleng);
 free(p);
 }
 
-
-
-
 LOCAL putchcmp(p)
 register struct exprblock *p;
 {
@@ -880,10 +824,6 @@ else
 	}
 }
 
-
-
-
-
 LOCAL putcat(lhs, rhs)
 register struct addrblock *lhs;
 register expptr rhs;
@@ -903,10 +843,6 @@ putx( call4(TYSUBR, "s_cat", lhs, cp, lp, mkconv(TYLONG, ICON(n)) ) );
 putcomma(ncomma, TYINT, NO);
 }
 
-
-
-
-
 LOCAL ncat(p)
 register expptr p;
 {
@@ -914,9 +850,6 @@ if(p->tag==TEXPR && p->opcode==OPCONCAT)
 	return( ncat(p->leftp) + ncat(p->rightp) );
 else	return(1);
 }
-
-
-
 
 LOCAL putct1(q, lp, cp, ip, ncommap)
 register expptr q;
@@ -1026,9 +959,6 @@ switch(p->vstg)
 	}
 frexpr(p);
 }
-
-
-
 
 
 LOCAL struct addrblock *putcall(p)
@@ -1144,8 +1074,6 @@ free(p);
 return(fval);
 }
 
-
-
 LOCAL putmnmx(p)
 register struct exprblock *p;
 {
@@ -1182,15 +1110,11 @@ for(p1 = p0->nextp ; p1 ; p1 = p1->nextp)
 	else
 		putx(qp);
 	}
-
 putcomma(ncomma, type, NO);
 frtemp(sp);
 frtemp(tp);
 frchain( &p0 );
 }
-
-
-
 
 LOCAL putcomma(n, type, indir)
 int n, type, indir;
@@ -1206,7 +1130,6 @@ while(--n >= 0)
  *  routines that put bytes on the pass2 input stream
 */
 
-
 p2i(k)
 int k;
 {
@@ -1217,18 +1140,12 @@ fputc(*s++, textfile);
 fputc(*s, textfile);
 }
 
-
-
-
 p2op(op)
 int op;
 {
 fputc(op, textfile);
 fputc(0376, textfile);   /* MAGIC NUMBER */
 }
-
-
-
 
 p2str(s)
 register char *s;
@@ -1238,16 +1155,12 @@ do
 		while(*s++);
 }
 
-
-
 p2op2(op, i)
 int op, i;
 {
 p2op(op);
 p2i(i);
 }
-
-
 
 p2reg(k, type)
 int k;
@@ -1256,8 +1169,6 @@ p2op2(P2NAME, P2REG);
 p2i(type);
 p2i(k);
 }
-
-
 
 LOCAL p2li(n)
 long int n;
@@ -1268,8 +1179,6 @@ p = &n;
 for(i = 0 ; i< sizeof(long int)/sizeof(int) ; ++i)
 	p2i(*p++);
 }
-
-
 
 LOCAL p2offset(type, offp)
 int type;
@@ -1300,4 +1209,3 @@ if(offp)
 		putx( offp );
 	p2op2(P2PLUS, type);
 	}
-}

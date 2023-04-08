@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)rxreg.h	1.2 (2.11BSD GTE) 1995/11/21
+ *	@(#)rxreg.h	1.3 (2.11BSD) 2020/1/7
  */
 
 struct	rxdevice	{
@@ -46,7 +46,7 @@ struct	rxdevice	{
 #define	RX_RDEC		0000016		/* read error code */
 
 /* ioctls */
-#define	RXIOC_FORMAT	_IO(r, 1)	/* format media */
+#define	RXIOC_FORMAT	_IO('r', 1)	/* format media */
 
 #define	RX_BITS	\
 "\10\20ERR\17INIT\14RX02\13QBUS\12HD\11DD\10XREQ\7IE\6DONE\5UNIT1\1GO"

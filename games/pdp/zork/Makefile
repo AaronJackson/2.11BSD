@@ -1,3 +1,7 @@
+#
+# @(#)Makefile  1.1 (2.11BSD) 2020/1/7
+#
+
 BINDIR = /usr/games
 LIBDIR = /usr/games/lib
 DESTDIR=
@@ -35,4 +39,4 @@ clean:
 o.o:	o.s
 
 .s.o:
-	/lib/cpp -E $< | sed -e 's;^#;/;' | as -o $@
+	/lib/cpp -t -E $< | sed -e 's;^#;/;' | as -o $@

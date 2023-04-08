@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)DEFS.h	1.2 (2.11BSD GTE) 12/24/92
+ *	@(#)DEFS.h	1.3 (2.11BSD) 2020/1/7
  */
 
 #ifndef _DEFS_
@@ -59,11 +59,11 @@
 #endif
 
 
-#define	CONST(s, x, v)	DEC_/**/s(x); x=v;
-#define	INT(s, x, v)	.data; .even; DEC_/**/s(x); x:; v; .text;
-#define	CHAR(s, x, v)	.data; DEC_/**/s(x); x:; .byte v; .text;
-#define	STRING(s, x, v)	.data; DEC_/**/s(x); x:; v; .text;
-#define	SPACE(s, x, n)	.bss;  .even; DEC_/**/s(x); x:; .=.+[n]; .text;
+#define	CONST(s, x, v)	DEC_ ## s(x); x=v;
+#define	INT(s, x, v)	.data; .even; DEC_ ## s(x); x:; v; .text;
+#define	CHAR(s, x, v)	.data; DEC_ ## s(x); x:; .byte v; .text;
+#define	STRING(s, x, v)	.data; DEC_ ## s(x); x:; v; .text;
+#define	SPACE(s, x, n)	.bss;  .even; DEC_ ## s(x); x:; .=.+[n]; .text;
 
 #define	DEC_GLOBAL(x)	.globl x;
 #define	DEC_LOCAL(x)
@@ -72,10 +72,10 @@
  * Macros for compatibility with standard library routines that we have
  * copies of ...
  */
-#define	ENTRY(x)	.globl _/**/x; _/**/x:;
+#define	ENTRY(x)	.globl _ ## x; _ ## x:;
 #define	ASENTRY(x)	.globl x; x:;
 
-#define	P_ENTRY(x)	.globl _/**/x; _/**/x:; PROFCODE;
+#define	P_ENTRY(x)	.globl _ ## x; _ ## x:; PROFCODE;
 #define	P_ASENTRY(x)	.globl x; x:; PROFCODE;
 
 /*

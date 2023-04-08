@@ -4,8 +4,8 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)pl_7.c	5.1 (Berkeley) 5/29/85";
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)pl_7.c	5.2 (2.11BSD) 2020/1/7";
 #endif not lint
 
 #include "player.h"
@@ -205,7 +205,7 @@ register n;
 				*p++ = c;
 				(void) waddch(scroll_w, c);
 			} else
-				(void) putchar(CTRL(g));
+				(void) putchar(CTRL('g'));
 		}
 	}
 }

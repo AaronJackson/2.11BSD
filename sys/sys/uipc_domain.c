@@ -9,7 +9,7 @@
  * software without specific prior written permission. This software
  * is provided ``as is'' without express or implied warranty.
  *
- *	@(#)uipc_domain.c	7.2.1 (2.11BSD) 1995/10/09
+ *	@(#)uipc_domain.c	7.3 (2.11BSD) 2020/1/7
  */
 
 #include "param.h"
@@ -22,9 +22,9 @@
 #include "errno.h"
 
 #define	ADDDOMAIN(x)	{ \
-	extern struct domain x/**/domain; \
-	x/**/domain.dom_next = domains; \
-	domains = &x/**/domain; \
+	extern struct domain x ## domain; \
+	x ## domain.dom_next = domains; \
+	domains = &x ## domain; \
 }
 
 domaininit()

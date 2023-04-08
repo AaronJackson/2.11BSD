@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)ttydefaults.h	1.2 (2.11BSD) 1997/4/15
+ *	@(#)ttydefaults.h	1.3 (2.11BSD) 2020/1/7
  */
 
 /*
@@ -12,26 +12,26 @@
 #ifndef _TTYDEFAULTS_
 #define	_TTYDEFAULTS_
 
-#define CTRL(x)	('x'&037)
+#define CTRL(x)	(x&037)
 /*
  * Control Character Defaults
  */
-#define	CEOF		CTRL(d)
+#define	CEOF		CTRL('d')
 #define	CEOL		_POSIX_VDISABLE
-#define	CERASE		CTRL(h)
-#define	CINTR		CTRL(c)	
-#define	CKILL		CTRL(u)
+#define	CERASE		CTRL('h')
+#define	CINTR		CTRL('c')	
+#define	CKILL		CTRL('u')
 #define	CMIN		1
 #define	CQUIT		034	/* FS, ^\ */
-#define	CSUSP		CTRL(z)
+#define	CSUSP		CTRL('z')
 #define	CTIME		1
-#define	CDSUSP		CTRL(y)
-#define	CSTART		CTRL(q)
-#define	CSTOP		CTRL(s)
-#define	CLNEXT		CTRL(v)
-#define	CFLUSHO 	CTRL(o)
-#define	CWERASE 	CTRL(w)
-#define	CREPRINT 	CTRL(r)
+#define	CDSUSP		CTRL('y')
+#define	CSTART		CTRL('q')
+#define	CSTOP		CTRL('s')
+#define	CLNEXT		CTRL('v')
+#define	CFLUSHO 	CTRL('o')
+#define	CWERASE 	CTRL('w')
+#define	CREPRINT 	CTRL('r')
 #define CQUOTE		'\\'
 #define	CEOT		CEOF
 

@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	5.6.2 (2.11BSD) 2000/10/24
+#	@(#)Makefile	5.6.3 (2.11BSD) 2020/1/7
 #
 #	crt0	Normal C run time startoff
 #	mcrt0	C run time start off for profiling, ``prof'' conventions
@@ -21,12 +21,12 @@ install: ${OBJS}
 	install -c -m 0644 mcrt0.o ${DESTDIR}/lib/mcrt0.o
 
 crt0.o:	crt0.s
-	/lib/cpp ${DEFS} ${DFLAGS} crt0.s | sed 's;^#;/;' | as -o x.o
+	/lib/cpp -t ${DEFS} ${DFLAGS} crt0.s | sed 's;^#;/;' | as -o x.o
 	ld -x -r -o crt0.o x.o
 	rm -f x.o
 
 moncrt0.o: crt0.s
-	/lib/cpp ${DEFS} ${DFLAGS} -DMCRT0 crt0.s | sed 's;^#;/;' | as -o x.o
+	/lib/cpp -t ${DEFS} ${DFLAGS} -DMCRT0 crt0.s | sed 's;^#;/;' | as -o x.o
 	ld -x -r -o moncrt0.o x.o
 	rm -f x.o
 
@@ -37,7 +37,7 @@ mon.o: mon.c mcount.s mon.ex
 	cc ${CFLAGS} -S ${DFLAGS} mon.c
 	ex - mon.s < mon.ex
 	cat mon.s mcount.s > x.s
-	/lib/cpp ${DEFS} ${DFLAGS} x.s | sed 's;^#;/;' > xx.s
+	/lib/cpp -t ${DEFS} ${DFLAGS} x.s | sed 's;^#;/;' > xx.s
 	as - -o x.o xx.s
 	ld -x -r -o mon.o x.o
 	rm -f x.o x.s xx.s mon.s

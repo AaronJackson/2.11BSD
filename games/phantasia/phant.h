@@ -2,6 +2,10 @@
  * phant.h	Include file for Phantasia
  */
 
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)phant.h     1.1 (2.11BSD) 2020/1/7";
+#endif
+
 #include <setjmp.h>
 #include <curses.h>
 #include <time.h>
@@ -132,16 +136,16 @@ struct	worm_hole	/* worm hole */
 	};
 
 /* files */
-#define monsterfile	PATH/monsters"
-#define peoplefile	PATH/characs"
-#define gameprog	PATH/phantasia"
-#define messfile	PATH/mess"
-#define lastdead	PATH/lastdead"
-#define helpfile	PATH/phant.help"
-#define motd		PATH/motd"
-#define goldfile	PATH/gold"
-#define voidfile	PATH/void"
-#define	enemyfile	PATH/enemy"
+#define monsterfile	PATH"/monsters"
+#define peoplefile	PATH"/characs"
+#define gameprog	PATH"/phantasia"
+#define messfile	PATH"/mess"
+#define lastdead	PATH"/lastdead"
+#define helpfile	PATH"/phant.help"
+#define motd		PATH"/motd"
+#define goldfile	PATH"/gold"
+#define voidfile	PATH"/void"
+#define	enemyfile	PATH"/enemy"
 
 /* library functions and system calls */
 unsigned sleep();
