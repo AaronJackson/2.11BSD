@@ -40,7 +40,7 @@
 #include "config.h"
 #if !defined(lint) && !defined(pdp11)
 static char *rcsid() 
-    { return "$Id: tw.parse.c,v 3.1 2019/11/21 19:12:00 bqt Exp $"; }
+    { return "$Id: tw.parse.c,v 3.2 2019/11/27 19:12:00 bqt Exp $"; }
 #endif
 
 #include "sh.h"
@@ -92,6 +92,7 @@ static	int	 recognize		__P((Char *, Char *, int, int));
 static	int	 ignored		__P((Char *));
 static	void	 tw_get_comm_list	__P((void));
 static	int	 isadirectory		__P((Char *, Char *));
+static	char	*unquote();
 
 /*
  * If we find a set command, then we break a=b to a= and word becomes
@@ -416,10 +417,11 @@ quote_meta(word, trail_space)
     return (buffer);
 }
 
-char * unquote(s)
-  char *s;
+static char *unquote(s)
+  register char *s;
 {
-  char *p = s;
+  register char *p = s;
+
   while (*p) {
     *p &= TRIM;
     ++p;
