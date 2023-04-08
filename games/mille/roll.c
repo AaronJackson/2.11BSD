@@ -1,20 +1,23 @@
 # include	"mille.h"
+#include	<stdlib.h>
 
 /*
  *	This routine rolls ndie nside-sided dice.
  *
- * @(#)roll.c	1.1 (Berkeley) 4/1/82
+ * @(#)roll.c	1.2 (2.11BSD) 2018/12/29
  *
  */
 
-roll(ndie, nsides)
-reg int	ndie, nsides; {
+int roll(ndie, nsides)
+reg int	ndie, nsides;
+	{
+	int	tot = 0;
+	long 	r;
 
-	reg int			tot;
-	extern unsigned int	random();
-
-	tot = 0;
-	while (ndie--)
-		tot += random() % nsides + 1;
+	while	(ndie--)
+		{
+		r = random();
+		tot += r % nsides + 1;
+		}
 	return tot;
-}
+	}

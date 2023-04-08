@@ -4,10 +4,11 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)back.h	5.1 (Berkeley) 5/29/85
+ *	@(#)back.h	5.2 (2.11BSD) 2018/12/29
  */
 
 #include <sgtty.h>
+#include <stdlib.h>
 
 #define rnum(r)	(random()%r)
 #define D0	dice[0]

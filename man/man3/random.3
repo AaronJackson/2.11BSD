@@ -2,9 +2,9 @@
 .\" All rights reserved.  The Berkeley software License Agreement
 .\" specifies the terms and conditions for redistribution.
 .\"
-.\"	@(#)random.3	6.2 (Berkeley) 9/29/85
+.\"	@(#)random.3	6.3 (2.11BSD) 12/19/2018
 .\"
-.TH RANDOM 3 "September 29, 1985"
+.TH RANDOM 3 "December 19, 2018"
 .UC 5
 .SH NAME
 random, srandom, initstate, setstate \- better random number generator; routines for changing generators
@@ -13,10 +13,10 @@ random, srandom, initstate, setstate \- better random number generator; routines
 .B long  random()
 .PP
 .B srandom(seed)
-.B int  seed;
+.B long  seed;
 .PP
 .B char  *initstate(seed, state, n)
-.B unsigned  seed;
+.B long seed;
 .B char  *state;
 .B int  n;
 .PP
