@@ -1,10 +1,10 @@
 #ifndef lint
-static char sccsid[] = "@(#)dk.c	4.1 (Berkeley) 1/22/85";
+static char sccsid[] = "@(#)dk.c	4.2 (2.11BSD) 2019/12/26";
 #endif
 
 #include "../condevs.h"
 #ifdef DATAKIT
-#include <dk.h>
+#include <OLD/dk.h>
 #define DKTRIES 2
 /***
  *	dkopn(flds)	make datakit connection
