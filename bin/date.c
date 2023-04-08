@@ -2,6 +2,9 @@
  * Copyright (c) 1985 Regents of the University of California.
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
+ *
+ *  2019-07-11 Fixed inconsistent timezone/dst management
+ *  2019-10-20 Remove use of deprecated kernel timezone structure
  */
 
 #if	!defined(LINT) && defined(DOSCCS)
@@ -9,7 +12,7 @@ char copyright[] =
 "@(#) Copyright (c) 1985 Regents of the University of California.\n\
  All rights reserved.\n";
 
-static char sccsid[] = "@(#)date.c	4.20.1 (2.11BSD) 96/7/10";
+static char sccsid[] = "@(#)date.c	5.0 (2.11BSD) 2019/10/20";
 #endif
 
 /*
@@ -47,31 +50,23 @@ main(argc,argv)
 	int	argc;
 	char	**argv;
 {
-	static char	usage[] = "usage: date [-nu] [-d dst] [-t timezone] [yymmddhhmm[.ss]]\n";
-	struct timezone	tz;
+	static char	usage[] = "usage: date [-nu] [[[[yy]mm]dd]hhmm[.ss]]\n";
+	struct tm	*tp;
 	char	*ap,			/* time string */
 		*tzn;			/* time zone */
 	int	ch,			/* getopts char */
-		uflag,			/* do it in GMT */
 		nflag,			/* only set time locally */
 		wf;			/* wtmp file descriptor */
 	char	*username;
 
-	nflag = uflag = 0;
-	tz.tz_dsttime = tz.tz_minuteswest = 0;
-	while ((ch = getopt(argc,argv,"d:nut:")) != EOF)
+	nflag = 0;
+	while ((ch = getopt(argc,argv,"nu")) != EOF)
 		switch((char)ch) {
-		case 'd':
-			tz.tz_dsttime = atoi(optarg) ? 1 : 0;
-			break;
 		case 'n':
 			nflag = 1;
 			break;
-		case 't':
-			tz.tz_minuteswest = atoi(optarg);
-			break;
 		case 'u':
-			uflag = 1;
+			(void)setenv("TZ", "GMT", 1);
 			break;
 		default:
 			fputs(usage,stderr);
@@ -85,36 +80,29 @@ main(argc,argv)
 		exit(1);
 	}
 
-	if ((tz.tz_minuteswest || tz.tz_dsttime) &&
-	    settimeofday((struct timeval *)NULL,&tz)) {
-		perror("settimeofday");
-		retval = 1;
-		goto display;
-	}
-
-	if (gettimeofday(&tv,&tz)) {
-		perror("gettimeofday");
-		exit(1);
-	}
 
 	if (!argc)
 		goto display;
 
+	time(&tv.tv_sec);
+
 	wtmp[0].ut_time = tv.tv_sec;
+
 	if (gtime(*argv)) {
 		fputs(usage,stderr);
 		retval = 1;
 		goto display;
 	}
 
-	if (!uflag) {		/* convert to GMT assuming local time */
-		tv.tv_sec += (long)tz.tz_minuteswest * SECS_PER_MIN;
-				/* now fix up local daylight time */
-		if (localtime((time_t *)&tv.tv_sec)->tm_isdst)
-			tv.tv_sec -= SECS_PER_HOUR;
-	}
-	if (nflag || !netsettime(tv)) {
-		if (settimeofday(&tv,(struct timezone *)0)) {
+/*
+ * To avoid using the (obsolete) kernel timezone structure call localtime()
+ * to initialize the timezone info and set tm_gmtoff
+*/
+	tp = localtime((time_t *)&tv.tv_sec);
+	tv.tv_sec -= tp->tm_gmtoff;
+
+	if (nflag || !netsettime(tv.tv_sec)) {
+		if (settimeofday(&tv, NULL)) {
 			perror("settimeofday");
 			retval = 1;
 			goto display;
@@ -139,17 +127,12 @@ display:
 		perror("gettimeofday");
 		exit(1);
 	}
-	if (uflag) {
-		ap = asctime(gmtime((time_t *)&tv.tv_sec));
-		tzn = "GMT";
-	}
-	else {
-		struct tm	*tp;
-
-		tp = localtime((time_t *)&tv.tv_sec);
-		ap = asctime(tp);
-		tzn = tp->tm_zone;
-	}
+/*
+ * Now display the time
+*/
+	tp = localtime((time_t *)&tv.tv_sec);
+	ap = asctime(tp);
+	tzn = tp->tm_zone;
 	printf("%.20s%s%s",ap,tzn,ap + 19);
 	exit(retval);
 }
@@ -246,8 +229,8 @@ gtime(ap)
  * Returns 1 on success, 0 on failure.
  */
 static
-netsettime(ntv)
-	struct timeval ntv;
+netsettime(tval)
+	time_t tval;
 {
 	int s, length, port, timed_ack, found, err;
 	long waittime;
@@ -298,8 +281,8 @@ netsettime(ntv)
 	}
 	(void) strncpy(msg.tsp_name, hostname, sizeof (hostname));
 	msg.tsp_seq = htons((u_short)0);
-	msg.tsp_time.tv_sec = htonl((u_long)ntv.tv_sec);
-	msg.tsp_time.tv_usec = htonl((u_long)ntv.tv_usec);
+	msg.tsp_time.tv_sec = htonl((u_long)tval);
+	msg.tsp_time.tv_usec = 0;
 	length = sizeof (struct sockaddr_in);
 	if (connect(s, &dest, length) < 0) {
 		perror("date: connect");
