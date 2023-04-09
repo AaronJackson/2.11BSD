@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)kern_sysctl.c	8.4.13 (2.11BSD) 2018/12/20
+ *	@(#)kern_sysctl.c	8.5 (2.11BSD) 2020/3/2
  */
 
 /*
@@ -454,7 +454,7 @@ vm_sysctl(name, namelen, oldp, oldlenp, newp, newlen)
 					(char *)swapmap[0].m_map;
 			return(0);
 		}
-		return (sysctl_rdstruct(oldp, oldlenp, newp, swapmap,
+		return (sysctl_rdstruct(oldp, oldlenp, newp, swapmap[0],
 			(int)swapmap[0].m_limit - (int)swapmap[0].m_map));
 	case VM_COREMAP:
 		if (oldp == NULL) {
@@ -462,8 +462,10 @@ vm_sysctl(name, namelen, oldp, oldlenp, newp, newlen)
 					(char *)coremap[0].m_map;
 			return(0);
 		}
-		return (sysctl_rdstruct(oldp, oldlenp, newp, coremap,
+		return (sysctl_rdstruct(oldp, oldlenp, newp, coremap[0],
 			(int)coremap[0].m_limit - (int)coremap[0].m_map));
+	case VM_NSWAP:
+		return (sysctl_rdint(oldp, oldlenp, newp, nswap));
 	default:
 		return (EOPNOTSUPP);
 	}

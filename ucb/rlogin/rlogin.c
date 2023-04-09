@@ -9,12 +9,13 @@ char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
 
-static char sccsid[] = "@(#)rlogin.c	5.10.2 (2.11BSD) 2000/5/17";
+static char sccsid[] = "@(#)rlogin.c	5.11 (2.11BSD) 2020/2/7";
 #endif
 
 /*
  * rlogin - remote login
  */
+#include <unistd.h>
 #include <sys/param.h>
 #include <sys/errno.h>
 #include <sys/file.h>
@@ -35,7 +36,7 @@ static char sccsid[] = "@(#)rlogin.c	5.10.2 (2.11BSD) 2000/5/17";
 
 # ifndef TIOCPKT_WINDOW
 # define TIOCPKT_WINDOW 0x80
-# endif TIOCPKT_WINDOW
+# endif
 
 char	*name;
 int	rem;
@@ -46,16 +47,18 @@ char	*speeds[] =
     { "0", "50", "75", "110", "134", "150", "200", "300",
       "600", "1200", "1800", "2400", "4800", "9600", "19200", "38400" };
 char	term[256] = "network";
-int	lostpeer();
+void	lostpeer(), stop(), doit();
 int	dosigwinch = 0;
 struct	winsize winsize;
-int	sigwinch(), oob();
+int	reader();
+void	sigwinch(), oob(), mode(), echo(), sendwindow(), prf(), writer();
 
+int
 main(argc, argv)
 	int argc;
 	char **argv;
 {
-	char *host, *cp;
+	char *host = 0, *cp;
 	struct sgttyb ttyb;
 	struct passwd *pwd;
 	struct servent *sp;
@@ -63,13 +66,9 @@ main(argc, argv)
 	long oldmask;
 	int on = 1;
 
-	host = rindex(argv[0], '/');
-	if (host)
-		host++;
-	else
-		host = argv[0];
-	argv++, --argc;
-	if (!strcmp(host, "rlogin"))
+	argv++, argc--;		/* skip argv[0] */
+
+	if (argc > 0)
 		host = *argv++, --argc;
 another:
 	if (argc > 0 && !strcmp(*argv, "-d")) {
@@ -144,21 +143,16 @@ usage:
 	exit(1);
 }
 
-#define CRLF "\r\n"
-
 int	child;
-int	catchild();
-int	writeroob();
-
-int	defflags;
-int	deflflags;
+void	catchild(), done(), writeroob();
+int	defflags, deflflags;
 char	deferase, defkill;
 struct	tchars deftc;
 struct	ltchars defltc;
 struct	tchars notc =	{ -1, -1, -1, -1, -1, -1 };
 struct	ltchars noltc =	{ -1, -1, -1, -1, -1, -1 };
 
-doit(oldmask)
+void doit(oldmask)
 	long oldmask;
 {
 	struct sgttyb sb;
@@ -199,7 +193,7 @@ doit(oldmask)
 	done(0);
 }
 
-done(status)
+void done(status)
 	int status;
 {
 
@@ -213,7 +207,7 @@ done(status)
  * This is called when the reader process gets the out-of-band (urgent)
  * request to turn on the window-changing protocol.
  */
-writeroob()
+void writeroob()
 {
 
 	if (dosigwinch == 0) {
@@ -223,7 +217,7 @@ writeroob()
 	dosigwinch = 1;
 }
 
-catchild()
+void catchild()
 {
 	union wait status;
 	int pid;
@@ -235,7 +229,7 @@ again:
 	/*
 	 * if the child (reader) dies, just quit
 	 */
-	if (pid < 0 || pid == child && !WIFSTOPPED(status))
+	if (pid < 0 || (pid == child && !WIFSTOPPED(status)))
 		done(status.w_termsig | status.w_retcode);
 	goto again;
 }
@@ -246,12 +240,12 @@ again:
  * ~^Z	suspend rlogin process.
  * ~^Y  suspend rlogin process, but leave reader alone.
  */
-writer()
+void writer()
 {
 	char c;
-	register n;
-	register bol = 1;               /* beginning of line */
-	register local = 0;
+	register int n;
+	register int bol = 1;               /* beginning of line */
+	register int local = 0;
 
 	for (;;) {
 		n = read(0, &c, 1);
@@ -300,7 +294,7 @@ writer()
 	}
 }
 
-echo(c)
+void echo(c)
 register char c;
 {
 	char buf[8];
@@ -321,7 +315,7 @@ register char c;
 	write(1, buf, p - buf);
 }
 
-stop(cmdc)
+void stop(cmdc)
 	char cmdc;
 {
 	mode(0);
@@ -332,7 +326,7 @@ stop(cmdc)
 	sigwinch();			/* check for size changes */
 }
 
-sigwinch()
+void sigwinch()
 {
 	struct winsize ws;
 
@@ -346,7 +340,7 @@ sigwinch()
 /*
  * Send the window size to the server via the magic escape
  */
-sendwindow()
+void sendwindow()
 {
 	char obuf[4 + sizeof (struct winsize)];
 	struct winsize *wp = (struct winsize *)(obuf+4);
@@ -369,12 +363,10 @@ sendwindow()
 #define	WRITING	2
 
 char	rcvbuf[8 * 1024];
-int	rcvcnt;
-int	rcvstate;
-int	ppid;
+int	rcvcnt, rcvstate, ppid;
 jmp_buf	rcvtop;
 
-oob()
+void oob()
 {
 	int out = FWRITE, atmark, n;
 	int rcvd = 0;
@@ -466,7 +458,7 @@ oob()
 /*
  * reader: read from remote: line -> 1
  */
-reader()
+int reader()
 {
 	int pid = getpid();
 	int n, remaining;
@@ -502,7 +494,7 @@ reader()
 	}
 }
 
-mode(f)
+void mode(f)
 {
 	struct tchars *tc;
 	struct ltchars *ltc;
@@ -543,15 +535,13 @@ mode(f)
 	ioctl(0, TIOCLSET, (char *)&lflags);
 }
 
-/*VARARGS*/
-prf(f, a1, a2, a3, a4, a5)
+void prf(f)
 	char *f;
 {
-	fprintf(stderr, f, a1, a2, a3, a4, a5);
-	fprintf(stderr, CRLF);
+	fprintf(stderr, "%s\r\n", f);
 }
 
-lostpeer()
+void lostpeer()
 {
 	signal(SIGPIPE, SIG_IGN);
 	prf("\007Connection closed.");
