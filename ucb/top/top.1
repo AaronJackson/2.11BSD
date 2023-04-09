@@ -1,0 +1,172 @@
+.\" Copyright (c) 1980 Regents of the University of California.
+.\" All rights reserved.  The Berkeley software License Agreement
+.\" specifies the terms and conditions for redistribution.
+.\"
+.\"	@(#)top.1	6.2 (Berkeley) 6/8/85
+.\"
+.TH TOP 1 "March 4, 2020"
+.UC 4
+.SH NAME
+top \- display system activity
+.SH SYNOPSIS
+.B top
+[
+.B \-h
+] [
+.B \-s delay
+]
+.SH DESCRIPTION
+The
+.B top
+program provides a dynamic real-time view of a running system. 
+It displays system summary information as well as a list of the
+most active processes currently being managed by the system. 
+It is a trimmed down and less flexible version of the the program of
+the same name commonly found on more recent Unix and Unix like
+operating systems. The information provided closely resembles the
+default display of the program on larger, more recent systems.
+.PP
+If the 
+.B \-s
+command line option is specified, its argument is the update delay
+in seconds followed by an optional decimal point and up to 3 digits, allowing
+millisecond accurate delay specifications.
+The default delay is one second. The
+.B \-h
+command line option produces a usage summary.
+.PP
+.I Summary Display
+.PP
+The first line of the summary includes the name of the program, the
+time of day, the system up time, the number of currently logged in
+users, and the system load average as returned by the getloadavg(3),
+which is the average number of processes in the system run queue
+calculated over the last 1, 5 and 15 minutes. The system up time is
+obtained by subtracting the boot time returned by sysctl(3) from
+the current time.
+.PP
+The second summary line displays the current total number of processes,
+plus the breakdown of this number into running, sleeping, stopped and
+zombie processes. The classification is based on p_stat value in each
+processes proctab entry as follows:
+.TP
+.B running
+SRUN, SIDL or 0
+.TP
+.B sleeping
+SSLEEP or SWAIT 
+.TP
+.B stop
+SSTOP
+.TP
+.B zombie
+SZOMB or any undefined state
+.PP
+The third line provides a memory usage summary. This displays the total
+physical memory, the amount of free memory, and the amount of memory used
+in bytes. It also shows the amount of memory used as a percentage of total
+memory. Memory is allocated in 64 byte units, so displaying memory amounts
+in KiB as in other versions of top would involve fractions and is
+unnecessary in a small system. There is also no need to distinguish free
+memory from available memory, as there is no dynamic sizing of the buffer
+cache.
+.PP
+The last status line provides information about swap usage. It displays
+total, free and available space in bytes, as well as percentage used. 
+.PP
+.I Process Summary
+.PP
+The process summary includes a title line followed by information about
+the most recently active processes, one per line, for as many lines that
+are left on the display (as reported by the TIOCSETP ioctl). 
+.PP
+The processes are displayed most active first, where activity is determined
+by the change in the sum u_utime+u_stime for a process between the most recent
+read of the process table and the previous read. Within groups of processes
+havng the same value for this metric, the ordering is determined by the
+processes total u_utime+u_stime. The default delay between updates is
+one second. Two process table reads occur before the first display update
+to allow the above calculation to be performed.
+.PP
+The details displayed for each process include
+.TP
+.B PID
+The process ID
+.TP
+.B USER
+Name of the process owner
+.TP
+.B PR
+Process priority
+.TP
+.B NI
+nice value.
+.TP
+.B TEXT
+size of process text area
+.TP
+.B DATA
+sizeof process initialized data
+.TP
+.B STACK
+process stack space size
+.TP
+.B S
+Process state (S=sleep, W=wait, R=run, I=idle, Z=zombie, T=stop)
+.TP
+.B TIME
+Total user plus system time used by the process (u_utime+u_stime)
+.TP
+.B DTIME
+Change in TIME value since last update
+.TP
+.B COMMAND
+The process name
+.PP
+.I User Commands
+.PP
+The display updates indefinately until a command in the form of a
+key press is received, or a signal is received.
+Keys are not echoed and are acted on immediately without the
+need for a carriage return. The only command currently implemented is
+the
+.B q
+command, which terminates the program. Any unrecognized command will
+result in termination with a warning message.
+.P
+.SH EXAMPLE
+And example of typical output is
+.nf
+top - 17:33:34 up  1 day,  1:17,   3 users,  load average: 0.37, 0.23, 0.01
+Tasks:  27 total,   1 running,   26 sleeping,   0 stopped,   0 zombie
+    Mem :  3932160 total,  1939200 free,  1992960 used (50%)
+    Swap:    16719 total,    14706 free,     2013 used (12%)
+
+  PID USER      PR  NI  TEXT  DATA STACK S     TIME   DTIME COMMAND
+  644 root      50   0   411   608    90 R     4.52    0.02 top 
+    1 root      30   0   250   160    72 S    85.63    0.00 init
+  483 digbyt    40   0   760   640   102 S    72.77    0.00 tcsh
+  470 digbyt    28   0   760   624   102 S    59.77    0.00 tcsh
+   59 root      26   0   576   272    72 S    23.20    0.00 cron 
+  482 root      26   0   372   192    76 S    20.70    0.00 telnetd
+  568 digbyt    28   0   760   560   102 S    15.83    0.00 tcsh
+  469 root      26   0   372   192    76 S     2.95    0.00 telnetd
+    0 root       0   0     0     0     0 S     1.95    0.00 swapper
+   71 root      26   0   408   224    22 S     0.50    0.00 inetd
+   46 root      26   0   347   240   155 S     0.47    0.00 syslogd
+  567 root      26   0   372   192    76 S     0.32    0.00 telnetd
+   79 root      26   0   770   272    42 S     0.22    0.00 lpd
+   95 root      26   0   879   432    71 S     0.22    0.00 sendmail
+   56 root      40   0    24     3    22 S     0.15    0.00 update
+   63 root      26  -1   243   128    43 S     0.12    0.00 acctd
+   75 root      26   0   238   112    42 S     0.03    0.00 rwhod
+  109 root      28   0   247   127    21 S     0.03    0.00 getty
+.fi
+.SH AUTHOR
+Digby Tarvin
+.SH FILES
+.nf
+/var/run/psdatabase    kernel symbols cache built and used by ps(1)
+.fi
+.SH "SEE ALSO"
+ps(1)

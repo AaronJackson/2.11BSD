@@ -3,7 +3,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	5.17.5 (2.11BSD) 2000/5/17
+#	@(#)Makefile	5.18 (2.11BSD) 2020/3/4
 #
 DESTDIR=
 CFLAGS=	-O
@@ -13,7 +13,7 @@ SEPFLAG= -i
 #
 SUBDIR=	Mail compress dbx error ex finger fp ftp indent lock man \
 	more msgs netstat pascal rdist rlogin sendbug talk tftp \
-	tn3270 tset vgrind vlp window
+	tn3270 top tset vgrind vlp window
 
 # Shell scripts that need only be installed and are never removed.
 #
