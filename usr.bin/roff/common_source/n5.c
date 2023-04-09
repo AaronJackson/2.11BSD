@@ -1,9 +1,12 @@
-#ifndef lint
-static char sccsid[] = "@(#)n5.c	4.2 6/30/83";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n5.c	4.3 (2.11BSD) 2020/3/24";
+#endif
+
+#include <unistd.h>
+#include <stdio.h>
+#include <sgtty.h>
 
 #include "tdef.h"
-#include <sgtty.h>
 extern
 #include "d.h"
 extern
@@ -18,34 +21,11 @@ misc processing requests
 
 extern	int	inchar[LNSIZE], *pinchar;	/* XXX */
 extern struct s *frame;
-extern struct s *litlev;
-extern filep ip;
-extern filep offset;
 
 extern int ascii;
 extern int nonumb;
-extern int admod;
-extern int ad;
-extern int fi;
-extern int cc;
-extern int c2;
-extern int ohc;
-extern int tabc;
-extern int dotc;
-extern int pendnf;
-extern int hyf;
-extern int ce;
 extern int po;
 extern int po1;
-extern int nc;
-extern int in;
-extern int un;
-extern int un1;
-extern int in1;
-extern int ll;
-extern int ll1;
-extern int lt;
-extern int lt1;
 extern int nlist[NTRAP];
 extern int mlist[NTRAP];
 extern int lgf;
@@ -55,7 +35,6 @@ extern int npnflg;
 extern int copyf;
 extern char nextf[];
 extern int trap;
-extern int lss;
 extern int em;
 extern int evlist[EVLSZ];
 extern int evi;
@@ -68,88 +47,76 @@ extern struct sgttyb ttys;
 extern int quiet;
 extern int iflg;
 extern int eschar;
-extern int lit;
-extern int ls;
-extern int ls1;
-extern int tabtab[];
 extern char trtab[];
-extern int ul;
-extern int cu;
 extern int sfont;
-extern int font;
 extern int fontlab[];
-extern int it;
-extern int itmac;
 extern int noscale;
-extern int ic;
-extern int icf;
-extern int ics;
 extern int *vlist;
 extern int sv;
 extern int esc;
-extern int nn;
-extern int nms;
-extern int ndf;
-extern int lnmod;
-extern int ni;
-extern int lnsize;
-extern int nb;
 extern int nlflg;
-extern int apts, apts1, pts, pts1, font, font1;
 extern int ulfont;
 extern int ulbit;
 extern int error;
-extern int nmbits;
-extern int chbits;
 extern int tdelim;
 extern int xxx;
 int iflist[NIF];
 int ifx;
 
+static void getnm(int *, int);
+
+extern FILE *fptid;
+
+void
 casead(){
 	register i;
 
-	ad = 1;
+	eblk.ad = 1;
 	/*leave admod alone*/
 	if(skip())return;
 	switch(i = getch() & CMASK){
 		case 'r':	/*right adj, left ragged*/
-			admod = 2;
+			eblk.admod = 2;
 			break;
 		case 'l':	/*left adj, right ragged*/
-			admod = ad = 0;	/*same as casena*/
+			eblk.admod = eblk.ad = 0;	/*same as casena*/
 			break;
 		case 'c':	/*centered adj*/
-			admod = 1;
+			eblk.admod = 1;
 			break;
 		case 'b': case 'n':
-			admod = 0;
+			eblk.admod = 0;
 			break;
 		case '0': case '2': case '4':
-			ad = 0;
+			eblk.ad = 0;
 		case '1': case '3': case '5':
-			admod = (i - '0')/2;
+			eblk.admod = (i - '0')/2;
 	}
 }
+void
 casena(){
-	ad = 0;
+	eblk.ad = 0;
 }
+void
 casefi(){
 	tbreak();
-	fi++;
-	pendnf = 0;
-	lnsize = LNSIZE;
+	eblk.fi++;
+	eblk.pendnf = 0;
+	eblk.lnsize = LNSIZE;
 }
+void
 casenf(){
 	tbreak();
-	fi = 0;
+	eblk.fi = 0;
 /* can't do while oline is only LNSIZE
-	lnsize = LNSIZE + WDSIZE;
+	eblk.lnsize = LNSIZE + WDSIZE;
 */
 }
+void
 casers(){
 	dip->nls = 0;
 }
+void
 casens(){
 	dip->nls++;
 }
@@ -166,34 +133,41 @@ int c;
 		return(c);
 	}else return(i & BMASK);
 }
+void
 casecc(){
-	cc = chget('.');
+	eblk.cc = chget('.');
 }
+void
 casec2(){
-	c2 = chget('\'');
+	eblk.c2 = chget('\'');
 }
+void
 casehc(){
-	ohc = chget(OHC);
+	eblk.ohc = chget(OHC);
 }
+void
 casetc(){
-	tabc = chget(0);
+	eblk.tabc = chget(0);
 }
+void
 caselc(){
-	dotc = chget(0);
+	eblk.dotc = chget(0);
 }
+void
 casehy(){
 	register i;
 
-	hyf = 1;
+	eblk.hyf = 1;
 	if(skip())return;
 	noscale++;
-	i = atoi();
+	i = atoix();
 	noscale = 0;
 	if(nonumb)return;
-	hyf = max(i,0);
+	eblk.hyf = max(i,0);
 }
+void
 casenh(){
-	hyf = 0;
+	eblk.hyf = 0;
 }
 max(aa,bb)
 int aa,bb;
@@ -201,66 +175,73 @@ int aa,bb;
 	if(aa>bb)return(aa);
 	else return(bb);
 }
+void
 casece(){
 	register i;
 
 	noscale++;
 	skip();
-	i = max(atoi(),0);
+	i = max(atoix(),0);
 	if(nonumb)i = 1;
 	tbreak();
-	ce = i;
+	eblk.ce = i;
 	noscale = 0;
 }
+void
 casein(){
 	register i;
 
-	if(skip())i = in1;
-	else i = max(hnumb(&in),0);
+	if(skip())i = eblk.in1;
+	else i = max(hnumb(&eblk.in),0);
 	tbreak();
-	in1 = in;
-	in = i;
-	if(!nc){
-		un = in;
+	eblk.in1 = eblk.in;
+	eblk.in = i;
+	if(!eblk.nc){
+		eblk.un = eblk.in;
 		setnel();
 	}
 }
+void
 casell(){
 	register i;
 
-	if(skip())i = ll1;
-	else i = max(hnumb(&ll),INCH/10);
-	ll1 = ll;
-	ll = i;
+	if(skip())i = eblk.ll1;
+	else i = max(hnumb(&eblk.ll),INCH/10);
+	eblk.ll1 = eblk.ll;
+	eblk.ll = i;
 	setnel();
 }
+void
 caselt(){
 	register i;
 
-	if(skip())i = lt1;
-	else i = max(hnumb(&lt),0);
-	lt1 = lt;
-	lt = i;
+	if(skip())i = eblk.lt1;
+	else i = max(hnumb(&eblk.lt),0);
+	eblk.lt1 = eblk.lt;
+	eblk.lt = i;
 }
+void
 caseti(){
 	register i;
 
 	if(skip())return;
-	i = max(hnumb(&in),0);
+	i = max(hnumb(&eblk.in),0);
 	tbreak();
-	un1 = i;
+	eblk.un1 = i;
 	setnel();
 }
+void
 casels(){
 	register i;
 
 	noscale++;
-	if(skip())i = ls1;
-	else i = max(inumb(&ls),1);
-	ls1 = ls;
-	ls = i;
+	if(skip())i = eblk.ls1;
+	else i = max(inumb(&eblk.ls),1);
+	eblk.ls1 = eblk.ls;
+	eblk.ls = i;
 	noscale = 0;
 }
+void
 casepo(){
 	register i;
 
@@ -272,6 +253,7 @@ casepo(){
 	if(!ascii)esc += po - po1;
 #endif
 }
+void
 casepl(){
 	register i;
 
@@ -280,6 +262,7 @@ casepl(){
 		else pl = i;
 	if(v.nl > pl)v.nl = pl;
 }
+void
 casewh(){
 	register i, j, k;
 
@@ -295,12 +278,13 @@ casewh(){
 	}
 	for(k=0; k<NTRAP; k++)if(mlist[k] == 0)break;
 	if(k == NTRAP){
-		prstrfl("Cannot plant trap.\n");
+		warnx("Cannot plant trap.");
 		return;
 	}
 	mlist[k] = j;
 	nlist[k] = i;
 }
+void
 casech(){
 	register i, j, k;
 
@@ -323,6 +307,7 @@ int i;
 		if((nlist[k] == i) && (mlist[k] != 0))break;
 	return(k);
 }
+void
 casepn(){
 	register i;
 
@@ -335,6 +320,7 @@ casepn(){
 		npnflg++;
 	}
 }
+void
 casebp(){
 	register i;
 	register struct s *savframe;
@@ -350,23 +336,26 @@ casebp(){
 	}else if(dip->nls)return;
 	eject(savframe);
 }
-casetm(x) int x;{
-	register i;
+static void
+casetmx(int x)
+{
+	register int i;
 	char tmbuf[NTM];
 
 	lgf++;
 	copyf++;
-	if(skip() && x)prstrfl("User Abort.");
+	if(skip() && x)warnx("User Abort.");
 	for(i=0; i<NTM-2;)if((tmbuf[i++]=getch()) == '\n')break;
 	if(i == NTM-2)tmbuf[i++] = '\n';
 	tmbuf[i] = 0;
-	prstrfl(tmbuf);
+	warnx(tmbuf);
 	copyf--;
 }
-casesp(a)
-int a;
+
+void
+casespx(int a)
 {
-	register i, j, savlss;
+	register int i, j, savlss;
 
 	tbreak();
 	if(dip->nls || trap)return;
@@ -374,17 +363,24 @@ int a;
 	if(!a){
 		skip();
 		j = vnumb((int *)0);
-		if(nonumb)j = lss;
+		if(nonumb)j = eblk.lss;
 	}else j = a;
 	if(j == 0)return;
 	if(i < j)j = i;
-	savlss = lss;
+	savlss = eblk.lss;
 	if(dip != d)i = dip->dnl; else i = v.nl;
 	if((i + j) < 0)j = -i;
-	lss = j;
+	eblk.lss = j;
 	newline(0);
-	lss = savlss;
+	eblk.lss = savlss;
 }
+
+void
+casesp(void){ casespx(0); }
+void
+casetm(void){ casetmx(0); }
+
+void
 casert(){
 	register a, *p;
 
@@ -393,21 +389,23 @@ casert(){
 	a = vnumb(p);
 	if(nonumb)a = dip->mkline;
 	if((a < 0) || (a >= *p))return;
-	nb++;
-	casesp(a - *p);
+	eblk.nb++;
+	casespx(a - *p);
 }
+void
 caseem(){
 	lgf++;
 	skip();
 	em = getrq();
 }
+void
 casefl(){
 	tbreak();
-	flusho();
+	fflush(fptid);
 }
+void
 caseev(){
 	register nxev;
-	extern int block;
 
 	if(skip()){
 e0:
@@ -416,24 +414,26 @@ e0:
 		goto e1;
 	}
 	noscale++;
-	nxev = atoi();
+	nxev = atoix();
 	noscale = 0;
 	if(nonumb)goto e0;
 	flushi();
 	if((nxev >= NEV) || (nxev < 0) || (evi >= EVLSZ)){
-		prstrfl("Cannot do ev.\n");
+		warnx("Cannot do ev.");
 		if(error)done2(040);else edone(040);
 		return;
 	}
 	evlist[evi++] = ev;
 e1:
 	if(ev == nxev)return;
-	lseek(ibf, (long)(ev*EVS*sizeof(int)), 0);
-	write(ibf,(char *)&block, EVS*sizeof(int));
-	lseek(ibf, (long)(nxev*EVS*sizeof(int)), 0);
-	read(ibf,(char *)&block, EVS*sizeof(int));
+	if (lseek(ibf, EVBASE + ev * sizeof(struct eblk), 0) < 0 ||
+	    write(ibf,(char *)&eblk.block, sizeof(struct eblk)) < 0 ||
+	    lseek(ibf, EVBASE + nxev*sizeof(struct eblk), 0) < 0 ||
+	    read(ibf,(char *)&eblk.block, sizeof(struct eblk)) < 0)
+		err(1, "envblk");
 	ev = nxev;
 }
+void
 caseel(){
 	if(--ifx < 0){
 		ifx = 0;
@@ -441,15 +441,17 @@ caseel(){
 	}
 	caseif(2);
 }
+void
 caseie(){
 	if(ifx >= NIF){
-		prstr("if-else overflow.\n");
+		warnx("if-else overflow.");
 		ifx = 0;
 		edone(040);
 	}
 	caseif(1);
 	ifx++;
 }
+void
 caseif(x)
 int x;
 {
@@ -468,7 +470,7 @@ int x;
 		notflag = 0;
 		ch = i;
 	}
-	i = atoi();
+	i = atoix();
 	if(!nonumb){
 		if(i > 0)true++;
 		goto i1;
@@ -535,10 +537,7 @@ cmpstr(delim)
 int delim;
 {
 	register i, j;
-	register filep p;
-	extern filep alloc();
-	extern filep incoff();
-	filep begin;
+	int bb, pb, px;
 	int cnt, k;
 	int savapts, savapts1, savfont, savfont1,
 		savpts, savpts1;
@@ -546,16 +545,19 @@ int delim;
 	if(delim & MOT)return(0);
 	delim &= CMASK;
 	if(dip != d)wbfl();
-	if((offset = begin = alloc()) == (filep)0)return(0);
+	if ((bb = alloc()) == 0)
+		return 0;
+	offsb = bb;
+	offsx = 0;
 	cnt = 0;
 	v.hp = 0;
 	pinchar = inchar;	/* XXX */
-	savapts = apts;
-	savapts1 = apts1;
-	savfont = font;
-	savfont1 = font1;
-	savpts = pts;
-	savpts1 = pts1;
+	savapts = eblk.apts;
+	savapts1 = eblk.apts1;
+	savfont = eblk.font;
+	savfont1 = eblk.font1;
+	savpts = eblk.pts;
+	savpts1 = eblk.pts1;
 	while(((j = (i=getch()) & CMASK) != delim) && (j != '\n')){
 		wbf(i);
 		cnt++;
@@ -563,37 +565,41 @@ int delim;
 	wbt(0);
 	k = !cnt;
 	if(nlflg)goto rtn;
-	p = begin;
-	apts = savapts;
-	apts1 = savapts1;
-	font = savfont;
-	font1 = savfont1;
-	pts = savpts;
-	pts1 = savpts1;
+	pb = bb;
+	px = 0;
+	eblk.apts = savapts;
+	eblk.apts1 = savapts1;
+	eblk.font = savfont;
+	eblk.font1 = savfont1;
+	eblk.pts = savpts;
+	eblk.pts1 = savpts1;
 	mchbits();
 	v.hp = 0;
 	pinchar = inchar;	/* XXX */
 	while(((j = (i=getch()) & CMASK) != delim) && (j != '\n')){
-		if(rbf0(p) != i){
+		if(rbf0(pb, px) != i){
 			eat(delim);
 			k = 0;
 			break;
 		}
-		p = incoff(p);
+		if ((px = ((px+1) & (BLK-1))) == 0)
+			pb = incb(pb);
 		k = !(--cnt);
 	}
 rtn:
-	apts = savapts;
-	apts1 = savapts1;
-	font = savfont;
-	font1 = savfont1;
-	pts = savpts;
-	pts1 = savpts1;
+	eblk.apts = savapts;
+	eblk.apts1 = savapts1;
+	eblk.font = savfont;
+	eblk.font1 = savfont1;
+	eblk.pts = savpts;
+	eblk.pts1 = savpts1;
 	mchbits();
-	offset = dip->op;
-	ffree(begin);
+	offsb = dip->opb;
+	offsx = dip->opx;
+	ffree(bb);
 	return(k);
 }
+void
 caserd(){
 
 	lgf++;
@@ -603,19 +609,18 @@ caserd(){
 		if(quiet){
 			ttys.sg_flags &= ~ECHO;
 			stty(0, &ttys);
-			prstrfl(""); /*bell*/
+			fputc('', fptid); /*bell*/
 		}else{
 			if(nextf[0]){
-				prstr(nextf);
-				prstr(":");
+				fprintf(stderr, "%s:", nextf);
 			}else{
-				prstr(""); /*bell*/
+				fputc('', fptid); /*bell*/
 			}
 		}
 	}
 	collect();
 	tty++;
-	pushi((filep)-1);
+	pushi(-1);
 }
 rdtty(){
 	char onechar;
@@ -634,55 +639,54 @@ rdtty(){
 	}
 	return(0);
 }
+void
 caseec(){
 	eschar = chget('\\');
 }
+void
 caseeo(){
 	eschar = 0;
 }
-caseli(){
 
-	skip();
-	lit = max(inumb((int *)0),1);
-	litlev = frame;
-	if((dip == d) && (v.nl == -1))newline(1);
-}
+void
 caseta(){
 	register i;
 
-	tabtab[0] = nonumb = 0;
+	eblk.tabtab[0] = nonumb = 0;
 	for(i=0; ((i < (NTAB-1)) && !nonumb); i++){
 		if(skip())break;
-		tabtab[i] = tabtab[max(i-1,0)] & TMASK;
-		tabtab[i] = max(hnumb(&tabtab[i]),0) & TMASK;
+		eblk.tabtab[i] = eblk.tabtab[max(i-1,0)] & TMASK;
+		eblk.tabtab[i] = max(hnumb(&eblk.tabtab[i]),0) & TMASK;
 		if(!nonumb) switch(ch & CMASK){
 			case 'C':
-				tabtab[i] |= CTAB;
+				eblk.tabtab[i] |= CTAB;
 				break;
 			case 'R':
-				tabtab[i] |= RTAB;
+				eblk.tabtab[i] |= RTAB;
 				break;
 			default: /*includes L*/
 				break;
 			}
 		nonumb = ch = 0;
 	}
-	tabtab[i] = 0;
+	eblk.tabtab[i] = 0;
 }
+void
 casene(){
 	register i, j;
 
 	skip();
 	i = vnumb((int *)0);
-	if(nonumb)i = lss;
+	if(nonumb)i = eblk.lss;
 	if(i > (j = findt1())){
-		i = lss;
-		lss = j;
+		i = eblk.lss;
+		eblk.lss = j;
 		dip->nls = 0;
 		newline(0);
-		lss = i;
+		eblk.lss = i;
 	}
 }
+void
 casetr(){
 	register i, j;
 
@@ -694,30 +698,33 @@ casetr(){
 		trtab[i] = j;
 	}
 }
+void
 casecu(){
-	cu++;
+	eblk.cu++;
 	caseul();
 }
+void
 caseul(){
 	register i;
 
 	noscale++;
 	if(skip())i = 1;
-	else i = atoi();
-	if(ul && (i == 0)){
-		font = sfont;
-		ul = cu = 0;
+	else i = atoix();
+	if(eblk.ul && (i == 0)){
+		eblk.font = sfont;
+		eblk.ul = eblk.cu = 0;
 	}
 	if(i){
-		if(!ul){
-			sfont = font;
-			font = ulfont;
+		if(!eblk.ul){
+			sfont = eblk.font;
+			eblk.font = ulfont;
 		}
-		ul = i;
+		eblk.ul = i;
 	}
 	noscale = 0;
 	mchbits();
 }
+void
 caseuf(){
 	register i, j;
 
@@ -730,30 +737,33 @@ caseuf(){
 #endif
 	ulbit = ulfont<<9;
 }
+void
 caseit(){
 	register i;
 
 	lgf++;
-	it = itmac = 0;
+	eblk.it = eblk.itmac = 0;
 	noscale++;
 	skip();
-	i = atoi();
+	i = atoix();
 	skip();
-	if(!nonumb && (itmac = getrq()))it = i;
+	if(!nonumb && (eblk.itmac = getrq()))eblk.it = i;
 	noscale = 0;
 }
+void
 casemc(){
 	register i;
 
-	if(icf > 1)ic = 0;
-	icf = 0;
+	if(eblk.icf > 1)eblk.ic = 0;
+	eblk.icf = 0;
 	if(skip())return;
-	ic = getch();
-	icf = 1;
+	eblk.ic = getch();
+	eblk.icf = 1;
 	skip();
 	i = max(hnumb((int *)0),0);
-	if(!nonumb)ics = i;
+	if(!nonumb)eblk.ics = i;
 }
+void
 casemk(){
 	register i, j;
 
@@ -765,6 +775,7 @@ casemk(){
 	if((i = getrq()) == 0)return;
 	vlist[findr(i)] = j;
 }
+void
 casesv(){
 	register i;
 
@@ -774,32 +785,36 @@ casesv(){
 	sv += i;
 	caseos();
 }
+void
 caseos(){
 	register savlss;
 
 	if(sv <= findt1()){
-		savlss = lss;
-		lss = sv;
+		savlss = eblk.lss;
+		eblk.lss = sv;
 		newline(0);
-		lss = savlss;
+		eblk.lss = savlss;
 		sv = 0;
 	}
 }
+void
 casenm(){
 	register i;
 
-	lnmod = nn = 0;
+	eblk.lnmod = eblk.nn = 0;
 	if(skip())return;
-	lnmod++;
+	eblk.lnmod++;
 	noscale++;
 	i = inumb(&v.ln);
 	if(!nonumb)v.ln = max(i,0);
-	getnm(&ndf,1);
-	getnm(&nms,0);
-	getnm(&ni,0);
+	getnm(&eblk.ndf,1);
+	getnm(&eblk.nms,0);
+	getnm(&eblk.ni,0);
 	noscale = 0;
-	nmbits = chbits;
+	eblk.nmbits = eblk.chbits;
 }
+
+static void
 getnm(p,min)
 int *p, min;
 {
@@ -807,18 +822,20 @@ int *p, min;
 
 	eat(' ');
 	if(skip())return;
-	i = atoi();
+	i = atoix();
 	if(nonumb)return;
 	*p = max(i,min);
 }
+void
 casenn(){
 	noscale++;
 	skip();
-	nn = max(atoi(),1);
+	eblk.nn = max(atoix(),1);
 	noscale = 0;
 }
+void
 caseab(){
 	dummy();
-	casetm(1);
+	casetmx(1);
 	done2(0);
 }

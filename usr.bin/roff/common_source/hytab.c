@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)hytab.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)hytab.c	4.2 (2.11BSD) 2020/3/24";
+#endif
 /*
  * Hyphenation digram tables
  */

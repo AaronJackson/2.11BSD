@@ -3,14 +3,14 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)Makefile	4.7.2	(2.11BSD)	1996/12/1
+#	@(#)Makefile	4.8	(2.11BSD) 2020/3/24
 #
 # Possible options:
 #	make		compile source for all terminal tables below
 #	make <term>	compile table for a specific <term>
 #	make install	move tables to ${DEST}
 #	make clean	remove tab*.o files lying around
-CFLAGS=	-O
+CFLAGS=	-I../common_source
 DEST=	${DESTDIR}/usr/share/term
 SRCS=	tab300-12.c tab300.c tab302-12.c tab302.c tab37.c tab382-12.c \
 	tab382.c tab450-12.c tab450.c tab833-12.c tab833.c tabepson.c \
@@ -22,40 +22,49 @@ OBJS=	tab300-12.o tab300.o tab302-12.o tab302.o tab37.o tab382-12.o \
 	tabitoh.o tabitoh12.o tablpr.o tabnec-t.o tabnec.o tabnec12.o \
 	tabnec25-t.o tabqume.o tabqume12.o tabx-ecs.o tabx-ecs12.o \
 	tabxerox.o tabxerox12.o
-ALL=	37 lpr 300 300-12 302 302-12 382 382-12 450 450-12 833 833-12 \
-	epson itoh itoh12 nec nec12 nec-t nec25-t qume qume12 xerox \
-	xerox12 x-ecs x-ecs12
+ALL=	tab37.tab tablpr.tab tab300.tab tab300-12.tab tab302.tab \
+	tab302-12.tab tab382.tab tab382-12.tab tab450.tab tab450-12.tab \
+	tab833.tab tab833-12.tab tabepson.tab tabitoh.tab tabitoh12.tab \
+	tabnec.tab tabnec12.tab tabnec-t.tab tabnec25-t.tab tabqume.tab \
+	tabqume12.tab tabxerox.tab tabxerox12.tab tabx-ecs.tab tabx-ecs12.tab
+
+.SUFFIXES: .tab
 
 all: ${ALL}
 
-37:		tab37.o
-lpr:		tablpr.o
-300:		tab300.o 
-300-12:		tab300-12.o 
-302:		tab302.o 
-302-12:		tab302-12.o 
-382:		tab382.o 
-382-12:		tab382-12.o 
-450:		tab450.o 
-450-12:		tab450-12.o 
-833:		tab833.o 
-833-12:		tab833-12.o 
-epson:		tabepson.o
-itoh:		tabitoh.o 
-itoh12:		tabitoh12.o 
-nec:		tabnec.o 
-nec12:		tabnec12.o 
-nec-t:		tabnec-t.o
-nec25-t:	tabnec25-t.o
-qume:		tabqume.o
-qume12:		tabqume12.o
-xerox:		tabxerox.o 
-xerox12:	tabxerox12.o 
-x-ecs:		tabx-ecs.o 
-x-ecs12:	tabx-ecs12.o 
+${OBJS}: mktab.o
+
+.o.tab:
+	cc ${CFLAGS} mktab.o $< -o $@.tmp && ./$@.tmp > $@
+
+37:		tab37.tab
+lpr:		tablpr.tab
+300:		tab300.tab
+300-12:		tab300-12.tab
+302:		tab302.tab
+302-12:		tab302-12.tab
+382:		tab382.tab
+382-12:		tab382-12.tab
+450:		tab450.tab
+450-12:		tab450-12.tab
+833:		tab833.tab
+833-12:		tab833-12.tab
+epson:		tabepson.tab
+itoh:		tabitoh.tab
+itoh12:		tabitoh12.tab
+nec:		tabnec.tab
+nec12:		tabnec12.tab
+nec-t:		tabnec-t.tab
+nec25-t:	tabnec25-t.tab
+qume:		tabqume.tab
+qume12:		tabqume12.tab
+xerox:		tabxerox.tab
+xerox12:	tabxerox12.tab
+x-ecs:		tabx-ecs.tab
+x-ecs12:	tabx-ecs12.tab
 
 clean: FRC
-	rm -f ${OBJS} core
+	rm -f ${OBJS} core ${ALL} mktab.o *.tmp
 
 depend: FRC
 	mkdep ${CFLAGS} ${SRCS}
@@ -63,17 +72,17 @@ depend: FRC
 install: ${ALL}
 	-mkdir -p ${DEST}
 	chmod 755 ${DEST}
-	for file in tab*.o; do \
-		install -c -s -o bin -g bin -m 755 $$file ${DEST}/`basename $$file .o`; \
+	for file in tab*.tab; do \
+		install -c -o bin -g bin -m 755 $$file ${DEST}/`basename $$file`; \
 	done
-	rm -f ${DEST}/tabtn300; ln ${DEST}/tablpr ${DEST}/tabtn300
-	rm -f ${DEST}/tabcrt; ln ${DEST}/tablpr ${DEST}/tabcrt
-	rm -f ${DEST}/tab300s; ln ${DEST}/tab302 ${DEST}/tab300s
-	rm -f ${DEST}/tab300s-12; ln ${DEST}/tab302-12 ${DEST}/tab300s-12
-	rm -f ${DEST}/tabdtc; ln ${DEST}/tab302 ${DEST}/tabdtc
-	rm -f ${DEST}/tabdtc12; ln ${DEST}/tab302-12 ${DEST}/tabdtc12
-	rm -f ${DEST}/tabipsi; ln ${DEST}/tab450 ${DEST}/tabipsi
-	rm -f ${DEST}/tabipsi12; ln ${DEST}/tab450-12 ${DEST}/tabipsi12
+	rm -f ${DEST}/tabtn300.tab; ln ${DEST}/tablpr.tab ${DEST}/tabtn300.tab
+	rm -f ${DEST}/tabcrt.tab; ln ${DEST}/tablpr.tab ${DEST}/tabcrt.tab
+	rm -f ${DEST}/tab300s.tab; ln ${DEST}/tab302.tab ${DEST}/tab300s.tab
+	rm -f ${DEST}/tab300s-12.tab; ln ${DEST}/tab302-12.tab ${DEST}/tab300s-12.tab
+	rm -f ${DEST}/tabdtc.tab; ln ${DEST}/tab302.tab ${DEST}/tabdtc.tab
+	rm -f ${DEST}/tabdtc12.tab; ln ${DEST}/tab302-12.tab ${DEST}/tabdtc12.tab
+	rm -f ${DEST}/tabipsi.tab; ln ${DEST}/tab450.tab ${DEST}/tabipsi.tab
+	rm -f ${DEST}/tabipsi12.tab; ln ${DEST}/tab450-12.tab ${DEST}/tabipsi12.tab
 	install -c -o bin -g bin -m 644 README ${DEST}/README
 
 lint: FRC

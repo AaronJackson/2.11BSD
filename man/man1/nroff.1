@@ -2,135 +2,145 @@
 .\" All rights reserved.  The Berkeley software License Agreement
 .\" specifies the terms and conditions for redistribution.
 .\"
-.\"	@(#)nroff.1	6.1.1 (2.11BSD) 1996/10/22
+.\"	@(#)nroff.1	6.2 (2.11BSD) 2020/3/24
 .\"
-.TH NROFF 1 "October 22, 1996"
-.UC 5
-.SH NAME
-nroff \- text formatting
-.SH SYNOPSIS
-.B nroff
-[ option ] ...
-[ file ] ...
-.SH DESCRIPTION
-.I Nroff
-formats text in the named
-.I files
-for typewriter-like devices.  See also 
-.I troff(1).
+.Dd October 22, 1996
+.Dt NROFF 1
+.Os
+.Sh NAME
+.Nm nroff
+.Nd text formatting
+.Sh SYNOPSIS
+.Nm
+.Op Fl F Ns Ar tabdir
+.Op Fl M Ns Ar tmacdir
+.Op Fl T Ns Ar terminal
+.Op Fl m Ns Ar name
+.Op Fl o Ns Ar list
+.Op Fl r Ns Ar aN
+.Op Fl s Ns Ar page
+.Op Fl ehinq
+.Op Ar
+.Sh DESCRIPTION
+.Nm
+formats text in the named files for typewriter-like devices.
+See also
+.Xr troff 1 .
 The full capabilities of
-.I nroff
+.Nm
 are described in the
-.I Nroff/Troff User's Manual.
-.PP
+.Ar Nroff/Troff User's Manual.
+.Pp
 If no
-.I file
+.Ar file
 argument is present, the standard input is read.
-An argument consisting of a single minus
-.RB ( \- )
+An argument consisting of a single dash
 is taken to be a file name corresponding to the standard input.
-.PP
+.Pp
 The options, which may appear in any order so long as they appear
-.I before
+.Ar before
 the files, are:
-.TP "\w'\f3\-m\f1name 'u"
-.BI \-o list
+.Bl -tag -width indent
+.It Fl F Ns Ar tabdir
+Alternate directory for terminal tab files.
+.It Fl M Ns Ar tmacdir
+Alternate directory for macro files.
+.It Fl o Ns Ar list
 Print only pages whose page numbers appear in the comma-separated
-.I list
+.Ar list
 of numbers and ranges.  A range
-.IB N \- M
+.Ar N Ns \- Ns M
 means pages
-.I N
+.Ar N
 through
-.IR M ;
+.Ar M ;
 an initial
-.I \-N
+.Ar \-N
 means from the beginning to page
-.IR N ;
+.Ar N ;
 and a final
-.IR N \-
+.Ar N Ns \-
 means from
-.I N
+.Ar N
 to the end.
-.TP
-.BI \-n N
+.It Fl n Ns Ar N
 Number first generated page
-.IR N .
-.TP
-.BI \-s N
+.Ar N .
+.It Fl s Ns Ar N
 Stop every
-.I N
+.Ar N
 pages.
-.I Nroff
+.Nm
 will halt prior to every
-.I N
+.Ar N
 pages (default
-.IR N =1)
+.Ar N =1)
 to allow paper loading or changing, and will resume upon receipt of a newline.
-.TP
-.BI \-m name
-Prepend the macro file
-.BI /usr/share/tmac/tmac. name
-to the input
-.IR files .
-.TP
-.BI \-r aN
+.It Fl m Ns Ar name
+Load the macro file
+.Ar tmac.name 
+before processing input files.
+.It Fl r Ns Ar aN
 Set register
-.I a
+.Ar a
 (one-character) to
-.IR N .
-.TP
-.B \-i
+.Ar N .
+.It Fl i
 Read standard input after the input files are exhausted.
-.TP
-.B \-q
+.It Fl q
 Invoke the simultaneous input-output mode of the
-.B rd
+.Ar rd
 request.
-.TP
-.BI \-T name
-Prepare output for specified terminal.  Known
-.I names
-are
-.B 37
-for the (default) Teletype Corporation Model 37 terminal,
-.B tn300
-for the GE TermiNet\ 300 (or any terminal without half-line capability),
-.B 300S
-for the \s-1DASI\s+1-300S,
-.B 300
-for the \s-1DASI\s+1-300,
-and
-.B 450
-for the \s-1DASI\s+1-450 (Diablo Hyterm).
-.TP
-.B \-e
+.It Fl T Ns Ar name
+Prepare output for specified terminal or printer.  Installed terminal
+descriptions can be found in the
+.Ar /usr/share/term/
+directory.
+.It Fl e
 Produce equally-spaced words in adjusted lines, using full terminal resolution.
-.TP
-.B \-h
+.It Fl h
 Use output tabs during horizontal spacing
 to speed output and reduce output character count.
 Tab settings are assumed to be every 8 nominal character widths.
-.SH FILES
-.ta \w'/usr/share/tmac/tmac.*  'u
-/tmp/ta*	temporary file
-.br
-/usr/share/tmac/tmac.*	standard macro files
-.br
-/usr/share/term/*	terminal driving tables for
-.I nroff
-.br
-.SH "SEE ALSO"
-J. F. Ossanna,
-.I Nroff/Troff user's manual
-.br
-B. W. Kernighan,
-.I A TROFF Tutorial
-.br
-troff(1),
-eqn(1),
-tbl(1),
-ms(7),
-me(7),
-man(7),
-col(1)
+.El
+.Sh ENVIRONMENT
+The following environment variables affect the execution of
+.Nm nroff :
+.Bl -tag -width TERMTAB_PATH
+.It Ev TERMTAB_PATH
+Path to the terminal description files.
+.It Ev TMAC_PATH
+Path to the macro packages.
+.El
+.Sh FILES
+.Bl -tag -width /usr/share/tmac/tmac.* -compact
+.It Pa /usr/share/tmac/tmac.*
+system macro files.
+.It Pa /usr/share/term/*
+terminal driving tables for
+.Nm nroff .
+.El
+.Sh SEE ALSO
+.Xr troff 1 ,
+.Xr eqn 1 ,
+.Xr tbl 1 ,
+.Xr soelim 1 ,
+.Xr col 1 ,
+.Xr ms 7 ,
+.Xr me 7 ,
+.Xr mdoc 7 ,
+.Xr mdoc.samples 7
+.Rs
+.%T "Nroff/Troff user's manual"
+.%A J. F. Ossanna
+.Re
+.Rs
+.%T A TROFF Tutorial
+.%A B. W. Kernighan,
+.Re
+.Sh HISTORY
+The
+.Nm
+text formatter appeared in Version 4 AT&T UNIX.
+.Sh BUGS
+Too many internal tables with a size set at compile time.
