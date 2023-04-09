@@ -1,5 +1,5 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* hack.engrave.c - version 1.0.3 */
+/* hack.engrave.c - version 1.0.4 */
 
 #include	"hack.h"
 
@@ -26,7 +26,7 @@ register struct engr *ep = head_engr;
 			return(ep);
 		ep = ep->nxt_engr;
 	}
-	return((struct engr *) 0);
+	return(NULL);
 }
 
 sengr_at(s,x,y) register char *s; register xchar x,y; {
@@ -140,7 +140,7 @@ register struct obj *otmp;
 	if(!otmp) return(0);
 
 	if(otmp == &zeroobj)
-		otmp = (char *)0;
+		otmp = NULL;
 	if(otmp && otmp->otyp == WAN_FIRE && otmp->spe) {
 		type = BURN;
 		otmp->spe--;
@@ -150,7 +150,7 @@ register struct obj *otmp;
 			if(uwep && uwep->cursed) {
 			    /* Andreas Bormann */
 			    pline("Since your weapon is welded to your hand,");
-			    pline("you use the %s.", aobjnam(uwep, (char *) 0));
+			    pline("you use the %s.", aobjnam(uwep, NULL));
 			    otmp = uwep;
 			} else {
 			    if(!otmp)

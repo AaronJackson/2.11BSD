@@ -1,5 +1,5 @@
-#ifndef lint
-static char *sccsid = "@(#)inv5.c	4.2 (Berkeley) 1/9/85";
+#if !defined(lint) && defined(DOSCCS)
+static char *sccsid = "@(#)inv5.c	4.3 (2.11BSD) 2022/9/17";
 #endif
 
 #include <stdio.h>
@@ -36,7 +36,7 @@ FILE *ft, *fb, *fa;
 		fprintf(stderr, "Changing hash value to old %d\n",n);
 	fclose(fa);
 	if (iflong)
-		getfun = getl;
+		getfun = (int (*)())getl;
 	else
 		getfun = getw;
 	for(i=0; i<n; i++)

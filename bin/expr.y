@@ -25,24 +25,24 @@ expression:	expr NOARG = {
 
 
 expr:	'(' expr ')' = { $$ = $2; }
-	| expr OR expr   = { $$ = conj(OR, $1, $3); }
-	| expr AND expr   = { $$ = conj(AND, $1, $3); }
-	| expr EQ expr   = { $$ = rel(EQ, $1, $3); }
-	| expr GT expr   = { $$ = rel(GT, $1, $3); }
-	| expr GEQ expr   = { $$ = rel(GEQ, $1, $3); }
-	| expr LT expr   = { $$ = rel(LT, $1, $3); }
-	| expr LEQ expr   = { $$ = rel(LEQ, $1, $3); }
-	| expr NEQ expr   = { $$ = rel(NEQ, $1, $3); }
-	| expr ADD expr   = { $$ = arith(ADD, $1, $3); }
-	| expr SUBT expr   = { $$ = arith(SUBT, $1, $3); }
-	| expr MULT expr   = { $$ = arith(MULT, $1, $3); }
-	| expr DIV expr   = { $$ = arith(DIV, $1, $3); }
-	| expr REM expr   = { $$ = arith(REM, $1, $3); }
-	| expr MCH expr	 = { $$ = match($1, $3); }
-	| MATCH expr expr = { $$ = match($2, $3); }
-	| SUBSTR expr expr expr = { $$ = substr($2, $3, $4); }
-	| LENGTH expr       = { $$ = length($2); }
-	| INDEX expr expr = { $$ = index($2, $3); }
+	| expr OR expr   = { $$ = (int)conj(OR, $1, $3); }
+	| expr AND expr   = { $$ = (int)conj(AND, $1, $3); }
+	| expr EQ expr   = { $$ = (int)rel(EQ, $1, $3); }
+	| expr GT expr   = { $$ = (int)rel(GT, $1, $3); }
+	| expr GEQ expr   = { $$ = (int)rel(GEQ, $1, $3); }
+	| expr LT expr   = { $$ = (int)rel(LT, $1, $3); }
+	| expr LEQ expr   = { $$ = (int)rel(LEQ, $1, $3); }
+	| expr NEQ expr   = { $$ = (int)rel(NEQ, $1, $3); }
+	| expr ADD expr   = { $$ = (int)arith(ADD, $1, $3); }
+	| expr SUBT expr   = { $$ = (int)arith(SUBT, $1, $3); }
+	| expr MULT expr   = { $$ = (int)arith(MULT, $1, $3); }
+	| expr DIV expr   = { $$ = (int)arith(DIV, $1, $3); }
+	| expr REM expr   = { $$ = (int)arith(REM, $1, $3); }
+	| expr MCH expr	 = { $$ = (int)match($1, $3); }
+	| MATCH expr expr = { $$ = (int)match($2, $3); }
+	| SUBSTR expr expr expr = { $$ = (int)substr($2, $3, $4); }
+	| LENGTH expr       = { $$ = (int)length($2); }
+	| INDEX expr expr = { $$ = (int)index($2, $3); }
 	| A_STRING
 	;
 %%
@@ -87,7 +87,7 @@ yylex() {
 		if(EQL(operators[i], p))
 			return op[i];
 
-	yylval = p;
+	yylval = (int)p;
 	return A_STRING;
 }
 
@@ -661,7 +661,10 @@ register	count;
 	return(1);
 }
 
-static char *sccsid = "@(#)expr.y	4.4 (Berkeley) 5/21/84";
+#if !defined(lint) && defined(DOSCCS)
+static char *sccsid = "@(#)expr.y	4.5 (2.11BSD) 2022/9/17";
+#endif
+
 yyerror(s)
 
 {
