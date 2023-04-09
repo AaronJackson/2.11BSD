@@ -1,3 +1,5 @@
+#!/bin/csh
+
 echo -n "	NOTESFILE ARCHIVAL STARTED AT: " ; date
 cd /usr/spool/notes
 set nfutil	= /usr/spool/notes/.utilities

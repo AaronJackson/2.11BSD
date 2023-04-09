@@ -1,4 +1,5 @@
-#$Header: /usr/src/local/bin/rcs/src/RCS/Makefile,v 1.10 87/12/18 17:06:19 narten Exp $
+# Makefile 2.0 2020/3/20
+#
 # Copyright (C) 1982 by Walter F. Tichy
 #                       Purdue University
 #                       Computer Science Department
@@ -16,19 +17,18 @@
 #     check the instructions in rcsbase.h
 #
 # Note: instructions 1-5 are normally taken care of by the calling make,
-# which passes in DIFF, DIFF3, RCSDIR, OLDDIR, OS, and LOCKING.
+# which passes in DIFF, RCSDIR, OLDDIR, OS, and LOCKING.
 #
 # 1. Early version of diff did not support options needed by RCS.
 #    Newer versions of diff, support them and diff is no longer distributed with
 #    RCS. The following definitions apply only if you have both old versions
 #    and new versions of diff, and you want RCS to use the new versions.
 
-#    Figure out where to put the modified diff and diff3 commands, and
-#     install them. (Read the instructions in the Make-files).
-#     Define the macros DIFF and DIFF3 accordingly (below).
+#    Figure out where to put the modified diff commands, and
+#    install them. (Read the instructions in the Make-files).
+#    Define DIFF accordingly
 DESTDIR   =
 DIFF      = /bin/diff
-DIFF3     = /usr/libexec/diff3
 
 # 2.  Figure out where to put the RCS commands; define RCSDIR accordingly.
 RCSDIR    = /usr/new
@@ -181,11 +181,11 @@ ident:	ident.o rcskeys.o
 ident.lint:
 	$(LINT) ident.c rcskeys.c
 
-merge:	merge.sh
-	sed -e '/^#/d' -e 's:DIFF3=.*$$:DIFF3=$(DIFF3):' merge.sh > merge
-#	This takes out the comment lines and substitutes in DIFF3.
-#	(Comments are not permitted in some older shells.)
-	chmod 755 merge
+merge: FRC
+	rm -f merge
+	ln merge.sh merge
+
+FRC:
 
 RLOG = rlog.o rcslex.o rcssyn.o rcsrev.o rcsutil.o partime.o maketime.o rcsfnms.o
 RLOGSRC = rlog.c rcslex.c rcssyn.c rcsrev.c rcsutil.c partime.c maketime.c rcsfnms.c

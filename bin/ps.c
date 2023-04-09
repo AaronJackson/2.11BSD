@@ -1,4 +1,7 @@
 /*
+ *	2020/3/20 - Revise device name filtering to prevent tty table overflow
+ *		    if there are too many entries in /dev
+ *
  *	1999/8/11 - Remove reference to SDETACH.  It was removed from the kernel
  *		    (finally) because it was not needed.
  *
@@ -287,7 +290,7 @@ char	**argv;
 		if (a->o_stat == SZOMB)
 			printf("%.*s", cmdwidth, " <defunct>");
 		else if (a->o_pid == 0)
-			printf("%.*s", cmdwidth, " swapper");
+			printf("%.*s", cmdwidth, " [swapper]");
 		else	
 			printf(" %.*s", twidth - cmdstart - 2, cflg ?  a->o_comm : a->o_args);
 		putchar('\n');
@@ -325,75 +328,26 @@ maybetty(cp)
 	register struct ttys *dp;
 	struct stat stb;
 
-	switch (cp[0]) {
-
-	case 'c':
-		if (!strcmp(cp, "console"))
-			break;
-		/* cu[la]? are possible!?! don't rule them out */
-		break;
-
-	case 'd':
-		if (!strcmp(cp, "drum"))
-			return;
-		break;
-
-	case 'f':
-		if (!strcmp(cp, "floppy"))
-			return;
-		break;
-
-	case 'k':
-		if (!strcmp(cp, "kUmem") || !strcmp(cp, "kmem"))
-			return;
-		if (!strcmp(cp, "klog"))
-			return;
-		break;
-
-	case 'r':
-#define is(a,b) cp[1] == 'a' && cp[2] == 'b'
-		if (is(h,p) || is(r,a) || is(u,p) || is(h,k) || is(x,p)
-		    || is(r,b) || is(r,l) || is(m,t)) {
-			if (isdigit(cp[3]))
+	if ((strcmp(cp, "console") == 0) ||
+	    (strncmp(cp, "tty", 3) == 0))
+	{
+		if (nttys >= MAXTTYS) {
+			fprintf(stderr, "ps: tty table overflow\n");
+			exit(1);
+		}
+		dp = &allttys[nttys++];
+		(void)strcpy(dp->name, cp);
+		if (Uflg) {
+			if (stat(dp->name, &stb) == 0 &&
+			   (stb.st_mode&S_IFMT)==S_IFCHR)
+				dp->ttyd = stb.st_rdev;
+			else {
+				nttys--;
 				return;
-		}
-		break;
-
-	case 'm':
-		if (!strcmp("mem", cp))
-			return;
-		if (cp[1] == 't')
-			return;
-		break;
-
-	case 'n':
-		if (!strcmp(cp, "null"))
-			return;
-		if (!strncmp(cp, "nrmt", 4))
-			return;
-		break;
-
-	case 'p':
-		if (cp[1] == 't' && cp[2] == 'y')
-			return;
-		break;
+			}
+		} else
+			dp->ttyd = -1;
 	}
-	if (nttys >= MAXTTYS) {
-		fprintf(stderr, "ps: tty table overflow\n");
-		exit(1);
-	}
-	dp = &allttys[nttys++];
-	(void)strcpy(dp->name, cp);
-	if (Uflg) {
-		if (stat(dp->name, &stb) == 0 &&
-		   (stb.st_mode&S_IFMT)==S_IFCHR)
-			dp->ttyd = stb.st_rdev;
-		else {
-			nttys--;
-			return;
-		}
-	} else
-		dp->ttyd = -1;
 }
 
 savcom(puid)
