@@ -33,7 +33,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)kern_sysctl.c	8.6 (2.11BSD) 2020/3/5
+ *	@(#)kern_sysctl.c	8.7 (2.11BSD) 2022/8/28
  */
 
 /*
@@ -94,20 +94,31 @@ __sysctl()
 {
 	register struct sysctl_args *uap = (struct sysctl_args *)u.u_ap;
 	int error;
-	u_int savelen, oldlen = 0;
+	size_t savelen, oldlen = 0;
 	sysctlfn *fn;
 	int name[CTL_MAXNAME];
 
+        /*
+         * Only superuser is allowed to change values.
+         */
 	if (uap->new != NULL && !suser())
-		return (u.u_error);	/* XXX */
+		return (u.u_error = EPERM);	/* XXX */
+
 	/*
 	 * all top-level sysctl names are non-terminal
 	 */
 	if (uap->namelen > CTL_MAXNAME || uap->namelen < 2)
 		return (u.u_error = EINVAL);
+
+        /*
+         * Get the name path.
+         */
 	if (error = copyin(uap->name, &name, uap->namelen * sizeof(int)))
 		return (u.u_error = error);
 
+        /*
+         * Find which function to use.
+         */
 	switch (name[0]) {
 	case CTL_KERN:
 		fn = kern_sysctl;
@@ -140,9 +151,14 @@ __sysctl()
 		return (u.u_error = EOPNOTSUPP);
 	}
 
+        /*
+         * Get oldlen
+         */
 	if (uap->oldlenp &&
 	    (error = copyin(uap->oldlenp, &oldlen, sizeof(oldlen))))
 		return (u.u_error = error);
+	savelen = oldlen;
+
 	if (uap->old != NULL) {
 		while (memlock.sl_lock) {
 			memlock.sl_want = 1;
@@ -150,10 +166,14 @@ __sysctl()
 			memlock.sl_locked++;
 		}
 		memlock.sl_lock = 1;
-		savelen = oldlen;
 	}
+
+        /*
+         * Get the value
+         */
 	error = (*fn)(name + 1, uap->namelen - 1, uap->old, &oldlen,
 	    uap->new, uap->newlen);
+
 	if (uap->old != NULL) {
 		memlock.sl_lock = 0;
 		if (memlock.sl_want) {
@@ -161,15 +181,18 @@ __sysctl()
 			wakeup((caddr_t)&memlock);
 		}
 	}
-	if (error)
-		return (u.u_error = error);
+
+        /* Always copy out length, if we have one. */
 	if (uap->oldlenp) {
-		error = copyout(&oldlen, uap->oldlenp, sizeof(oldlen));
-		if (error)
-			return(u.u_error = error);
+		int nerror;
+		nerror = copyout(&oldlen, uap->oldlenp, sizeof(oldlen));
+		if (error == 0) error=nerror;
 	}
-	u.u_r.r_val1 = oldlen;
-	return (0);
+        if (error == 0 && uap->old != NULL && savelen < oldlen) error = ENOMEM;
+
+	if (error == 0) u.u_r.r_val1 = oldlen;
+
+	return (u.u_error = error);
 }
 
 /*
@@ -185,7 +208,6 @@ kern_sysctl(name, namelen, oldp, oldlenp, newp, newlen)
 {
 	int error, level;
 	u_long longhostid;
-	char bsd[10];
 	extern int Acctthresh;		/* kern_acct.c */
 	extern char version[];
 
@@ -195,11 +217,9 @@ kern_sysctl(name, namelen, oldp, oldlenp, newp, newlen)
 
 	switch (name[0]) {
 	case KERN_OSTYPE:
-		bsd[0]='B';bsd[1]='S';bsd[2]='D';bsd[3]='\0';
-		return (sysctl_rdstring(oldp, oldlenp, newp, bsd));
+		return (sysctl_rdstring(oldp, oldlenp, newp, "BSD"));
 	case KERN_OSRELEASE:
-		bsd[0]='2';bsd[1]='.';bsd[2]='1';bsd[3]='1';bsd[4]='\0';
-		return (sysctl_rdstring(oldp, oldlenp, newp, bsd));
+		return (sysctl_rdstring(oldp, oldlenp, newp, "2.11"));
 	case KERN_ACCTTHRESH:
 		level = Acctthresh;
 		error = sysctl_int(oldp, oldlenp, newp, newlen, &level);
@@ -485,15 +505,13 @@ sysctl_int(oldp, oldlenp, newp, newlen, valp)
 {
 	int error = 0;
 
-	if (oldp && *oldlenp < sizeof(int))
-		return (ENOMEM);
 	if (newp && newlen != sizeof(int))
 		return (EINVAL);
-	*oldlenp = sizeof(int);
 	if (oldp)
-		error = copyout(valp, oldp, sizeof(int));
+		error = copyout(valp, oldp, MIN(sizeof(int),*oldlenp));
 	if (error == 0 && newp)
 		error = copyin(newp, valp, sizeof(int));
+	*oldlenp = sizeof(int);
 	return (error);
 }
 
@@ -508,13 +526,11 @@ sysctl_rdint(oldp, oldlenp, newp, val)
 {
 	int error = 0;
 
-	if (oldp && *oldlenp < sizeof(int))
-		return (ENOMEM);
 	if (newp)
 		return (EPERM);
-	*oldlenp = sizeof(int);
 	if (oldp)
-		error = copyout((caddr_t)&val, oldp, sizeof(int));
+		error = copyout((caddr_t)&val, oldp, MIN(sizeof(int),*oldlenp));
+	*oldlenp = sizeof(int);
 	return (error);
 }
 
@@ -531,15 +547,13 @@ sysctl_long(oldp, oldlenp, newp, newlen, valp)
 {
 	int error = 0;
 
-	if (oldp && *oldlenp < sizeof(long))
-		return (ENOMEM);
 	if (newp && newlen != sizeof(long))
 		return (EINVAL);
-	*oldlenp = sizeof(long);
 	if (oldp)
-		error = copyout(valp, oldp, sizeof(long));
+		error = copyout(valp, oldp, MIN(sizeof(long),*oldlenp));
 	if (error == 0 && newp)
 		error = copyin(newp, valp, sizeof(long));
+	*oldlenp = sizeof(long);
 	return (error);
 }
 
@@ -554,13 +568,11 @@ sysctl_rdlong(oldp, oldlenp, newp, val)
 {
 	int error = 0;
 
-	if (oldp && *oldlenp < sizeof(long))
-		return (ENOMEM);
 	if (newp)
 		return (EPERM);
-	*oldlenp = sizeof(long);
 	if (oldp)
-		error = copyout((caddr_t)&val, oldp, sizeof(long));
+		error = copyout((caddr_t)&val, oldp, MIN(sizeof(long), *oldlenp));
+	*oldlenp = sizeof(long);
 	return (error);
 }
 
@@ -579,18 +591,16 @@ sysctl_string(oldp, oldlenp, newp, newlen, str, maxlen)
 	int len, error = 0;
 
 	len = strlen(str) + 1;
-	if (oldp && *oldlenp < len)
-		return (ENOMEM);
 	if (newp && newlen >= maxlen)
 		return (EINVAL);
 	if (oldp) {
-		*oldlenp = len;
-		error = vcopyout(str, oldp, len);
+		error = vcopyout(str, oldp, MIN(len, *oldlenp));
 	}
 	if (error == 0 && newp) {
 		error = vcopyin(newp, str, newlen);
 		str[newlen] = 0;
 	}
+	*oldlenp = len;
 	return (error);
 }
 
@@ -606,13 +616,11 @@ sysctl_rdstring(oldp, oldlenp, newp, str)
 	int len, error = 0;
 
 	len = strlen(str) + 1;
-	if (oldp && *oldlenp < len)
-		return (ENOMEM);
 	if (newp)
 		return (EPERM);
-	*oldlenp = len;
 	if (oldp)
-		error = vcopyout(str, oldp, len);
+		error = vcopyout(str, oldp, MIN(len, *oldlenp));
+	*oldlenp = len;
 	return (error);
 }
 
@@ -630,16 +638,14 @@ sysctl_struct(oldp, oldlenp, newp, newlen, sp, len)
 {
 	int error = 0;
 
-	if (oldp && *oldlenp < len)
-		return (ENOMEM);
 	if (newp && newlen > len)
 		return (EINVAL);
 	if (oldp) {
-		*oldlenp = len;
-		error = copyout(sp, oldp, len);
+		error = copyout(sp, oldp, MIN(len, *oldlenp));
 	}
 	if (error == 0 && newp)
 		error = copyin(newp, sp, len);
+	*oldlenp = len;
 	return (error);
 }
 
@@ -655,13 +661,11 @@ sysctl_rdstruct(oldp, oldlenp, newp, sp, len)
 {
 	int error = 0;
 
-	if (oldp && *oldlenp < len)
-		return (ENOMEM);
 	if (newp)
 		return (EPERM);
-	*oldlenp = len;
 	if (oldp)
-		error = copyout(sp, oldp, len);
+		error = copyout(sp, oldp, MIN(len, *oldlenp));
+	*oldlenp = len;
 	return (error);
 }
 
