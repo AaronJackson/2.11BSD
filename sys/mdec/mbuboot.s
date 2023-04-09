@@ -1,6 +1,8 @@
 MAJOR = 10.			/ major # from bdevsw[]
 
-/ RM02/03/05 bootstrap
+/ Massbus disk bootstrap
+/
+/ 2022/08/28 - Unified the different Massbus disk bootstrap sources into 1.
 /
 / 1995/05/31 - The unit number needs to go in bits 3-5 of bootdev
 /	       because the partition number now goes into bits 0-2.
@@ -12,7 +14,47 @@ MAJOR = 10.			/ major # from bdevsw[]
 / assembled size must be <= 512; if > 494, the 16-byte a.out header
 / must be removed
 
-RM05	= 0		/ 0-> RM02/03, 1-> RM05
+#ifdef hpuboot
+/ RP04/05/06
+NSECT=22.
+NTRAK=19.
+#endif
+
+#ifdef rm03uboot
+/ RM03
+NSECT=32.
+NTRAK=5.
+#endif
+
+#ifdef rm05uboot
+/ RM05
+NSECT=32.
+NTRAK=19.
+#endif
+
+#ifdef rp07uboot
+/ RP07
+NSECT=50.
+NTRAK=32.
+#endif
+
+#ifdef dvhpuboot
+/ Diva Comp. V, Ampex 9300
+NSECT=33.
+NTRAK=19.
+#endif
+
+#ifdef si51uboot
+/ Fujitsu Eagle (2351A) on SI 6100 Controller bootstrap
+NSECT=48.
+NTRAK=20.
+#endif
+
+#ifdef si94uboot
+/ Fujitsu 160 on SI 9400 or Emulex SC01B Controller bootstrap
+NSECT=32.
+NTRAK=10.
+#endif
 
 / options: none.  all options of reading an alternate name or echoing to
 /		  the keyboard had to be removed to make room for the 
@@ -209,13 +251,6 @@ read	= 70
 preset	= 20
 go	= 1
 fmt22	= 10000
-NSECT	= 32.
-.if	RM05
-NTRAK	= 19.		/ RM05
-.endif
-.if	RM05-1
-NTRAK	= 5.		/ RM02/03
-.endif
 
 rmcs1	= 0
 rmda	= rmcs1+6
@@ -224,7 +259,7 @@ rmds	= rmcs1+12
 rmof	= rmcs1+32
 rmca	= rmcs1+34
 
-/ rm02/3/5 disk driver.
+/ massbus disk driver.
 / low order address in dno,
 / high order in r0.
 rblk:
