@@ -1,5 +1,5 @@
 #if	!defined(lint) && defined(DOSCCS)
-static char *sccsid = "@(#)glue3.c	4.1.1 (2.11BSD) 1996/10/23";
+static char *sccsid = "@(#)glue3.c	4.1.2 (2.11BSD) 2022/9/17";
 #endif
 
 #include "refer..c"
@@ -56,12 +56,12 @@ char *in, *out, *arg;
 	argv[2] = in;
 	argv[3] = "-t";
 	argv[4] = out;
-	argv[5] = outlen;
+	argv[5] = (char *)outlen;
 	argv[6] = "-T";
 	argv[7] = "-F1";
 	argv[8] = "-o";
 	argv[9] = one;
-	argv[10] = onelen;
+	argv[10] = (char *)onelen;
 	argv[11] = abuff; 
 	strcpy (abuff,arg);
 	if (strlen(abuff) > ALEN)

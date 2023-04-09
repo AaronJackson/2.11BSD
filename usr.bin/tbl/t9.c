@@ -1,5 +1,5 @@
-#ifndef lint
-static char sccsid[] = "@(#)t9.c	4.2 8/11/83";
+#if !defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)t9.c	4.3 (2.11BSD) 2022/9/17";
 #endif
 
  /* t9.c: write lines for tables over 200 lines */
@@ -49,7 +49,7 @@ for (icol = 0; icol <ncol; icol++)
 	switch(ctype(useln,icol))
 		{
 		case 'n':
-			table[0][icol].rcol = maknew(table[0][icol].col);
+			table[0][icol].rcol = (char *)maknew(table[0][icol].col);
 			break;
 		case 'a':
 			table[0][icol].rcol = table[0][icol].col;

@@ -1,5 +1,7 @@
 %{
-static	char *sccsid = "@(#)bc.y	4.3.1 (2.11BSD) 1996/10/23";
+#if	!defined(lint) && defined(DOSCCS)
+static	char *sccsid = "@(#)bc.y	4.3.2 (2.11BSD) 2022/9/17";
+#endif
 	int *getout();
 %}
 %right '='
@@ -109,17 +111,17 @@ stat	:  e
 	;
 
 EQOP	:  EQPL
-		={ $$ = "+"; }
+		={ $$ = (int)"+"; }
 	|  EQMI
-		={ $$ = "-"; }
+		={ $$ = (int)"-"; }
 	|  EQMUL
-		={ $$ = "*"; }
+		={ $$ = (int)"*"; }
 	|  EQDIV
-		={ $$ = "/"; }
+		={ $$ = (int)"/"; }
 	|  EQREM
-		={ $$ = "%%"; }
+		={ $$ = (int)"%%"; }
 	|  EQEXP
-		={ $$ = "^"; }
+		={ $$ = (int)"^"; }
 	;
 
 fprefix	:  _FOR '(' e ';'
@@ -225,7 +227,7 @@ e	:  e '+' e
 	|  cons DOT
 		={ bundle(3, " ", $1, "." ); }
 	|  DOT
-		={ $$ = "l."; }
+		={ $$ = (int)"l."; }
 	|  LETTER
 		= { bundle(2, "l", $1 ); }
 	|  LETTER '=' e
@@ -282,15 +284,15 @@ cons	:  constant
 
 constant:
 	  '_'
-		={ $$ = cp; *cp++ = '_'; }
+		={ $$ = (int)cp; *cp++ = '_'; }
 	|  DIGIT
-		={ $$ = cp; *cp++ = $1; }
+		={ $$ = (int)cp; *cp++ = $1; }
 	|  constant DIGIT
 		={ *cp++ = $2; }
 	;
 
 CRS	:
-		={ $$ = cp; *cp++ = crs++; *cp++ = '\0';
+		={ $$ = (int)cp; *cp++ = crs++; *cp++ = '\0';
 			if(crs == '[')crs+=3;
 			if(crs == 'a')crs='{';
 			if(crs >= 0241){yyerror("program too big");
@@ -300,9 +302,9 @@ CRS	:
 	;
 
 def	:  _DEFINE LETTER '('
-		={	$$ = getf($2);
-			pre = "";
-			post = "";
+		={	$$ = (int)getf($2);
+			pre = (int *)"";
+			post = (int *)"";
 			lev = 1;
 			bstack[bindx=0] = 0;
 			}
@@ -322,7 +324,7 @@ dlets	:  lora
 	;
 lora	:  LETTER
 	|  LETTER '[' ']'
-		={ $$ = geta($1); }
+		={ $$ = (int)geta($1); }
 	;
 
 %%
@@ -385,7 +387,7 @@ restart:
 
 		/* usual case; just one single letter */
 
-		yylval = letr[c-'a'];
+		yylval = (int)letr[c-'a'];
 		return( LETTER );
 	}
 	if( c>= '0' && c <= '9' || c>= 'A' && c<= 'F' ){
@@ -430,7 +432,7 @@ restart:
 	case '^':
 		return( cpeek( '=', EQEXP, '^' ) );
 	case '"':	
-		 yylval = str;
+		 yylval = (int)str;
 		 while((c=getch()) != '"'){*str++ = c;
 			if(str >= &string[999]){yyerror("string space exceeded");
 			getout();
@@ -487,8 +489,8 @@ bundle(a){
 		* b_sp_nxt++ = *p++;
 	}
 	* b_sp_nxt++ = 0;
-	yyval = q;
-	return( q );
+	yyval = (int)q;
+	return( (int)q );
 }
 
 routput(p) int *p; {
@@ -532,16 +534,16 @@ pp( s ) char *s; {
 	/* puts the relevant stuff on pre and post for the letter s */
 
 	bundle(3, "S", s, pre );
-	pre = yyval;
+	pre = (int *)yyval;
 	bundle(4, post, "L", s, "s." );
-	post = yyval;
+	post = (int *)yyval;
 }
 
 tp( s ) char *s; { /* same as pp, but for temps */
 	bundle(3, "0S", s, pre );
-	pre = yyval;
+	pre = (int *)yyval;
 	bundle(4, post, "L", s, "s." );
-	post = yyval;
+	post = (int *)yyval;
 }
 
 yyinit(argc,argv) int argc; char *argv[];{
@@ -565,11 +567,11 @@ int *getout(){
 
 int *
 getf(p) char *p;{
-	return(&funtab[2*(*p -0141)]);
+	return((int *)&funtab[2*(*p -0141)]);
 }
 int *
 geta(p) char *p;{
-	return(&atab[2*(*p - 0141)]);
+	return((int *)&atab[2*(*p - 0141)]);
 }
 
 main(argc, argv)
