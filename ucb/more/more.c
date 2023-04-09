@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)more.c	5.7 (2.11BSD) 2021/8/29";
+static char sccsid[] = "@(#)more.c	5.8 (2.11BSD) 2022/9/17";
 #endif
 
 /*
@@ -1283,7 +1283,7 @@ register int n;
     context.line = saveln = Currline;
     context.chrctr = startline;
     lncount = 0;
-    if ((s = re_comp (buf)) != 0)
+    if ((s = (char *)re_comp (buf)) != 0)
 	error (s);
     while (!feof (file)) {
 	line3 = line2;
