@@ -1,3 +1,7 @@
+#if     defined(DOSCCS) && !defined(lint)
+static char *sccsid = "@(#)error.c 2.0 (2.11BSD) 2020/2/8";
+#endif
+
 #include "defs"
 #include "string_defs"
 
@@ -42,10 +46,6 @@ oops:
 
 	    case FATAL1:
 	    case FATAL:
-		if (buf[0] != '\0') {
-			fprintf(diagfile, buf, t, u);
-			fprintf(diagfile, "\n");
-		}
 		fprintf(diagfile,"f77 compiler error line %d of %s: ", lineno, infname);
 		fprintf(diagfile,buf,t,u);
 		fputc('\n',diagfile);

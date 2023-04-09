@@ -1,3 +1,7 @@
+#if     defined(DOSCCS) && !defined(lint)
+static char *sccsid = "@(#)putdmr.c 2.0 (2.11BSD) 2020/2/8";
+#endif
+
 /*  INTERMEDIATE CODE GENERATION FOR D. M. RITCHIE C COMPILERS */
 
 #include "defs"
@@ -1209,3 +1213,4 @@ if(offp)
 		putx( offp );
 	p2op2(P2PLUS, type);
 	}
+}
