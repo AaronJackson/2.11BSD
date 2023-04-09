@@ -9,7 +9,7 @@
  * software without specific prior written permission. This software
  * is provided ``as is'' without express or implied warranty.
  *
- *	@(#)ip_icmp.c	7.7.2 (2.11BSD GTE) 1995/10/10
+ *	@(#)ip_icmp.c	7.8 (2.11BSD) 2022/1/21
  */
 
 #include "param.h"
@@ -153,7 +153,7 @@ icmp_input(m, ifp)
 	 */
 #ifdef ICMPPRINTFS
 	if (icmpprintfs)
-		printf("icmp_input src %X len %d", ntohl(ip->ip_src), icmplen);
+		printf("icmp_input src %lx len %d", ntohl(ip->ip_src), icmplen);
 #endif
 	if (icmplen < ICMP_MINLEN) {
 		icmpstat.icps_tooshort++;
@@ -304,7 +304,7 @@ reflect:
 		icmpdst.sin_addr = icp->icmp_gwaddr;
 #ifdef	ICMPPRINTFS
 		if (icmpprintfs)
-			printf("redirect dst %X to %X\n", ntohl(icp->icmp_ip.ip_dst),
+			printf("redirect dst %lx to %lx\n", ntohl(icp->icmp_ip.ip_dst),
 				ntohl(icp->icmp_gwaddr));
 #endif
 		if (code == ICMP_REDIRECT_NET || code == ICMP_REDIRECT_TOSNET) {
@@ -433,7 +433,7 @@ icmp_send(ip, opts)
 	m->m_len += hlen;
 #ifdef ICMPPRINTFS
 	if (icmpprintfs)
-		printf("icmp_send dst %X src %X\n", ntohl(ip->ip_dst.s_addr), ntohl(ip->ip_src.s_addr));
+		printf("icmp_send dst %lx src %lx\n", ntohl(ip->ip_dst.s_addr), ntohl(ip->ip_src.s_addr));
 #endif
 	(void) ip_output(m, opts, (struct route *)0, 0);
 }

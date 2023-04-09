@@ -3,7 +3,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static	char	sccsid[] = "@(#)c01.c	2.0 (2.11BSD) 2020/1/7";
+static	char	sccsid[] = "@(#)c01.c	2.1 (2.11BSD) 2022/1/21";
 #endif
 
 #include "c0.h"
@@ -141,7 +141,8 @@ build(op)
 		}
 		if ((t1&XTYPE) != FUNC)
 			error("Call of non-function");
-		p2 = protochk(p1->t.subsp[0], p2);
+		if (p1->t.subsp)
+			p2 = protochk(p1->t.subsp[0], p2);
 		*cp++ = block(CALL,decref(t1),p1->t.subsp+1,p1->t.strp,p1,p2);
 		return;
 

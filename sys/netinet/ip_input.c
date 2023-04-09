@@ -9,7 +9,7 @@
  * software without specific prior written permission. This software
  * is provided ``as is'' without express or implied warranty.
  *
- *	@(#)ip_input.c	7.9.2 (2.11BSD GTE) 1995/10/09
+ *	@(#)ip_input.c	7.10 (2.11BSD) 2022/1/21
  */
 
 #include "param.h"
@@ -863,7 +863,7 @@ ip_forward(ip, ifp, srcrt)
 
 	dest.s_addr = 0;
 	if (ipprintfs)
-		printf("forward: src %X dst %X ttl %x\n", ntohl(ip->ip_src),
+		printf("forward: src %lx dst %lx ttl %x\n", ntohl(ip->ip_src),
 			ntohl(ip->ip_dst), ip->ip_ttl);
 	ip->ip_id = htons(ip->ip_id);
 	if (in_canforward(ip->ip_dst) == 0) {

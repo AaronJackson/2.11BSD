@@ -1,7 +1,7 @@
 #
 # Public Domain.  1997/1/10 - Steven Schultz
 #
-#	@(#)Makefile	1.0 (2.11BSD) 1997/1/10
+#	@(#)Makefile	1.1 (2.11BSD) 2022/1/21
 #
 CFLAGS=	 -O
 SEPFLAG= -i
@@ -26,7 +26,7 @@ depend: ${SRCS}
 
 install: init
 	install -c -o bin -g bin -m 444 ${MAN} ${DESTDIR}/usr/man/cat8
-	-mv /etc/init /etc/init.old
+	-mv -f /etc/init /etc/init.old
 	install -s -o root -g bin -m 700 init ${DESTDIR}/etc/init
 
 lint: ${SRCS}
