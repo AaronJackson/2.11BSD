@@ -1,4 +1,4 @@
-#	Makefile	4.3	85/09/07
+#	Makefile	4.4	2022/10/2
 
 DESTDIR=
 SEPFLAG= -i
@@ -7,7 +7,7 @@ OBJS=	done.o init.o io.o main.o save.o subr.o vocab.o wizard.o
 HFILES = hdr.h
 SRCS = $(CFILES) $(HFILES) glorkz
 CFLAGS=	-O
-LDFLAGS=-n	# should be -i on small machines, -n on a vax
+LDFLAGS=-i	# should be -i on small machines, -n on a vax
 
 advent:	a.out
 	rm -f advent
@@ -16,8 +16,8 @@ advent:	a.out
 a.out: ${OBJS}
 	${CC} ${SEPFLAG} ${LDFLAGS} ${CFLAGS} ${OBJS}
 
-save.o:	save.c	# vax C optimizer bug - infinite loop
-	cc -c save.c
+save.o:	save.c
+	cc ${CFLAGS} -c save.c
 
 # always recomple okplay
 okplay.o: /tmp
@@ -46,8 +46,3 @@ lint:
 
 clean:
 	rm -f ${OBJS} a.out advent core errs
-
-sources: $(SRCS)
-
-$(SRCS):
-	sccs get $@

@@ -25,7 +25,7 @@ table.o: optable cvopt
 	rm -f junk.i junk.c junk.s
 
 cvopt:	cvopt.c
-	${CC} -n -s -O -o cvopt cvopt.c
+	${CC} ${CFLAGS} -o cvopt cvopt.c
 
 install: c0 c1
 	-mv ${DESTDIR}${LIB}/c0 ${DESTDIR}${LIB}/oc0

@@ -1,4 +1,4 @@
-#	#(@)	Makefile	1.2 (2.11BSD)	1997/4/28
+#	#(@)	Makefile	1.3 (2.11BSD)	2022/10/2
 #
 # Hack Overlay Makefile.
 
@@ -132,7 +132,7 @@ clean:
 	rm -f *.o x.c xs.c strings crypt makedefs
 
 makedefs:	makedefs.c
-	cc -o makedefs makedefs.c
+	cc ${CFLAGS} -o makedefs makedefs.c
 
 hack.onames.h:	makedefs def.objects.h
 	./makedefs > hack.onames.h

@@ -1,5 +1,5 @@
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)dc.c	4.3.1	(2.11BSD)	2000/2/12";
+static char sccsid[] = "@(#)dc.c	4.3.2	(2.11BSD)	2022/10/2";
 #endif
 
 #include <stdio.h>
@@ -592,7 +592,7 @@ struct blk *ddivd,*ddivr;
 	p = salloc(0);
 	if(length(ddivr) == 0){
 		pushp(ddivr);
-		errorrt("divide by 0\n");
+		errorrt("divide by 0\n", NULL);
 	}
 	divsign = remsign = 0;
 	divr = ddivr;
@@ -715,7 +715,7 @@ dscale(){
 	if(sfbeg(dr) == 1 || (sfbeg(dr) == 0 && sbackc(dr) == 0)){
 		sputc(dr,skr);
 		pushp(dr);
-		errorrt("divide by 0\n");
+		errorrt("divide by 0\n", 1);
 	}
 	c = k-skd+skr;
 	if(c < 0)r = removr(dd,-c);
