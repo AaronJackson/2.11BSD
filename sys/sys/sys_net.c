@@ -3,7 +3,10 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)sys_net.c	1.5 (2.11BSD GTE) 1997/2/16
+ *	@(#)sys_net.c	1.6 (2.11BSD) 2021/8/24
+ *
+ * Change order of qt and qe, so that the system can have both
+ * configured. bqt -- 2021/08/24
  *
  * Print the csr of attached ethernet cards.  sms - 1997/2/16
  *
@@ -85,17 +88,22 @@ static struct uba_device ubdinit[] = {
 #if NIL > 0
 	{ &ildriver,	0,0, (caddr_t)0164000 },
 #endif
-#if NQE > 0
-	{ &qedriver,	0,0, (caddr_t)0174440, 0, 0 },
-#endif
-#if NQE > 1
-	{ &qedriver,	1,0, (caddr_t)0174460, 0, 0 },
-#endif
+/*
+ * *** Important. qt must be before qe, or else the system
+ *     will fail to attach correctly if both types have
+ *     been configured.
+ */
 #if NQT > 0
 	{ &qtdriver,	0,0, (caddr_t)0174440, 0, 0 },
 #endif
 #if NQT > 1
 	{ &qtdriver,	1,0, (caddr_t)0174460, 0, 0 },
+#endif
+#if NQE > 0
+	{ &qedriver,	0,0, (caddr_t)0174440, 0, 0 },
+#endif
+#if NQE > 1
+	{ &qedriver,	1,0, (caddr_t)0174460, 0, 0 },
 #endif
 #if NSRI > 0
 	{ &sridriver,	0,0, (caddr_t)0167770 },

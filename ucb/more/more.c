@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)more.c	5.6 (2.11BSD) 2020/3/24";
+static char sccsid[] = "@(#)more.c	5.7 (2.11BSD) 2021/8/29";
 #endif
 
 /*
@@ -838,7 +838,7 @@ register int n;
     register int state;			/* next output char's UL state */
     register int  bstate = 0;
 #define wouldul(s,n)	((n) >= 2 && (((s)[0] == '_' && (s)[1] == '\b') || ((s)[1] == '\b' && (s)[2] == '_')))
-#define	WOULDBOLD(s,n) (n > 2 && s[0] == s[2] && s[1] == '\b')
+#define	WOULDBOLD(s,n) ((n) >= 2 && s[0] == s[2] && s[1] == '\b')
 
     while (--n >= 0)
 	if (!ul_opt)

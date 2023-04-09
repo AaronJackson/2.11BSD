@@ -1,6 +1,12 @@
-/*	@(#)if_qt.c	1.2 (2.11BSD) 2/20/93
+/*	@(#)if_qt.c	1.3 (2.11BSD) 2021/08/24
  *
  * Modification History 
+ * 24-Aug-21 -- bqt
+ *	Added handling of both qt and qe driver configured in system.
+ *	Added nicer printout at qt configuration.
+ *	Made qtconfig exit before allocating buffer memories if controller
+ *	in fact is not a qt.
+ *
  * 23-Feb-92 -- sms
  *	Rewrite the buffer handling so that fewer than the maximum number of
  *	buffers may be used (32 receive and 12 transmit buffers consume 66+kb
@@ -133,10 +139,12 @@ int	qtattach(), qtintr(), qtinit(), qtoutput(), qtioctl();
  
 extern	struct ifnet loif;
 
+extern int qef[2];
+
 u_short qtstd[] = { 0 };
 
 struct	uba_driver qtdriver =
-	{ 0, 0, qtattach, 0, qtstd, "qe", qtinfo };
+	{ 0, 0, qtattach, 0, qtstd, "qt", qtinfo };
  
 /*
  * Maximum packet size needs to include 4 bytes for the CRC 
@@ -180,7 +188,7 @@ qtattach(ui)
 	extern int nextiv();
  
 	ifp->if_unit = ui->ui_unit;
-	ifp->if_name = "qe";
+	ifp->if_name = "qt";
 	ifp->if_mtu = ETHERMTU;
 	ifp->if_flags = IFF_BROADCAST;
  
@@ -222,9 +230,18 @@ qtattach(ui)
 	restorseg5(seg5);
 
 /*
+ * Check if this is a DELQA-YM. If not, we stop here, before
+ * we allocate buffers.
+ * We can't do the check any earlier, since we do need the
+ * init block setup.
+ */
+	if	(!qtturbo(sc, ui->ui_unit))
+		return;
+ 
+/*
  * Now allocate the buffers and initialize the buffers.  This should _never_
  * fail because main memory is allocated after the DMA pool is used up.
-*/
+ */
 
 	if	(!qbaini(sc, NRCV + NXMT))
 		return;		/* XXX */
@@ -233,14 +250,18 @@ qtattach(ui)
 	ifp->if_output = qtoutput;
 	ifp->if_ioctl = qtioctl;
 	ifp->if_reset = 0;
-	if	(qtturbo(sc))
-		if_attach(ifp);
+
+	if_attach(ifp);
+	qef[ui->ui_unit] = (int)ui->ui_addr;
+	printf("qt%d: DEC DELQA-YM addr %s\n", ui->ui_unit,
+		ether_sprintf(&sc->is_addr));
 	}
  
-qtturbo(sc)
+qtturbo(sc, unit)
 	register struct qt_softc *sc;
+	int unit;
 	{
-	register int i;
+	register int i,x;
 	register struct qtdevice *addr = sc->addr;
 	struct	qt_init *iniblk = (struct qt_init *)SEG5;
 	segm	seg5;
@@ -254,16 +275,18 @@ qtturbo(sc)
 	addr->arqr = 0;
 	delay(150L);
 
+	x = addr->srr;			/* Save original value. */
 	addr->srr = 0x8001;		/* MS | ITB */
-	i = addr->srr;
-	addr->srr = 0x8000;		/* Turn off ITB, set DELQA select */
+	i = addr->srr;			/* Read result */
+	addr->srr = x;			/* Restore register value */
+
 	if	(i != 0x8001)
 		{
-		printf("qt@%o !-YM\n", addr);
+		printf("qt%d@%o !DELQA\n", unit, addr);
 		return(0);
 		}
 /*
- * Board is a DELQA-YM.  Send the commands to enable Turbo mode.  Delay
+ * Board is a DELQA.  Send the commands to enable Turbo mode.  Delay
  * 1 second, testing the SRR register every millisecond to see if the
  * board has shifted to Turbo mode.
 */
@@ -277,7 +300,7 @@ qtturbo(sc)
 		}
 	if	(i >= 1000)
 		{
-		printf("qt@%o !Turbo\n", addr);
+		printf("qt%d@%o !DELQA-YM or Turbo mode disabled\n", unit, addr);
 		return(0);
 		}
 /*
@@ -743,7 +766,7 @@ qtioctl(ifp, cmd, data)
  * We've been asked to stop the board and leave it that way.  qtturbo()
  * does this with the side effect of placing the device back in Turbo mode.
 */
-				qtturbo(sc);
+				qtturbo(sc,ifp->if_unit);
 				sc->qt_flags &= ~QTF_RUNNING;
 				}
 			else if (ifp->if_flags & IFF_UP &&
@@ -855,11 +878,11 @@ qtrestart(sc)
 	register struct qt_softc *sc;
 	{
  
-	qtturbo(sc);
+	qtturbo(sc, -1);
 	qtinit(sc - qt_softc);
 	}
 
-qbaini(sc, num)
+static qbaini(sc, num)
 	struct	qt_softc *sc;
 	int num;
 	{
@@ -877,7 +900,10 @@ qbaini(sc, num)
 			{
 			click = MALLOC(coremap, btoc(MAXPACKETSIZE));
 			if	(click == 0)
+				{
+				printf("qt: Cannot allocate buffers\n");
 				return(0);	/* _can't_ happen */
+				}
 			}
 		ifuba->ifu_hlen = sizeof (struct ether_header);
 		ifuba->ifu_w.ifrw_click = ifuba->ifu_r.ifrw_click = click;
