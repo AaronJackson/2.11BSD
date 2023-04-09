@@ -2,9 +2,9 @@
 .\" All rights reserved.  The Berkeley software License Agreement
 .\" specifies the terms and conditions for redistribution.
 .\"
-.\"	@(#)at.1	6.2.1 (2.11BSD) 1996/10/21
+.\"	@(#)at.1	6.2.2 (2.11BSD) 2021/9/18
 .\"
-.TH AT 1 "October 21, 1996"
+.TH AT 1 "September 18, 2021"
 .UC 4
 .SH NAME
 at \- execute commands at a later time
@@ -102,11 +102,11 @@ the user via
 .IR mail (1).
 .SH FILES
 .nf
-/usr/spool/at                spooling area
-/usr/spool/at/yy.ddd.hhhh.*  job file
-/usr/spool/at/past           directory where jobs are executed from
-/usr/spool/at/lasttimedone   last time atrun was run
-/usr/libexec/atrun               executor (run by cron(8))
+/usr/spool/at                   spooling area
+/usr/spool/at/yyyy.ddd.hhhh.*   job file
+/usr/spool/at/past              directory where jobs are executed from
+/usr/spool/at/lasttimedone      last time atrun was run
+/usr/libexec/atrun              executor (run by cron(8))
 .fi
 .SH "SEE ALSO"
 atq(1),

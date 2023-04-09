@@ -4,30 +4,24 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
+#if	!defined(lint) && defined(DOSCCS)
 char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
-#endif not lint
 
-#ifndef lint
-static char sccsid[] = "@(#)atq.c	5.2 (Berkeley) 5/28/86";
-#endif not lint
+static char sccsid[] = "@(#)atq.c	5.3 (2.11BSD) 9/18/2021";
+#endif
 
 /*
- *
  *	Synopsis:  atq [ -c ] [ -n ] [ name ... ]
- *
  *
  *	Print the queue of files waiting to be executed. These files 
  *	were created by using the "at" command and are located in the 
  *	directory "/usr/spool/at".
  *
- *
  *	Author: Steve Wall
  *		Computer Systems Research Group
  *		University of California @ Berkeley
- *
  */
 
 # include <stdio.h>
@@ -362,7 +356,7 @@ plastrun()
 	 * Print the time that the spooling area was last updated.
 	 */
 	printf("\n LAST EXECUTION TIME: %s ",mthnames[loc->tm_mon]);
-	printf("%d, 19%d ",loc->tm_mday,loc->tm_year);
+	printf("%d, %d ",loc->tm_mday,loc->tm_year+1900);
 	printf("at %d:%02d\n\n",loc->tm_hour,loc->tm_min);
 }
 
@@ -404,13 +398,13 @@ char *filename;
 	 * Pick off the necessary info from the file name and convert the day
 	 * of year to a month and day of month.
 	 */
-	sscanf(filename,"%2d.%3d.%2d%2d",&year,&yday,&hour,&min);
+	sscanf(filename,"%4d.%3d.%2d%2d",&year,&yday,&hour,&min);
 	get_mth_day(year,yday,&month,&day);
 
 	/*
 	 * Format the execution date of a job.
 	 */
-	sprintf(date,"%3s %2d, 19%2d %02d:%02d",mthnames[month],
+	sprintf(date,"%3s %2d, %4d %02d:%02d",mthnames[month],
 						    day, year,hour,min);
 
 	/*
@@ -445,7 +439,7 @@ int year, dayofyear, *month, *day;
 	/*
 	 * Are we dealing with a leap year?
 	 */
-	leap = ((year%4 == 0 && year%100 != 0) || year%100 == 0);
+	leap = ((year%4 == 0 && year%100 != 0) || year%400 == 0);
 
 	/*
 	 * Calculate the month of the year and day of the month.
@@ -512,7 +506,7 @@ char *file;
 
 /*
  * Do we want to include a file in the queue? (used by "scandir") We are looking
- * for files with following syntax: yy.ddd.hhhh. so the test is made to see if 
+ * for files with following syntax: yyyy.ddd.hhhh. so the test is made to see if 
  * the file name has three dots in it. This test will suffice since the only
  * other files in /usr/spool/at don't have any dots in their name.
  */
