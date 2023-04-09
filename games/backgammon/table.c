@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)table.c	5.1 (Berkeley) 5/29/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)table.c	5.2 (2.11BSD) 2022/10/2";
+#endif
 
 #include "back.h"
 
@@ -89,7 +89,7 @@ dochar:
 		if (tflag)
 			curmove (curr,curc-1);
 		else  {
-			if (tty.sg_erase == '\010')
+			if (tty.sg_erase == '\0177')
 				writel ("\010 \010");
 			else
 				writec (cin[ncin-1]);
@@ -112,7 +112,7 @@ dochar:
 			curmove (curr,39);
 			ist = -1;
 			goto domove;
-		} else  if (tty.sg_erase == '\010')  {
+		} else  if (tty.sg_erase == '\0177')  {
 			for (j = 0; j < ncin; j++)
 				writel ("\010 \010");
 			ist = -1;

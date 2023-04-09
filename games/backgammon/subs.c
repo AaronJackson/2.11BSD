@@ -4,9 +4,9 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)subs.c	5.1 (Berkeley) 5/29/85";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)subs.c	5.2 (2.11BSD) 2022/10/3";
+#endif
 
 #include <stdio.h>
 #include "back.h"
@@ -77,7 +77,7 @@ readc () {
 	buflush();
 	if (read(0,&c,1) != 1)
 		errexit ("readc");
-	if (c == '\177')
+	if (c == '\003')
 		getout();
 	if (c == '\033' || c == '\015')
 		return ('\n');

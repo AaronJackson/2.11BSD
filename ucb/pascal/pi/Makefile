@@ -1,5 +1,5 @@
 #
-# pi Makefile - 1.2.2 2019/11/24
+# pi Makefile - 1.2.3 2022/10/2
 #
 
 DESTDIR=
@@ -82,7 +82,7 @@ y.tab.h y.tab.c: pas.y
 	ex - y.tab.c < gram.ex
 
 version: version.c
-	${CC} -o version version.c
+	${CC} ${CFLAGS} -o version version.c
 
 Version.c: version
 	./version > Version.c
@@ -117,7 +117,7 @@ print :
 
 yy.h:		y.tab.h
 Version.o:	Version.c
-		cc -c Version.c
+		cc -O -c Version.c
 TRdata.o:	whoami 0.h
 ato.o:		0.h whoami ato.c
 call.o:		whoami 0.h tree.h opcode.h call.c

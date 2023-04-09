@@ -4,7 +4,7 @@
 # the terms of the Berkeley Software License Agreement.
 #
 
-# @(#)Makefile	1.7.1 1996/1/28
+# @(#)Makefile	1.7.2 2022/10/2
 
 CFLAGS=		-O
 SEPFLAG= -i
@@ -51,7 +51,7 @@ globals.o: globals.c mkstr
 	rm -f xxglobals.c
 
 mkstr:	mkstr.c
-	cc -O -n -o mkstr mkstr.c
+	cc ${CFLAGS} -o mkstr mkstr.c
 
 # End of pdp-11 specific instructions
 
