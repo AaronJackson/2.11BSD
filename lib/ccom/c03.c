@@ -582,7 +582,11 @@ struct nmlist *absname;
 
 	defsym = 0;
 	type = 0;
-	switch(o=symbol()) {
+more:	switch(o=symbol()) {
+	case KEYW:
+		if (cval == CONST || cval == VOLATIL)
+			goto more;
+		break;
 
 	case TIMES:
 		type = getype(dimp, absname);
