@@ -1,7 +1,10 @@
+#if     defined(DOSCCS) && !defined(lint)
+static char *sccsid = "@(#)misc.c 2.0 (2.11BSD) 2020/2/8";
+#endif
+
+#include <stdlib.h>
 #include "defs"
 #include "string_defs"
-
-
 
 cpn(n, a, b)
 register int n;
@@ -10,8 +13,6 @@ register char *a, *b;
 while(--n >= 0)
 	*b++ = *a++;
 }
-
-
 
 eqn(n, a, b)
 register int n;
@@ -23,12 +24,6 @@ while(--n >= 0)
 return(YES);
 }
 
-
-
-
-
-
-
 cmpstr(a, b, la, lb)	/* compare two strings */
 register char *a, *b;
 ftnint la, lb;
@@ -36,7 +31,6 @@ ftnint la, lb;
 register char *aend, *bend;
 aend = a + la;
 bend = b + lb;
-
 
 if(la <= lb)
 	{
@@ -69,10 +63,6 @@ else
 return(0);
 }
 
-
-
-
-
 chainp hookup(x,y)
 register chainp x, y;
 {
@@ -87,8 +77,6 @@ p->nextp = y;
 return(x);
 }
 
-
-
 struct listblock *mklist(p)
 chainp p;
 {
@@ -99,7 +87,6 @@ q->tag = TLIST;
 q->listp = p;
 return(q);
 }
-
 
 chainp mkchain(p,q)
 register int p, q;
@@ -119,8 +106,6 @@ r->nextp = q;
 return(r);
 }
 
-
-
 char * varstr(n, s)
 register int n;
 register char *s;
@@ -135,9 +120,6 @@ name[i] = '\0';
 
 return( name );
 }
-
-
-
 
 char * varunder(n, s)
 register int n;
@@ -158,10 +140,6 @@ name[i] = '\0';
 return( name );
 }
 
-
-
-
-
 char * nounder(n, s)
 register int n;
 register char *s;
@@ -178,8 +156,6 @@ name[i] = '\0';
 return( name );
 }
 
-
-
 char *copyn(n, s)
 register int n;
 register char *s;
@@ -192,15 +168,11 @@ while(--n >= 0)
 return(p);
 }
 
-
-
 char *copys(s)
 char *s;
 {
 return( copyn( strlen(s)+1 , s) );
 }
-
-
 
 ftnint convci(n, s)
 register int n;
@@ -230,8 +202,6 @@ do	{
 return(t);
 }
 
-
-
 double convcd(n, s)
 int n;
 register char *s;
@@ -249,8 +219,6 @@ for(t = v ; n-- > 0 ; s++)
 *t = '\0';
 return( atof(v) );
 }
-
-
 
 struct nameblock *mkname(l, s)
 int l;
@@ -287,8 +255,6 @@ q->tag = TNAME;
 cpn(VL, n, q->varname);
 return(q);
 }
-
-
 
 struct labelblock *mklabel(l)
 ftnint l;
@@ -356,13 +322,6 @@ nextext->extinit = NO;
 return( nextext++ );
 }
 
-
-
-
-
-
-
-
 struct addrblock *builtin(t, s)
 int t;
 char *s;
@@ -388,8 +347,6 @@ q->memno = p - extsymtab;
 return(q);
 }
 
-
-
 frchain(p)
 register chainp *p;
 {
@@ -405,7 +362,6 @@ chains = *p;
 *p = 0;
 }
 
-
 ptr cpblock(n,p)
 register int n;
 register char * p;
@@ -419,14 +375,11 @@ while(n-- > 0)
 return(q0);
 }
 
-
-
 max(a,b)
 int a,b;
 {
 return( a>b ? a : b);
 }
-
 
 ftnint lmax(a, b)
 ftnint a, b;
@@ -440,9 +393,6 @@ ftnint a, b;
 return(a < b ? a : b);
 }
 
-
-
-
 maxtype(t1, t2)
 int t1, t2;
 {
@@ -453,8 +403,6 @@ if(t==TYCOMPLEX && (t1==TYDREAL || t2==TYDREAL) )
 	t = TYDCOMPLEX;
 return(t);
 }
-
-
 
 /* return log base 2 of n if n a power of 2; otherwise -1 */
 #if FAMILY == SCJ
@@ -474,8 +422,6 @@ return(k);
 }
 #endif
 
-
-
 frrpl()
 {
 struct rplblock *rp;
@@ -487,7 +433,6 @@ while(rpllist)
 	rpllist = rp;
 	}
 }
-
 
 popstack(p)
 register chainp *p;
@@ -501,8 +446,6 @@ free(*p);
 *p = q;
 }
 
-
-
 struct exprblock *callk(type, name, args)
 int type;
 char *name;
@@ -515,8 +458,6 @@ p->vtype = type;
 return(p);
 }
 
-
-
 struct exprblock *call4(type, name, arg1, arg2, arg3, arg4)
 int type;
 char *name;
@@ -527,9 +468,6 @@ args = mklist( mkchain(arg1, mkchain(arg2, mkchain(arg3, mkchain(arg4, NULL)) ) 
 return( callk(type, name, args) );
 }
 
-
-
-
 struct exprblock *call3(type, name, arg1, arg2, arg3)
 int type;
 char *name;
@@ -539,10 +477,6 @@ struct listblock *args;
 args = mklist( mkchain(arg1, mkchain(arg2, mkchain(arg3, NULL) ) ) );
 return( callk(type, name, args) );
 }
-
-
-
-
 
 struct exprblock *call2(type, name, arg1, arg2)
 int type;
@@ -555,9 +489,6 @@ args = mklist( mkchain(arg1, mkchain(arg2, NULL) ) );
 return( callk(type,name, args) );
 }
 
-
-
-
 struct exprblock *call1(type, name, arg)
 int type;
 char *name;
@@ -566,15 +497,12 @@ expptr arg;
 return( callk(type,name, mklist(mkchain(arg,0)) ));
 }
 
-
 struct exprblock *call0(type, name)
 int type;
 char *name;
 {
 return( callk(type, name, NULL) );
 }
-
-
 
 struct impldoblock *mkiodo(dospec, list)
 chainp dospec, list;
@@ -588,14 +516,17 @@ q->datalist = list;
 return(q);
 }
 
-
-
-
 ptr ckalloc(n)
 register int n;
 {
 register ptr p;
-ptr calloc();
+/*
+ * exstop calls with 0 if the argument to STOP is missing or not a constant.
+ * calloc/malloc return NULL if passed 0. This was causing an erroneous 
+ * "out of memory" error.
+*/
+if (n == 0)
+   n = 1;
 
 if( p = calloc(1, (unsigned) n) )
 	return(p);
@@ -603,10 +534,6 @@ if( p = calloc(1, (unsigned) n) )
 error("out of memory",0,0,FATAL);
 /* NOTREACHED */
 }
-
-
-
-
 
 isaddr(p)
 register expptr p;
@@ -626,10 +553,6 @@ if(p->tag == TEXPR)
 return(NO);
 }
 
-
-
-
-
 addressable(p)
 register expptr p;
 {
@@ -645,8 +568,6 @@ switch(p->tag)
 		return(NO);
 	}
 }
-
-
 
 hextoi(c)
 register int c;

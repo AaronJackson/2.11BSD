@@ -8,7 +8,7 @@ jobs:
       - uses: AaronJackson/2.11BSD-Action@main
         with:
           path: /usr/src
-          patch_level: 461
+          patch_level: 462
           run: |
             cd /usr/src/sys/conf
             ./config GENERIC
@@ -17,4 +17,7 @@ jobs:
             cd /usr/src/bin
             make
             cd /usr/src/sbin
+            make
+            cd /usr/src/usr.bin/f77
+            rm -f malloc.c
             make
