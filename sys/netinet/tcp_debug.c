@@ -9,7 +9,7 @@
  * software without specific prior written permission. This software
  * is provided ``as is'' without express or implied warranty.
  *
- *	@(#)tcp_debug.c	7.3 (2.11BSD) 2020/1/7
+ *	@(#)tcp_debug.c	7.4 (2.11BSD) 2022/1/21
  */
 
 #ifdef	TCPDEBUG
@@ -102,10 +102,10 @@ tcp_trace(act, ostate, tp, ti, req)
 		if (act == TA_OUTPUT)
 			len -= sizeof (struct tcphdr);
 		if (len)
-			printf("[%X..%X)", seq, seq+len);
+			printf("[%lx..%lx)", seq, seq+len);
 		else
-			printf("%X", seq);
-		printf("@%X, urp=%X", ack, ti->ti_urp);
+			printf("%lx", seq);
+		printf("@%lx, urp=%lx", ack, ti->ti_urp);
 		flags = ti->ti_flags;
 		if (flags) {
 #ifndef lint
@@ -129,10 +129,10 @@ tcp_trace(act, ostate, tp, ti, req)
 	printf("\n");
 	if (tp == 0)
 		return;
-	printf("\trcv_(nxt,wnd,up) (%X,%x,%x) snd_(una,nxt,max) (%X,%X,%X)\n",
+	printf("\trcv_(nxt,wnd,up) (%lx,%x,%x) snd_(una,nxt,max) (%lx,%lx,%lx)\n",
 	    tp->rcv_nxt, tp->rcv_wnd, tp->rcv_up, tp->snd_una, tp->snd_nxt,
 	    tp->snd_max);
-	printf("\tsnd_(wl1,wl2,wnd) (%X,%X,%x)\n",
+	printf("\tsnd_(wl1,wl2,wnd) (%lx,%lx,%x)\n",
 	    tp->snd_wl1, tp->snd_wl2, tp->snd_wnd);
 #endif /* TCPDEBUG */
 }

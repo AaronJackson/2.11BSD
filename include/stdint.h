@@ -1,7 +1,7 @@
 /*
  * Public domain - 2002/1/30 - sms
  *
- *	@(#)stdint.h	1.0 (2.11BSD) 2002/1/30
+ *	@(#)stdint.h	1.1 (2.11BSD) 2022/1/21
 */
 
 #ifndef	_STDINT_H_
@@ -26,4 +26,8 @@ typedef uint32_t                      u_int32_t;
 #ifdef notyet
 typedef uint64_t                      u_int64_t;
 #endif
+
+typedef 	 int		intptr_t;
+typedef unsigned int		uintptr_t;
+
 #endif /* _STDINT_H_ */

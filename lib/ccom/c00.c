@@ -7,7 +7,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static	char	sccsid[] = "@(#)c00.c	2.2 (2.11BSD) 2020/1/7";
+static	char	sccsid[] = "@(#)c00.c	2.3 (2.11BSD) 2022/1/21";
 #endif
 
 #include "c0.h"
@@ -16,6 +16,7 @@ int	isn	= 1;
 int	peeksym	= -1;
 int	line	= 1;
 struct	tnode	funcblk = { NAME };
+static	int uns;
 
 struct kwtab {
 	char	*kwname;
@@ -192,6 +193,12 @@ findkw()
 	return(0);
 }
 
+static int
+getc00()
+{
+	return getchar();
+}
+
 
 /*
  * Return the next symbol from the input.
@@ -220,7 +227,7 @@ symbol()
 		if (eof)
 			return(EOFC);
 		else
-			c = getchar();
+			c = getc00();
 loop:
 	if (c==EOF) {
 		eof++;
@@ -235,19 +242,19 @@ loop:
 		}
 		tline = cval;
 		while (ctab[peekc]==SPACE)
-			peekc = getchar();
+			peekc = getc00();
 		if (peekc=='"') {
 			sp = filename;
 			while ((c = mapch('"')) >= 0)
 				*sp++ = c;
 			*sp++ = 0;
-			peekc = getchar();
+			peekc = getc00();
 		}
 		if (peekc != '\n') {
 #ifdef notdef
 			error("Illegal #");
 #endif
-			while (getchar()!='\n' && eof==0)
+			while (getc00()!='\n' && eof==0)
 				;
 		}
 		peekc = 0;
@@ -258,7 +265,7 @@ loop:
 		line++;
 
 	case SPACE:
-		c = getchar();
+		c = getc00();
 		goto loop;
 
 	case PLUS:
@@ -300,7 +307,7 @@ loop:
 			if (c=='*') {
 				if (spnextchar() == '/') {
 					peekc = 0;
-					c = getchar();
+					c = getc00();
 					goto loop;
 				}
 			}
@@ -310,8 +317,8 @@ loop:
 		return(0);
 
 	case PERIOD:
-		if ((c = getchar()) == '.') {
-			if ((c = getchar()) == '.')
+		if ((c = getc00()) == '.') {
+			if ((c = getc00()) == '.')
 				return ELLIPS;
 			error("Too many '.'");
 		} else {
@@ -335,7 +342,7 @@ loop:
 		while (ctab[c]==LETTER || ctab[c]==DIGIT) {
 			if (sp < symbuf + MAXCPS)
 				*sp++ = c;
-			c = getchar();
+			c = getc00();
 		}
 		*sp++ = '\0';
 		mossym = mosflg;
@@ -354,37 +361,43 @@ loop:
 	case UNKN:
 	unkn:
 		error("Unknown character");
-		c = getchar();
+		c = getc00();
 		goto loop;
 
 	}
 	return(ctab[c]);
 }
 
+/* match correct type */
+#define	GT_INT	0
+#define	GT_UNS	1
+#define	GT_LNG	2
+#define	GT_ULNG	3
 /*
  * Read a number.  Return kind.
  */
 getnum()
 {
-	register char *np;
-	register c, base;
+	register c, lc, base;
+	char *np;
 	int expseen, sym, ndigit;
 	char *nsyn;
-	int maxdigit;
+	int maxdigit, typ;
 
 	nsyn = "Number syntax";
-	lcval = 0;
 	base = 10;
 	maxdigit = 0;
 	np = numbuf;
 	ndigit = 0;
 	sym = CON;
-	expseen = 0;
-	if ((c=spnextchar()) == '0')
+	typ = expseen = 0;
+	lcval = 0;
+	if ((lc = c=spnextchar()) == '0')
 		base = 8;
-	for (;; c = getchar()) {
+	for (;; lc = c = getc00()) {
+		lc |= 040; /* make lowercase */
 		*np++ = c;
-		if (ctab[c]==DIGIT || (base==16) && ('a'<=c&&c<='f'||'A'<=c&&c<='F')) {
+		if (ctab[c]==DIGIT || (base==16) && ('a' <= lc && lc <= 'f')) {
 			if (base==8)
 				lcval <<= 3;
 			else if (base==10)
@@ -392,15 +405,13 @@ getnum()
 			else
 				lcval <<= 4;
 			if (ctab[c]==DIGIT)
-				c -= '0';
-			else if (c>='a')
-				c -= 'a'-10;
-			else
-				c -= 'A'-10;
-			lcval += c;
+				lc -= '0';
+			else if (lc >= 'a')
+				lc -= 'a'-10;
+			lcval += lc;
 			ndigit++;
-			if (c>maxdigit)
-				maxdigit = c;
+			if (lc>maxdigit)
+				maxdigit = lc;
 			continue;
 		}
 		if (c=='.') {
@@ -414,22 +425,26 @@ getnum()
 			sym = DOT;
 			break;
 		}
-		if ((c=='e'||c=='E') && expseen==0) {
+		if ((lc == 'e') && expseen==0) {
 			expseen++;
 			sym = FCON;
 			if (base==16 || maxdigit>=10)
 				error(nsyn);
 			base = 10;
-			*np++ = c = getchar();
+			*np++ = lc = c = getc00();
 			if (c!='+' && c!='-' && ctab[c]!=DIGIT)
 				break;
-		} else if (c=='x' || c=='X') {
+		} else if (lc == 'x') {
 			if (base!=8 || lcval!=0 || sym!=CON)
 				error(nsyn);
 			base = 16;
-		} else if ((c=='l' || c=='L') && sym==CON) {
-			c = getchar();
-			sym = LCON;
+		} else if (lc == 'l' || lc == 'u') {
+			do {
+				if (lc == 'l') typ |= GT_LNG;
+				if (lc == 'u') typ |= GT_UNS;
+				c = lc = getc00();
+				lc |= 040;
+			} while (lc == 'l' || lc == 'u');
 			break;
 		} else
 			break;
@@ -442,9 +457,22 @@ getnum()
 		cval = np-numbuf;
 		return(FCON);
 	}
-	if (sym==CON && (lcval<0 || lcval>MAXINT&&base==10 || (lcval>>1)>MAXINT)) {
-		sym = LCON;
-	}
+	if ((typ & GT_UNS) == 0) {
+		if (base == 10) {
+			if ((unsigned long)lcval > MAXINT)
+				typ = GT_LNG;
+		} else {
+			if (lcval < 0)
+				typ = GT_ULNG;
+			else if ((lcval >> 1) > MAXINT)
+				typ = GT_LNG;
+			else if (lcval > MAXINT)
+				typ = GT_UNS;
+		}
+	} else if ((typ == GT_UNS) && ((lcval >> 1) > MAXINT))
+		typ = GT_ULNG;
+	if (typ & GT_LNG) sym = LCON;
+	uns = typ & GT_UNS;
 	cval = lcval;
 	return(sym);
 }
@@ -552,7 +580,7 @@ mapch(ac)
 	if (a = mpeek)
 		mpeek = 0;
 	else
-		a = getchar();
+		a = getc00();
 loop:
 	if (a==c)
 		return(-1);
@@ -565,7 +593,7 @@ loop:
 		return(-1);
 
 	case '\\':
-		switch (a=getchar()) {
+		switch (a=getc00()) {
 
 		case 't':
 			return('\t');
@@ -589,7 +617,7 @@ loop:
 			while (++c<=3 && '0'<=a && a<='7') {
 				n <<= 3;
 				n += a-'0';
-				a = getchar();
+				a = getc00();
 			}
 			mpeek = a;
 			return(n);
@@ -599,7 +627,7 @@ loop:
 
 		case '\n':
 			line++;
-			a = getchar();
+			a = getc00();
 			goto loop;
 		}
 	}
@@ -663,13 +691,18 @@ advanc:
 	case LCON:
 		*cp = (union tree *)Tblock(sizeof(struct lnode));
 		(*cp)->l.op = LCON;
-		(*cp)->l.type = LONG;
+		(*cp)->l.type = uns ? UNLONG : LONG;
 		(*cp)->l.lvalue = lcval;
 		cp++;
+		uns = 0;
 		goto tand;
 
 	case CON:
-		*cp++ = cblock(cval);
+		*cp = cblock(cval);
+		if (uns)
+			(*cp)->c.type = UNSIGN;
+		uns = 0;
+		*cp++;
 		goto tand;
 
 	/* fake a static char array */
