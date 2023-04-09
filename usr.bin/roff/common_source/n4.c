@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)n4.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n4.c	4.2 (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
 extern
@@ -8,7 +8,6 @@ extern
 extern
 #include "v.h"
 #ifdef NROFF
-extern
 #include "tw.h"
 #endif
 #include "sdef.h"
@@ -31,7 +30,6 @@ extern int fmt[NN];
 extern int ch;
 extern int lgf;
 extern int pl;
-extern int lastl;
 extern int ralss;
 extern int totout;
 extern int nrbits;
@@ -42,25 +40,16 @@ extern int dfact;
 extern int dfactd;
 extern int po;
 extern int nform;
-extern int ll;
-extern int in;
-extern int font;
 extern int bdtab[];
-extern int lss;
-extern int pts;
-extern int fi;
 extern int res;
 extern int cwidth;
 extern int dotT;
 extern int ev;
-extern int ne;
-extern int ad, admod;
 extern int print;
-extern int ls;
-extern int nel, un;
 extern int xxx;
 int regcnt = NNAMES;
 
+void
 setn()
 {
 	register i,j;
@@ -72,34 +61,38 @@ setn()
 			else ch = i;
 	if((i=getsn()) == 0)return;
 	if((i & 0177) == '.')switch(i>>BYTE){
-		case 's': i = pts & 077;	break;
-		case 'v': i = lss;		break;
-		case 'f': i = font + 1;	break;
+		case 's': i = eblk.pts & 077;	break;
+		case 'v': i = eblk.lss;		break;
+		case 'f': i = eblk.font + 1;	break;
 		case 'p': i = pl;		break;
 		case 't':  i = findt1();	break;
 		case 'o': i = po;		break;
-		case 'l': i = ll;		break;
-		case 'i': i = in;		break;
+		case 'l': i = eblk.ll;		break;
+		case 'i': i = eblk.in;		break;
 		case '$': i = frame->nargs;		break;
 		case 'A': i = ascii;		break;
 		case 'c': i = v.cd;		break;
-		case 'n': i = lastl;		break;
+		case 'n': i = eblk.lastl;		break;
 		case 'a': i = ralss;		break;
 		case 'h': i = dip->hnl;	break;
 		case 'd':
 			if(dip != d)i = dip->dnl; else i = v.nl;
 			break;
-		case 'u': i = fi;		break;
-		case 'j': i = ad + 2*admod;	break;
+		case 'u': i = eblk.fi;		break;
+		case 'j': i = eblk.ad + 2*eblk.admod;	break;
 		case 'w': i = width(*(pinchar-1));		break;	/* XXX */
-		case 'x': i = nel;	break;
-		case 'y': i = un;		break;
-		case 'T': i = dotT;		break; /*-Tterm used in nroff*/
+		case 'x': i = eblk.nel;	break;
+		case 'y': i = eblk.un;		break;
+#ifdef NROFF
+		case 'T': i = devtab != NULL;	break; /*-Tterm used in nroff*/
+#else
+		case 'T': i = 0;		break; /*always 0 in troff*/
+#endif
 		case 'V': i = VERT;		break;
 		case 'H': i = HOR;		break;
-		case 'k': i = ne;		break;
+		case 'k': i = eblk.ne;		break;
 		case 'P': i = print;		break;
-		case 'L': i = ls;		break;
+		case 'L': i = eblk.ls;		break;
 		case 'R': i = NN - regcnt;	break;
 		case 'z': i = dip->curd;
 			cbuf[0] = i & BMASK;
@@ -108,7 +101,7 @@ setn()
 			cp = cbuf;
 			return;
 #ifndef NROFF
-		case 'b': i = bdtab[font];		break;
+		case 'b': i = bdtab[eblk.font];		break;
 #endif
 
 		default:
@@ -155,7 +148,7 @@ int i;
 		}
 	}
 	if(j==NN){
-		if(!numerr)prstrfl("Too many number registers.\n");
+		if(!numerr)warnx("Too many number registers.");
 		if(++numerr > 1)done2(04); else edone(04);
 	}
 	return(j);
@@ -232,7 +225,7 @@ int i, (*f)();
 	register j, k;
 
 	k = 0;
-	if(j=i/26)k = abc0(j-1,f);
+	if ((j=i/26)) k = abc0(j-1,f);
 	return(k + (*f)((i%26 + nform) | nrbits));
 }
 wrc(i)
@@ -242,7 +235,7 @@ int i;
 	*cp++ = i;
 	return(1);
 }
-atoi(){
+atoix(){
 	extern long atoi0();
 
 	return((int)atoi0());
@@ -281,7 +274,7 @@ a0:
 			i = ckph();
 			if(nonumb)break;
 			if(i == 0){
-				prstrfl("Divide by zero.\n");
+				warnx("Divide by zero.");
 				acc = 0;
 			}else acc /= i;
 			goto a0;
@@ -382,7 +375,7 @@ a1:
 			i = j = 1;
 			break;
 		case 'v':	/*VSs - vert spacing*/
-			j = lss;
+			j = eblk.lss;
 			i = 1;
 			break;
 		case 'm':	/*Ems*/
@@ -434,6 +427,8 @@ a2:
 	nonumb = !field;
 	return(acc);
 }
+
+void
 caserr(){
 	register i,j;
 
@@ -448,6 +443,8 @@ caserr(){
 		}
 	}
 }
+
+void
 casenr(){
 	register i, j;
 
@@ -459,12 +456,14 @@ casenr(){
 	if(nonumb)goto rtn;
 	vlist[i] = j;
 	skip();
-	j = atoi();
+	j = atoix();
 	if(nonumb)goto rtn;
 	inc[i] = j;
 rtn:
 	return;
 }
+
+void
 caseaf(){
 	register i, j, k;
 
@@ -483,7 +482,7 @@ vnumb(i)
 int *i;
 {
 	vflag++;
-	dfact = lss;
+	dfact = eblk.lss;
 	res = VERT;
 	return(inumb(i));
 }
@@ -505,7 +504,7 @@ int *n;
 		else if(j == '-')f = -1;
 			else ch = i;
 	}
-	i = atoi();
+	i = atoix();
 	if(n && f)i = *n + f*i;
 	i = quant(i,res);
 	vflag = 0;

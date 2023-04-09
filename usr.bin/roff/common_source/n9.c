@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)n9.c	4.2 7/7/86";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)n9.c	4.3 (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
 extern
@@ -8,7 +8,6 @@ extern
 extern
 #include "v.h"
 #ifdef NROFF
-extern
 #include "tw.h"
 #endif
 /*
@@ -20,17 +19,13 @@ misc functions
 extern int cbuf[];
 extern int *cp;
 extern int ch;
-extern int chbits;
 extern int dfact;
 extern int vflag;
 extern int pts;
 extern int fc;
 extern int padc;
-extern int tabtab[];
 extern int nlflg;
-extern int lss;
 extern int tabch, ldrch;
-extern int tabc, dotc;
 extern int nchar, rchar;
 extern int xxx;
 
@@ -40,6 +35,8 @@ setz(){
 	if(!((i = getch()) & MOT))i |= ZBIT;
 	return(i);
 }
+
+void
 setline(){
 	register *i, length, c;
 	int w, cnt, delim, rem, temp;
@@ -48,7 +45,7 @@ setline(){
 		else delim &= CMASK;
 	vflag = 0;
 	dfact = EM;
-	length = quant(atoi(),HOR);
+	length = quant(atoix(),HOR);
 	dfact = 1;
 	if(!length){
 		eat(delim);
@@ -57,7 +54,7 @@ setline(){
 s0:
 	if(((c = getch()) & CMASK) == delim){
 		ch = c;
-		c = 0204 | chbits;
+		c = 0204 | eblk.chbits;
 	}else if((c & CMASK) == FILLER)goto s0;
 	w = width(c);
 	i = cbuf;
@@ -71,7 +68,7 @@ s0:
 		*i++ = makem(-(w - length - temp));
 		goto s1;
 	}
-	if(rem = length%w){
+	if ((rem = length%w)) {
 		switch(c & CMASK){
 			case 0204: /*rule*/
 			case 0224: /*underrule*/
@@ -100,6 +97,8 @@ int c;
 		(i != '\n'));
 	return(i);
 }
+
+void
 setov(){
 	register i, j, k;
 	int *p, delim, o[NOV+1], w[NOV+1];
@@ -135,6 +134,8 @@ setov(){
 	*p = 0;
 	cp = cbuf;
 }
+
+void
 setbra(){
 	register i, *j, k;
 	int cnt, delim, dwn;
@@ -170,15 +171,17 @@ setbra(){
 	*--j &= ~ZBIT;
 	cp = cbuf;
 }
+
+void
 setvline(){
 	register i, c, *k;
 	int cnt, neg, rem, ver, delim;
 
 	if((delim = getch()) & MOT)return;
 		else delim &= CMASK;
-	dfact = lss;
+	dfact = eblk.lss;
 	vflag++;
-	i = quant(atoi(),VERT);
+	i = quant(atoix(),VERT);
 	dfact = 1;
 	if(!i){
 		eat(delim);
@@ -186,7 +189,7 @@ setvline(){
 		return;
 	}
 	if(((c = getch()) & CMASK) == delim){
-		c = 0337 | chbits;	/*default box rule*/
+		c = 0337 | eblk.chbits;	/*default box rule*/
 	}else getch();
 	c |= ZBIT;
 	neg = 0;
@@ -219,6 +222,7 @@ setvline(){
 	cp = cbuf;
 	vflag = 0;
 }
+void
 casefc(){
 	register i;
 
@@ -240,21 +244,21 @@ int x;
 	static int fbuf[FBUFSZ];
 	int savfc, savtc, savlc;
 
-	if(x == tabch) rchar = tabc | chbits;
-	else if(x ==  ldrch) rchar = dotc | chbits;
+	if(x == tabch) rchar = eblk.tabc | eblk.chbits;
+	else if(x ==  ldrch) rchar = eblk.dotc | eblk.chbits;
 	temp = npad = ws = 0;
 	savfc = fc; savtc = tabch; savlc = ldrch;
 	tabch = ldrch = fc = IMP;
 	for(j=0;;j++){
-		if((tabtab[j] & TMASK)== 0){
-			if(x==savfc)prstr("Zero field width.\n");
+		if((eblk.tabtab[j] & TMASK)== 0){
+			if(x==savfc)warnx("Zero field width.");
 			j = 0;
 			goto rtn;
 		}
 		v.hp = sumhp();	/* XXX */
-		if((length = ((tabtab[j] & TMASK) - v.hp)) > 0 )break;
+		if((length = ((eblk.tabtab[j] & TMASK) - v.hp)) > 0 )break;
 	}
-	type = tabtab[j] & (~TMASK);
+	type = eblk.tabtab[j] & (~TMASK);
 	fp = fbuf;
 	pp = padptr;
 	if(x == savfc){while(1){

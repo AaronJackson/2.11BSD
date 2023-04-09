@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)tab3.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)tab3.c	4.2 (2.11BSD) 2020/3/24";
+#endif
 
 #define BYTE 8
 #define PAIR(A,B) (A|(B<<BYTE))

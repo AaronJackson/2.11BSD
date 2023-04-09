@@ -1,9 +1,10 @@
-/*	sdef.h	4.2	83/08/11	*/
+/*	sdef.h	4.3	(2.11BSD) 2020/3/24 */
 
 struct s {
 	int nargs;
 	struct s *pframe;
-	filep pip;
+	int pipb;
+	int pipx;
 	int pnchar;
 	int prchar;
 	int ppendt;

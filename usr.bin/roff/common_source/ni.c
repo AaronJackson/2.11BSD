@@ -1,10 +1,9 @@
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)ni.c  4.2.1  (2.11BSD) 1996/10/23";
-#endif lint
+static char sccsid[] = "@(#)ni.c  4.3  (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
-char obuf[OBUFSZ];
-char *obufp = obuf;
+
 int r[NN] = {
 	PAIR('%',0),
 	PAIR('n','l'),
@@ -23,12 +22,7 @@ int r[NN] = {
 int pto = 10000;
 int pfrom = 1;
 int print = 1;
-char nextf[NS] = "/usr/share/tmac/tmac.xxxxx";
-int nfi = 21;
-#ifdef NROFF
-char termtab[NS] = "/usr/share/term/tablpr";
-int tti = 19;
-#endif
+char nextf[NS] = "/usr/share/tmac/tmac.";
 #ifndef NROFF
 int oldbits = -1;
 #endif
@@ -42,7 +36,6 @@ int dfactd = 1;
 int res = 1;
 int smnt = 4;
 int ascii = ASCII;
-int ptid = PTID;
 char ptname[] = "/dev/cat";
 int lg = LG;
 int pnlist[NPN] = {-1};
@@ -57,130 +50,123 @@ int ulbit = 1<<9;
 int tabch = TAB;
 int ldrch = LEADER;
 int xxx;
-extern caseds(), caseas(), casesp(), caseft(), caseps(), casevs(),
-casenr(), caseif(), casepo(), casetl(), casetm(), casebp(), casech(),
-casepn(), tbreak(), caseti(), casene(), casenf(), casece(), casefi(),
-casein(), caseli(), casell(), casens(), casemk(), casert(), caseam(),
-casede(), casedi(), caseda(), casewh(), casedt(), caseit(), caserm(),
-casern(), casead(), casers(), casena(), casepl(), caseta(), casetr(),
-caseul(), caselt(), casenx(), caseso(), caseig(), casetc(), casefc(),
-caseec(), caseeo(), caselc(), caseev(), caserd(), caseab(), casefl(),
-done(), casess(), casefp(), casecs(), casebd(), caselg(), casehc(),
-casehy(), casenh(), casenm(), casenn(), casesv(), caseos(), casels(),
-casecc(), casec2(), caseem(), caseaf(), casehw(), casemc(), casepm(),
-casecu(), casepi(), caserr(), caseuf(), caseie(), caseel(), casepc(),
-caseht();
-#ifndef NROFF
-extern casefz();
-#endif
-extern casecf();
-struct contab {
-	int rq;
-/*
-	union {
- */
-		int (*f)();
-/*
-		unsigned mx;
-	}x;
- */
-}contab[NM]= {
-	PAIR('d','s'),caseds,
-	PAIR('a','s'),caseas,
-	PAIR('s','p'),casesp,
-	PAIR('f','t'),caseft,
-	PAIR('p','s'),caseps,
-	PAIR('v','s'),casevs,
-	PAIR('n','r'),casenr,
-	PAIR('i','f'),caseif,
-	PAIR('i','e'),caseie,
-	PAIR('e','l'),caseel,
-	PAIR('p','o'),casepo,
-	PAIR('t','l'),casetl,
-	PAIR('t','m'),casetm,
-	PAIR('b','p'),casebp,
-	PAIR('c','h'),casech,
-	PAIR('p','n'),casepn,
-	PAIR('b','r'),tbreak,
-	PAIR('t','i'),caseti,
-	PAIR('n','e'),casene,
-	PAIR('n','f'),casenf,
-	PAIR('c','e'),casece,
-	PAIR('f','i'),casefi,
-	PAIR('i','n'),casein,
-	PAIR('l','i'),caseli,
-	PAIR('l','l'),casell,
-	PAIR('n','s'),casens,
-	PAIR('m','k'),casemk,
-	PAIR('r','t'),casert,
-	PAIR('a','m'),caseam,
-	PAIR('d','e'),casede,
-	PAIR('d','i'),casedi,
-	PAIR('d','a'),caseda,
-	PAIR('w','h'),casewh,
-	PAIR('d','t'),casedt,
-	PAIR('i','t'),caseit,
-	PAIR('r','m'),caserm,
-	PAIR('r','r'),caserr,
-	PAIR('r','n'),casern,
-	PAIR('a','d'),casead,
-	PAIR('r','s'),casers,
-	PAIR('n','a'),casena,
-	PAIR('p','l'),casepl,
-	PAIR('t','a'),caseta,
-	PAIR('t','r'),casetr,
-	PAIR('u','l'),caseul,
-	PAIR('c','u'),casecu,
-	PAIR('l','t'),caselt,
-	PAIR('n','x'),casenx,
-	PAIR('s','o'),caseso,
-	PAIR('i','g'),caseig,
-	PAIR('t','c'),casetc,
-	PAIR('f','c'),casefc,
-	PAIR('e','c'),caseec,
-	PAIR('e','o'),caseeo,
-	PAIR('l','c'),caselc,
-	PAIR('e','v'),caseev,
-	PAIR('r','d'),caserd,
-	PAIR('a','b'),caseab,
-	PAIR('f','l'),casefl,
-	PAIR('e','x'),done,
-	PAIR('s','s'),casess,
-	PAIR('f','p'),casefp,
-	PAIR('c','s'),casecs,
-	PAIR('b','d'),casebd,
-	PAIR('l','g'),caselg,
-	PAIR('h','c'),casehc,
-	PAIR('h','y'),casehy,
-	PAIR('n','h'),casenh,
-	PAIR('n','m'),casenm,
-	PAIR('n','n'),casenn,
-	PAIR('s','v'),casesv,
-	PAIR('o','s'),caseos,
-	PAIR('l','s'),casels,
-	PAIR('c','c'),casecc,
-	PAIR('c','2'),casec2,
-	PAIR('e','m'),caseem,
-	PAIR('a','f'),caseaf,
-	PAIR('h','w'),casehw,
-	PAIR('m','c'),casemc,
-	PAIR('p','m'),casepm,
+
+#define	CONENT(x,y,z) 	{ 0, z, PAIR(x, y), 0 }
+struct constr constr[] = {
+	CONENT('d','s',caseds),
+	CONENT('a','s',caseas),
+	CONENT('s','p',casesp),
+	CONENT('f','t',caseft),
+	CONENT('p','s',caseps),
+	CONENT('v','s',casevs),
+	CONENT('n','r',casenr),
+	CONENT('i','f',caseif),
+	CONENT('i','e',caseie),
+	CONENT('e','l',caseel),
+	CONENT('p','o',casepo),
+	CONENT('t','l',casetl),
+	CONENT('t','m',casetm),
+	CONENT('b','p',casebp),
+	CONENT('c','h',casech),
+	CONENT('p','n',casepn),
+	CONENT('b','r',tbreak),
+	CONENT('t','i',caseti),
+	CONENT('n','e',casene),
+	CONENT('n','f',casenf),
+	CONENT('c','e',casece),
+	CONENT('f','i',casefi),
+	CONENT('i','n',casein),
+	CONENT('l','l',casell),
+	CONENT('n','s',casens),
+	CONENT('m','k',casemk),
+	CONENT('r','t',casert),
+	CONENT('a','m',caseam),
+	CONENT('d','e',casede),
+	CONENT('d','i',casedi),
+	CONENT('d','a',caseda),
+	CONENT('w','h',casewh),
+	CONENT('d','t',casedt),
+	CONENT('i','t',caseit),
+	CONENT('r','m',caserm),
+	CONENT('r','r',caserr),
+	CONENT('r','n',casern),
+	CONENT('a','d',casead),
+	CONENT('r','s',casers),
+	CONENT('n','a',casena),
+	CONENT('p','l',casepl),
+	CONENT('t','a',caseta),
+	CONENT('t','r',casetr),
+	CONENT('u','l',caseul),
+	CONENT('c','u',casecu),
+	CONENT('l','t',caselt),
+	CONENT('n','x',casenx),
+	CONENT('s','o',caseso),
+	CONENT('i','g',caseig),
+	CONENT('t','c',casetc),
+	CONENT('f','c',casefc),
+	CONENT('e','c',caseec),
+	CONENT('e','o',caseeo),
+	CONENT('l','c',caselc),
+	CONENT('e','v',caseev),
+	CONENT('r','d',caserd),
+	CONENT('a','b',caseab),
+	CONENT('f','l',casefl),
+	CONENT('e','x',done),
+	CONENT('s','s',casess),
+	CONENT('f','p',casefp),
+	CONENT('c','s',casecs),
+	CONENT('b','d',casebd),
+	CONENT('l','g',caselg),
+	CONENT('h','c',casehc),
+	CONENT('h','y',casehy),
+	CONENT('n','h',casenh),
+	CONENT('n','m',casenm),
+	CONENT('n','n',casenn),
+	CONENT('s','v',casesv),
+	CONENT('o','s',caseos),
+	CONENT('l','s',casels),
+	CONENT('c','c',casecc),
+	CONENT('c','2',casec2),
+	CONENT('e','m',caseem),
+	CONENT('a','f',caseaf),
+	CONENT('h','w',casehw),
+	CONENT('m','c',casemc),
+	CONENT('p','m',casepm),
 #ifdef NROFF
-	PAIR('p','i'),casepi,
+	CONENT('p','i',casepi),
 #endif
-	PAIR('u','f'),caseuf,
-	PAIR('p','c'),casepc,
-	PAIR('h','t'),caseht,
+	CONENT('u','f',caseuf),
+	CONENT('p','c',casepc),
+	CONENT('h','t',caseht),
 #ifndef NROFF
-	PAIR('f','z'),casefz,
+	CONENT('f','z',casefz),
 #endif
-	PAIR('c', 'f'),casecf,
+	CONENT('c', 'f',casecf),
+	CONENT(0, 0, 0),
 };
 
 /*
 troff environment block
 */
 
+struct eblk eblk = {
+	0, ICS, 0, 0, 0, 0, 0, PS,
+	PS, PS, PS, FT, FT, SPS, SS, VS,
+	VS, 1, 1, LL, LL, LL, LL, 1,
+	1, 1, 1, '.', '\'', OHC, IMP, 1,
+	0, -1, 0, '.', 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, LNSIZE,
+	{ 0 },
+	{DTAB,DTAB*2,DTAB*3,DTAB*4,DTAB*5,DTAB*6,DTAB*7,DTAB*8,
+	    DTAB*9,DTAB*10,DTAB*11,DTAB*12,DTAB*13,DTAB*14,DTAB*15,0},
+	{ 0 },
+	{ 0 },
+};
+
+#if 0
 int block = 0;
 int ics = ICS;
 int ic = 0;
@@ -255,5 +241,6 @@ int tabtab[NTAB] = {DTAB,DTAB*2,DTAB*3,DTAB*4,DTAB*5,DTAB*6,DTAB*7,DTAB*8,
 int line[LNSIZE] = {0};
 int word[WDSIZE] = {0};
 int blockxxx[EVS-68-NHYP-NTAB-WDSIZE-LNSIZE] = {0};
+#endif
 /*spare 5 words*/
 int oline[LNSIZE+1];

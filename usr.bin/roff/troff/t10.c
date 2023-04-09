@@ -1,6 +1,8 @@
-#ifndef lint
-static char sccsid[] = "@(#)t10.c	4.1	(Berkeley)	82/12/03";
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)t10.c	4.2	(2.11BSD) 2020/3/24";
 #endif
+
+#include <stdio.h>
 
 #include "tdef.h"
 extern
@@ -22,10 +24,7 @@ extern int mpts;
 extern int po;
 extern int xflg;
 extern int line[];
-extern int lss;
 extern int xbitf;
-extern char obuf[];
-extern char *obufp;
 extern int esct;
 extern int trflg;
 extern int cs;
@@ -39,7 +38,6 @@ extern int lead;
 extern int paper;
 extern int cps;
 extern int psflg;
-extern int ptid;
 extern int verm;
 extern int escm;
 extern char pstab[], psctab[];
@@ -59,16 +57,20 @@ extern int vflag;
 extern int stopmesg;
 extern int xxx;
 
+extern FILE *fptid;
+
 ptinit(){
 
 	if(ascii || gflag)return;
-	oput(T_INIT);
+	fputc(T_INIT, fptid);
 	esc = T_IESC;
 	ptesc();
 	esct = 0;
 	esc = po;
-	oput(0140); /*some initial lead*/
+	fputc(0140, fptid); /*some initial lead*/
 }
+
+void
 ptout(i)
 int i;
 {
@@ -81,7 +83,7 @@ int i;
 		return;
 	}
 	if(olinep == oline){
-		lead += lss;
+		lead += eblk.lss;
 		return;
 	}
 	pslp = psl;
@@ -129,7 +131,7 @@ int i;
 		}
 		inith += *k;
 	}
-	lead += dip->blss + lss;
+	lead += dip->blss + eblk.lss;
 	dip->blss = 0;
 	slp = k;
 scan:
@@ -196,27 +198,27 @@ int i;
 			if(smnt)xfont = smnt -1;
 			else goto p1;
 		}
-		if((k=(code>>6)&01)^mcase)oput((mcase=k)+0105);
+		if((k=(code>>6)&01)^mcase)
+			fputc((mcase=k)+0105, fptid);
 		if(xfont != mfont){
 			mfont = xfont;
 			if(mrail != (xfont&01))
-				oput(0101 + (mrail=xfont&01));
+				fputc(0101 + (mrail=xfont&01), fptid);
 			if(mmag != (xfont<2))
-				oput(0103 + (mmag=(xfont<2)));
+				fputc(0103 + (mmag=(xfont<2)), fptid);
 		}
 		if(xpts != mpts)ptps();
 		if(lead)ptlead();
 		if(esc)ptesc();
 /*
-		oput(code & 077);
+		fputc(code & 077, fptid);
 */
-		*obufp++ = code & 077;
-		if(obufp == (obuf + OBUFSZ + ascii - 1))flusho();
+		putc(code & 077, fptid);
 		if(bd){
 			bd -= 1;
 			if(back && !z)bd = -bd;
 			if(esc += bd)ptesc();
-			oput(code & 077);
+			fputc(code & 077, fptid);
 			if(z)esc -= bd;
 		}
 	}else if(bd && !z){
@@ -238,7 +240,7 @@ ptps(){
 	}else i = xpts;
 	for(j=0; (i&077) > (k = pstab[j]);j++)if(!k){k=pstab[--j];break;}
 	j = psctab[j];
-	oput((j & ~0200) | 0120);
+	fputc((j & ~0200) | 0120, fptid);
 	if((!(mpts & DBL))^(!(j & 0200))){
 		if(j & 0200)k = 55;
 			else k = -55;
@@ -249,19 +251,19 @@ ptps(){
 ptlead(){
 	register i, k;
 
-	if(k = lead < 0)lead = -lead;
-	if(k^verm)oput(0112 + ((verm=k)<<1));
+	if ((k = lead) < 0)lead = -lead;
+	if(k^verm)fputc(0112 + ((verm=k)<<1), fptid);
 	if(((k=lead)%3) == 2)k++;
 	k /= 3;
 	while(k > 0){
 		if((i=31) > k)i = k;
 		if(verm)paper -= i;
 			else paper += i;
-		oput(((~i) & 037) | 0140);
-		if((paper > (11*144*15)) && !papflg && ptid != 1){
-			prstr("Excessive paper use.\n");
+		fputc(((~i) & 037) | 0140, fptid);
+		if((paper > (11*144*15)) && !papflg && fptid != stdout){
+			warnx("Excessive paper use.");
 			papflg++;
-			if(ptid != 1){
+			if(fptid != stdout){
 				lead = 0;
 				done2(0200);
 			}
@@ -273,18 +275,17 @@ ptlead(){
 ptesc(){
 	register i, j, k;
 
-	if(k = esc < 0)esc = -esc;
-	if(k^escm)oput(0107 + (escm=k));
+	if((k = esc) < 0)esc = -esc;
+	if(k^escm)fputc(0107 + (escm=k), fptid);
 	k = esc;
 	while(k > 0){
 		if((i=127) > k)i = k;
 		if(((j = (esct + i*(1-2*escm))) > (46*72+18-T_IESC)) ||
 		   (j < 0))break;
 /*
-		oput(~i);
+		fputc(~i, fptid);
 */
-		*obufp++ = ~i;
-		if(obufp == (obuf + OBUFSZ + ascii - 1))flusho();
+		putc(~i, fptid);
 		esct = j;
 		k -= i;
 	}
@@ -296,18 +297,17 @@ dostop(){
 	if(ascii)return;
 	if(!nofeed && !gflag)lead += TRAILER;
 	ptlead();
-	flusho();
-	oput(T_INIT);
-	oput(T_STOP);
+	fflush(fptid);
+	fprintf(fptid, "%c%c", T_INIT, T_STOP);
 	if(gflag){
-		oput('f');
+		fputc('f', fptid);
 		for(i=0; i<4; i++){
-			oput(fontlab[i] & BMASK);
-			oput((fontlab[i]>>BYTE) & BMASK);
+			fprintf(fptid, "%c%c",
+			    fontlab[i] & BMASK, (fontlab[i]>>BYTE) & BMASK);
 		}
-	}else for(i=8; i>0; i--)oput(T_PAD);
-	flusho();
-	if(stopmesg)prstr("Pages finished.\n");
+	}else for(i=8; i>0; i--)fputc(T_PAD, fptid);
+	fflush(fptid);
+	if(stopmesg)warnx("Pages finished.");
 	mcase = mpts = mfont = mrail = verm = escm = 0;
 	mmag = 1;
 	report();
