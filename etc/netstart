@@ -1,6 +1,6 @@
 #!/bin/sh -
 
-#	@(#)netstart	5.2.1 (2.11BSD) 1996/11/16
+#	@(#)netstart	5.3 (2.11BSD) 2021/8/30
 
 INET=`testnet`
 if [ $INET = YES ]; then
@@ -37,6 +37,7 @@ if [ $INET = YES ]; then
 	# ifconfig ec0 inet netmask $netmask $hostname broadcast $broadcast up -trailers arp >/dev/console 2>&1
 	# ifconfig il0 inet netmask $netmask $hostname broadcast $broadcast up -trailers >/dev/console 2>&1
 	# ifconfig qe0 inet netmask $netmask $hostname broadcast $broadcast up -trailers >/dev/console 2>&1
+	# ifconfig qt0 inet netmask $netmask $hostname broadcast $broadcast up -trailers >/dev/console 2>&1
 	# ifconfig sl0 inet 192.254.254.2 192.254.254.1 -arp -trailers >/dev/console 2>&1
 	# slattach /dev/ttyS6 9600
 	ifconfig lo0 inet localhost up -trailers	>/dev/console 2>&1
