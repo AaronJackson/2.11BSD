@@ -81,6 +81,8 @@ ansidecl()
 		 * For other declarations, fake an auto variable.
 		 */
 		if (blklev == 1 && defsym) {
+			if (defsym->hblklev < blklev)
+				defsym = pushdecl(defsym);
 			if (paraml==NULL)
 				paraml = defsym;
 			else
