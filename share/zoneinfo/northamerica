@@ -1,4 +1,4 @@
-# @(#)northamerica	3.1
+# @(#)northamerica	4.0 (2.11BSD 2020/4/3)
 
 # Despite the performance of existing (4.[123]BSD, System V Release 2.0) code,
 # US Daylight Saving Time ended on the last Sunday of *October* in 1974.
@@ -24,7 +24,9 @@ Rule	US	1967	1973	-	Apr	lastSun	2:00	1:00	D
 Rule	US	1974	only	-	Jan	6	2:00	1:00	D
 Rule	US	1975	only	-	Feb	23	2:00	1:00	D
 Rule	US	1976	1986	-	Apr	lastSun	2:00	1:00	D
-Rule	US	1987	max	-	Apr	Sun>=1	2:00	1:00	D
+Rule	US	1987	2006	-	Apr	Sun>=1	2:00	1:00	D
+Rule	US	2007	max	-	Mar	Sun>=8	2:00	1:00	D
+Rule	US	2007	max	-	Nov	Sun>=1	2:00	0	S
 
 ###############################################################################
 
@@ -79,7 +81,10 @@ Link	US/Hawaii	HST
 # Rule	NAME	FROM	TO	TYPE	IN	ON	AT	SAVE	LETTER/S
 Rule	Canada	1969	max	-	Oct	lastSun	2:00	0	S
 Rule	Canada	1969	1986	-	Apr	lastSun	2:00	1:00	D
-Rule	Canada	1987	max	-	Apr	Sun>=1	2:00	1:00	D
+Rule    Canada  1987    2006    -       Apr     Sun>=1  2:00    1:00    D
+Rule    Canada  2007    max     -       Mar     Sun>=8  2:00    1:00    D
+Rule    Canada  2007    max     -       Nov     Sun>=1  2:00    0       S
+
 
 # Zone	NAME			GMTOFF	RULES/SAVE	FORMAT	[UNTIL]
 # Bob Devine says that DST *is* observed in Newfoundland
@@ -94,3 +99,19 @@ Zone	Canada/Yukon		-9:00	Canada		Y%sT
 ################################################################################
 
 # ?Mexico?  !Quien sabe!
+# Rule  NAME    FROM    TO      TYPE    IN      ON      AT      SAVE    LETTER/S
+Rule    Mexico  1939    only    -       Feb     5       0:00    1:00    D
+Rule    Mexico  1939    only    -       Jun     25      0:00    0       S
+Rule    Mexico  1940    only    -       Dec     9       0:00    1:00    D
+Rule    Mexico  1941    only    -       Apr     1       0:00    0       S
+Rule    Mexico  1943    only    -       Dec     16      0:00    1:00    W # War
+Rule    Mexico  1944    only    -       May     1       0:00    0       S
+Rule    Mexico  1950    only    -       Feb     12      0:00    1:00    D
+Rule    Mexico  1950    only    -       Jul     30      0:00    0       S
+Rule    Mexico  1996    2000    -       Apr     Sun>=1  2:00    1:00    D
+Rule    Mexico  1996    2000    -       Oct     lastSun 2:00    0       S
+Rule    Mexico  2001    only    -       May     Sun>=1  2:00    1:00    D
+Rule    Mexico  2001    only    -       Sep     lastSun 2:00    0       S
+Rule    Mexico  2002    max     -       Apr     Sun>=1  2:00    1:00    D
+Rule    Mexico  2002    max     -       Oct     lastSun 2:00    0       S
+
