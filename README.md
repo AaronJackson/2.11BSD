@@ -22,13 +22,13 @@ Current modifications:
 This tree started out at patch level 450, but appeared to have a
 couple of modifications to one or two files. I ended up merging my
 IBV11 driver to make it even more of a mess. Since the lowest patch
-level supported by my `2.11BSD-Action` Github Action is 257, the
+level supported by my `2.11BSD-Action` Github Action is 457, the
 patches were applied in the following way.
 
    1. A branch called `patch-base` was made from main, at `c507710` to create a temporary directory `usr` with symlinks to `src -> ../`	and `include -> ../include`. This allowed patches to be applied	from a modern PC.
    2. From `patch-base`, a new branch `451-457` was made which allowed me to apply patches 451 to 457, bringing the Git tree back into alignment with the lowest patch level available of my GitHub
        action. I was able to push this to GitHub and let the workflow run to verify that everything was compiling correctly.
-   3. Each individual patch was made in a new branch, taken from the previous, and pushed to GitHub to verify it can be built (i.e. `458` was taken from `451-457`, and `459` was taken from `457`). In each case, the `patch_level` variable was also bumped in this repos GitHub workflow to ensure the two trees would be compatible.
+   3. Each individual patch was made in a new branch, taken from the previous, and pushed to GitHub to verify it can be built (i.e. `458` was taken from `451-457`, and `459` was taken from `458`). In each case, the `patch_level` variable was also bumped in this repos GitHub workflow to ensure the two trees would be compatible.
    4. Once all patches were applied, I created a cleanup branch to remove the temporary directory `usr` to keep the tree clean.
 
 There were a few patches which caused issues:
