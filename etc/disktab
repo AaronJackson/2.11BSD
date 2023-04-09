@@ -1,4 +1,4 @@
-#	@(#)disktab	1.3 (2.11BSD) 1995/12/05
+#	@(#)disktab	1.4 (2.11BSD) 2022/8/30
 #
 # Disk geometry and partition layout tables. 
 # Key:
@@ -114,7 +114,7 @@ rp06|RP06|DEC RP06:\
 
 rp07|RP07|DEC RP07:\
 	:ty=fixed:ns#50:nt#32:nc#630:sf:\
-	:b0=/mdec/hpuboot:\
+	:b0=/mdec/rp07uboot:\
 	:pa#19200:oa#0:ba#1024:fa#1024:ta=2.11BSD:\
 	:pb#51200:ob#19200:bb#1024:fb#1024:tb=swap:\
 	:pc#1006400:oc#0:bc#1024:fc#1024:\
