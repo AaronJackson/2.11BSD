@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)vmparam.h	7.1.1 (2.11BSD GTE) 1/14/95
+ *	@(#)vmparam.h	7.2 (2.11BSD) 2020/3/3
  */
 
 /*
@@ -22,7 +22,8 @@
 #define	VM_LOADAVG	2		/* struct loadavg */
 #define	VM_SWAPMAP	3		/* struct mapent _swapmap[] */
 #define	VM_COREMAP	4		/* struct mapent _coremap[] */
-#define	VM_MAXID	5		/* number of valid vm ids */
+#define VM_NSWAP	5		/* int nswap */
+#define	VM_MAXID	6		/* number of valid vm ids */
 
 #ifndef	KERNEL
 #define CTL_VM_NAMES { \
@@ -31,5 +32,6 @@
 	{ "loadavg", CTLTYPE_STRUCT }, \
 	{ "swapmap", CTLTYPE_STRUCT }, \
 	{ "coremap", CTLTYPE_STRUCT }, \
+	{ "nswap", CTLTYPE_INT }, \
 }
 #endif

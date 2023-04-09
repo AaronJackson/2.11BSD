@@ -4,7 +4,7 @@
 # All rights reserved.  The Berkeley software License Agreement
 # specifies the terms and conditions for redistribution.
 #
-#	@(#)sendbug.sh	6.1 (2.11BSD) 1996/10/25
+#	@(#)sendbug.sh	6.2 (2.11BSD) 2020/2/27
 #
 # Create a bug report and mail to the 2bsd maintainer.
 #
@@ -12,9 +12,7 @@
 TEMP=/tmp/bug$$
 FORMAT=/usr/share/misc/bugformat
 
-# uucp sites should use ": ${BUGADDR=wlbr!wlv!sms}" with a suitable path.
-#   Use of the uucp address is not recommended.
-: ${BUGADDR=sms@MOE.2BSD.COM}
+: ${BUGADDR=sms@2BSD.COM}
 : ${EDITOR=/usr/ucb/vi}
 
 trap '/bin/rm -f $TEMP ; exit 1' 1 2 3 13 15
