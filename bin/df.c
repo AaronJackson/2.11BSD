@@ -41,7 +41,7 @@ static char copyright[] =
 "@(#) Copyright (c) 1980, 1990, 1993, 1994\n\
 	The Regents of the University of California.  All rights reserved.\n";
 
-static char sccsid[] = "@(#)df.c	8.7.2 (2.11BSD) 1996/1/18";
+static char sccsid[] = "@(#)df.c	8.8 (2.11BSD) 2020/3/19";
 #endif
 
 #include <sys/param.h>
@@ -61,7 +61,7 @@ void	 prtstat();
 void	 ufs_df();
 void	 usage();
 
-int	iflag;
+int	iflag, hflag;
 
 int
 main(argc, argv)
@@ -74,8 +74,11 @@ main(argc, argv)
 	int ch, err, i, maxwidth, width;
 	char *mntpt;
 
-	while ((ch = getopt(argc, argv, "i")) != EOF)
+	while ((ch = getopt(argc, argv, "hi")) != EOF)
 		switch (ch) {
+		case 'h':
+			hflag = 1;
+			break;
 		case 'i':
 			iflag = 1;
 			break;
@@ -179,7 +182,11 @@ prtstat(sfsp, maxwidth)
 		maxwidth = 11;
 	if (++timesthrough == 1) {
 /*		header = getbsize(&headerlen, &blocksize); */
-		header = "1K-blocks";
+		if (hflag) {
+			header = "Megabytes";
+		} else {
+			header = "1K-blocks";
+		}
 		blocksize = 1024;
 		headerlen = 9;
 
@@ -192,10 +199,17 @@ prtstat(sfsp, maxwidth)
 	(void)printf("%-*.*s", maxwidth, maxwidth, sfsp->f_mntfromname);
 	used = sfsp->f_blocks - sfsp->f_bfree;
 	availblks = sfsp->f_bavail + used;
-	(void)printf(" %*ld %8ld %8ld", headerlen,
-	    fsbtoblk(sfsp->f_blocks, sfsp->f_bsize, blocksize),
-	    fsbtoblk(used, sfsp->f_bsize, blocksize),
-	    fsbtoblk(sfsp->f_bavail, sfsp->f_bsize, blocksize));
+	if (hflag) {
+		(void)printf(" %*.1fM %7.1fM %7.1fM", headerlen-1,
+	    	    (double)fsbtoblk(sfsp->f_blocks, sfsp->f_bsize, blocksize)/1024.0,
+	    	    (double)fsbtoblk(used, sfsp->f_bsize, blocksize)/1024.0,
+	    	    (double)fsbtoblk(sfsp->f_bavail, sfsp->f_bsize, blocksize)/1024.0);
+        } else {
+		(void)printf(" %*ld %8ld %8ld", headerlen,
+	    	    fsbtoblk(sfsp->f_blocks, sfsp->f_bsize, blocksize),
+	    	    fsbtoblk(used, sfsp->f_bsize, blocksize),
+	    	    fsbtoblk(sfsp->f_bavail, sfsp->f_bsize, blocksize));
+	}
 	(void)printf(" %5.0f%%",
 	    availblks == 0 ? 100.0 : (double)used / (double)availblks * 100.0);
 	if (iflag) {
@@ -288,6 +302,6 @@ bread(off, buf, cnt)
 void
 usage()
 {
-	(void)fprintf(stderr, "usage: df [-i] [file | file_system ...]\n");
+	(void)fprintf(stderr, "usage: df [-h] [-i] [file | file_system ...]\n");
 	exit(1);
 }

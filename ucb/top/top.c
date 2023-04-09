@@ -18,6 +18,7 @@
  * 01 05/12/2019 Written                                          DRST
  * 02 07/03/2020 Removed kmem based nswap access (sysctl updated) DRST
  * 03 09/03/2020 added BADKEY_IGNORE, delay spec now in seconds   DRST
+ * 04 12/03/2020 Changed to use curses, correct memory size info  bqt
  *
  */
 /*
@@ -66,7 +67,7 @@ typedef struct udata_s
 	int	o_sigs;		/* sum of SIGINT & SIGQUIT (2 => ignore both) */
 	size_t	o_tsize;	/* text size */
 	int	o_increment;	/* current - last */
-	char	o_comm[MAXCOMLEN+1];	/* u_comm */
+	char	o_comm[MAXCOMLEN];	/* u_comm */
 	char	*o_args;	/* best guess at args to process */
 	long	o_nswap;	/* swaps */
 	long	o_nvcsw;	/* voluntary context switches */
@@ -102,6 +103,9 @@ LOCAL char		*memf	= "/dev/mem";
 LOCAL char		*kmemf	= "/dev/kmem";
 LOCAL char		*swapf	= "/dev/swap";
 
+LOCAL int		sort = 9;
+LOCAL int		idle = 1;
+
 LOCAL int		kmem;
 LOCAL int		mem;
 LOCAL int		swap;
@@ -120,6 +124,7 @@ LOCAL FILE		*ut;
 LOCAL struct utmp	utmp;
 LOCAL int		nusers;
 LOCAL double		avenrun[3];
+LOCAL char		host[10];
 
 LOCAL struct  map_s
 {
@@ -128,171 +133,21 @@ LOCAL struct  map_s
         off_t   b2, e2;
 	off_t   f2;
 } datmap;
-/*
- * Screen Management
- */
-LOCAL struct winsize	win;
-LOCAL int 		lines, columns;
-LOCAL char		*CMOV;      /* Cursor Movement */
-LOCAL char		*CLEARSCR;  /* Clear Screen */
-LOCAL char		*US;        /* Start underscore mode */
-LOCAL char		*UE;        /* End underscore mode */
-
-LOCAL char      	*UP;         /* Upline (cursor up) */
-LOCAL char      	*BC;         /* Backspace if not ^H */
-LOCAL char		*VE;         /* cursor normal */
-LOCAL char		*VI;         /* cursor invisible */
-
-LOCAL short  		ospeed;         /* output speed */
-LOCAL char       	PC_;        /* Pad Character */
-
-#if TTY_RAW
-LOCAL char		NewLine[] = "\r\n";
-#else
-LOCAL char		NewLine[] = "\n";
-#endif
-char        *tgetstr();
-char        *tgoto();
-/*
- * write character routine for tputs
- */
-static void ttout(c)
-char	c;
-{
-    putchar(c);
-}
-
-LOCAL int error(s)
-char *s;
-{
-	fprintf(stderr, "error - %s%s", s, NewLine);
-	return(-1);
-}
-
-
-static int ttcom(c)
-char c;
-{
-    ttout(c);
-}
-
-#if 1
-static void dial(dline,dcol)
-int dline, dcol;
-{
-    static      int odline, odcol;
-    char        *sptr;
-
-    if(odline == dline && odcol == (dcol-1))
-    {
-        odcol++;
-        return;
-    }
-    if((odline == (dline-1)) && dcol == 0)
-        ttout('\n');
-    else 
-    {
-        sptr = tgoto(CMOV, dcol % columns, dline % lines);
-        tputs(sptr, 1, ttcom);
-    }
-    odline = dline;
-    odcol = dcol;
-}
-#endif
-static int tcinit()
-{
-    char        bp[1024];
-    static char capbuff[100];
-    char        *buffp = capbuff;
-
-    if(tgetent(bp, (char *)getenv("TERM")) != 1)
-        return(error("no termcap entry"));
-#if 0	/* dont seem to have this?? */
-    VE = buffp;
-    if(tgetstr("ve", &buffp) == NULL)
-	return(error("no cursor normal entry"));
-    VI = buffp;
-    if(tgetstr("vi", &buffp) == NULL)
-	return(error("no cursor invisible entry"));
-#endif
-    CLEARSCR = buffp;
-    if(tgetstr("cl", &buffp) == NULL)
-        return(error("no \"cl\" capability"));
-    CMOV = buffp;
-    if(tgetstr("cm", &buffp) == NULL)
-        return(error("no \"cl\" capability"));
-
-    US = buffp;
-    if((tgetstr("so",&buffp)==NULL)&&(tgetstr("us",&buffp)==NULL))
-       return(error("no hi-light (\"so\" or \"us\") capabilty"));
-    UE = buffp;
-    if((tgetstr("se",&buffp)==NULL)&&(tgetstr("ue",&buffp)==NULL))
-        return(error("No end highlight\n"));
-    UP = tgetstr("up", &buffp);
-    BC = tgetstr("bc", &buffp);
-#ifdef PAD
-/* set up padding characters */
-    if( tgetflag("pc") == 1)
-    {
-        tgetstr("pc", &buffp);
-        PC = *--buffp;
-    }
-    gtty(1, &ttybuff);
-    ospeed = ttybuff.sg_ospeed;
-#endif /* PAD */
-#if 0	/* now using ioctl */
-    if(lines == 0)
-        lines = tgetnum("li");
-    if(columns == 0)
-        columns = tgetnum("co");
-#endif
-}
 
 /*
  * Configure/restore output terminal
  */
-LOCAL int config_tty(onoff, lp, cp)
+LOCAL int config_tty(onoff)
 int	onoff;
-int	*lp;
-int	*cp;
 {
-	static struct sgttyb	smode;	/* saved/original mode */
-	struct sgttyb		nmode;	/* new mode */
-	struct winsize		win;
-
-	if(onoff == 0)
-	{
-		dial(lines-1, 0);
-		printf("\n");
-		ioctl(0, TIOCSETP, &smode);
-		return(0);
+	if(onoff == 0) {
+		resetty();
+	} else {
+		initscr();
+		savetty();
+		raw();
+		noecho();
 	}
-
-	if(ioctl(1, TIOCGWINSZ, &win) < 0)
-	{
-		perror("ioctl");
-		return(-1);
-	}
-	*lp = win.ws_row;
-	*cp = win.ws_col;
-
-	if(ioctl(0, TIOCGETC, &tc) < 0)
-	{
-		perror("TIOGETC");
-		return(-1);
-	}
-	if(ioctl(0, TIOCGETP, &smode) < 0)
-		return(-1);
-	nmode = smode;
-#if TTY_RAW
-	/* using raw mode eliminates the need for signal handling */
-	nmode.sg_flags |= RAW;
-#else
-	nmode.sg_flags |= CBREAK;
-#endif
-	nmode.sg_flags &= ~ECHO;
-	if(ioctl(0, TIOCSETP, &nmode) < 0)
-		return(-1);
 	return(0);
 }
 
@@ -565,8 +420,24 @@ char		noargs;
 	datmap.b2	= stackbas(stksiz);
 	datmap.e2	= stacktop(stksiz);
 	tp		= gettty(up->u_ttyp, up->u_ttyd);
-	strncpy(a->o_tty, tp, sizeof (a->o_tty));
+	strncpy(a->o_tty, tp, sizeof (a->o_tty)-1);
+	a->o_tty[sizeof(a->o_tty)-1] = 0;
 	a->o_ttyd	= tp[0] == '?' ?  -1 : up->u_ttyd;
+
+	a->o_tsize	= 0;
+	a->o_utime	= 0;
+	a->o_stime	= 0;
+	a->o_nswap	= 0;
+	a->o_nvcsw	= 0;
+	a->o_nicsw	= 0;
+	a->o_cutime	= 0;
+	a->o_cstime	= 0;
+	a->o_ttime	= 0;
+	a->o_sigs	= 0;
+	a->o_dtime	= 0;
+	a->o_uname	= NULL;
+	a->o_comm[0]	= 0;
+
 	if(procp->p_stat == SZOMB)
 		return(1);
 
@@ -585,7 +456,6 @@ char		noargs;
 	else
 		a->o_dtime = a->o_ttime;
 
-	a->o_uname	= NULL;
 	for(i = 0; i < MAXUSER; i++)
 	{
 		if(untab[i].uname[0] == 0)
@@ -603,7 +473,8 @@ char		noargs;
 			a->o_uname = untab[i].uname;	
 	}
 
-	strncpy(a->o_comm, up->u_comm, MAXCOMLEN);
+	strncpy(a->o_comm, up->u_comm, MAXCOMLEN-1);
+	a->o_comm[MAXCOMLEN-1] = 0;
 
 	if(noargs)
 		return(1);
@@ -615,17 +486,43 @@ char		noargs;
 LOCAL int sortcmp(i1, i2)
 register int *i1, *i2;
 {
-	time_t 	usage1, usage2;
+	struct proc *p1, *p2;
+	struct udata_s *u1, *u2;
 
-	usage1 = userdata[*i1].o_dtime;
-	usage2 = userdata[*i2].o_dtime;
-	if(usage1 != usage2)
-		return((usage2>usage1)? 1:-1);
-	usage1 = userdata[*i1].o_ttime;
-	usage2 = userdata[*i2].o_ttime;
-	if(usage1 != usage2)
-		return((usage2>usage1)? 1:-1);
-	return(0);
+	p1 = &proctab[*i1];
+	p2 = &proctab[*i2];
+	u1 = &userdata[*i1];
+	u2 = &userdata[*i2];
+
+	switch (sort) {
+	case 0:
+		return p1->p_pid - p2->p_pid;
+	case 1:
+		return strcmp(u1->o_uname, u2->o_uname);
+	case 2:
+		return p2->p_pri - p1->p_pri;
+	case 3:
+		return p1->p_nice - p2->p_nice;
+	case 4:
+		return u2->o_tsize - u1->o_tsize;
+	case 5:
+		return p2->p_dsize - p1->p_dsize;
+	case 6:
+		return p2->p_ssize - p1->p_ssize;
+	case 7:
+		return p1->p_stat - p2->p_stat;
+	case 9:
+		{
+			time_t t;
+			t = u2->o_dtime - u1->o_dtime;
+			if (t) return t;
+		}
+	case 8:
+		return u2->o_ttime - u1->o_ttime;
+	case 10:
+		return strcmp(u1->o_comm, u2->o_comm);
+	}
+	return 0;
 }
 /*
  * Update the process list
@@ -654,8 +551,8 @@ LOCAL int update()
 	/* read the current proc table into buffer */
 	if(readat(kmem, (off_t) proc_sym, proctab, ptsz) < 0)
 	{
-		fprintf(stderr, "Error reading process table\n");
-		return(1);
+		fprintf(stderr, "Error reading process table\r\n");
+		return(-1);
 	}
 
 	for(np = i = 0; i < nproc; i++)
@@ -667,9 +564,9 @@ LOCAL int update()
 
 		if(getu(procp, &userdata[i], 1) == 0)
 		{
-			fprintf(stderr, "Error getting process %d uinf\n",
+			fprintf(stderr, "Error getting process %d uinf\r\n",
 				procp->p_pid);
-			continue;
+			return(-1);
 		}
 		procidx[np] = i;
 		np++;
@@ -679,18 +576,6 @@ LOCAL int update()
 
 LOCAL char states[] = { '?', 'S', 'W', 'R', 'I', 'Z', 'T' };
 
-LOCAL void printw(w, s)
-int	w;
-char	*s;
-{
-	while(w-- > 0)
-	{
-		char c = ' ';
-		if(*s)
-			c = *s++;
-		putchar(c);
-	}
-}
 /*
  * Get Memory Statistics for summary lines
  * Returns:
@@ -718,22 +603,20 @@ long *freemem;
 		size = sizeof(physmem);
 		if(sysctl(mib, 2, &physmem, &size, NULL, 0) == -1)
 		{
-			perror("PHYSMEM");
-			printf("\n");
+			printw("PHYSMEM: %s\n\n", strerror(errno));
 			return(-1);
 		}
 		mib[0] = CTL_VM;
 		mib[1] = VM_COREMAP;
 		if(sysctl(mib, 2, NULL, &cmsz, NULL, 0) == -1)
 		{
-			perror("COREMAP");
-			printf("\n");
+			printw("COREMAP: %s\n\n", strerror(errno));
 			return(-1);
 		}
 		if((coremap = (char *)malloc((unsigned)cmsz)) == NULL)
 		{
 			perror("COREMAP");
-			printf("\n");
+			printf("\r\n");
 			exit(1);
 		}
 		memset(coremap, 0, cmsz);
@@ -743,8 +626,7 @@ long *freemem;
 	size = cmsz;
 	if(sysctl(mib, 2, coremap, &size, NULL, 0) == -1)
 	{
-		perror("COREMAP2");
-		printf("\n");
+		printw("COREMAP2: %s\n\n", strerror(errno));
 		return(-1);
 	}
 	
@@ -784,8 +666,7 @@ long *freeswap;
 		size = sizeof(i);
 		if(sysctl(mib, 2, &i, &size, NULL, 0) == -1)
 		{
-			perror("NSWAP");
-			printf("\n");
+			printw("NSWAP: %s\n\n", strerror(errno));
 			return(-1);
 		}
 		nswap = i;
@@ -793,14 +674,13 @@ long *freeswap;
 		mib[1] = VM_SWAPMAP;
 		if(sysctl(mib, 2, NULL, &smsz, NULL, 0) == -1)
 		{
-			perror("SWAPMAP");
-			printf("\n");
+			printw("SWAPMAP: %s\n\n", strerror(errno));
 			return(-1);
 		}
 		if((swapmap = (char *)malloc((unsigned)smsz)) == NULL)
 		{
 			perror("SWAPMAP");
-			printf("\n");
+			printf("\r\n");
 			exit(1);
 		}
 		memset(swapmap, 0, smsz);
@@ -810,8 +690,7 @@ long *freeswap;
 	size = smsz;
 	if(sysctl(mib, 2, swapmap, &size, NULL, 0) == -1)
 	{
-		perror("SWAPMAP2");
-		printf("\n");
+		printw("SWAPMAP2: %s\n\n", strerror(errno));
 		return(-1);
 	}
 	
@@ -840,7 +719,7 @@ int npr;
 	/* get time */
 	time(&now);
 	ltp = localtime(&now);
-	printf("top - %02d:%02d:%02d", ltp->tm_hour, ltp->tm_min, ltp->tm_sec);
+	printw("%s - %02d:%02d:%02d", host, ltp->tm_hour, ltp->tm_min, ltp->tm_sec);
 
 	/* get uptime */
 
@@ -859,8 +738,8 @@ int npr;
 		uptime %= (60L*60L);
 		mins = DIV60(uptime);
 
-		printf(" up %2d day%s", days, days != 1?"s":"");
-		printf(", %2d:%02d", hrs, mins);
+		printw(" up %2d day%s", days, days != 1?"s":"");
+		printw(", %2d:%02d", hrs, mins);
 	}
 
 	/* get user count */
@@ -870,23 +749,23 @@ int npr;
 		if(utmp.ut_name[0] != '\0')
 			nusers++;
 	rewind(ut);
-	printf(", %3d user%c", nusers, nusers > 1? 's': '\0');
+	printw(", %3d user%c", nusers, nusers > 1? 's': '\0');
 
 	/* load average */
 	if(getloadavg(avenrun, sizeof(avenrun)/sizeof(avenrun[0])) == -1)
-		printf(", no load average information available");
+		printw(", no load average information available");
 	else
 	{
 		int	i;
-		printf(",  load average:");
+		printw(",  load average:");
 		for(i = 0; i < (sizeof(avenrun)/sizeof(avenrun[0])); i++)
 		{
 			if(i > 0)
-				printf(",");
-			printf(" %.2f", avenrun[i]);
+				printw(",");
+			printw(" %.2f", avenrun[i]);
 		}
 	}
-	printf(NewLine);
+	printw("\n");
 	/* process status summary */
 	run = sleep = stop = zombie = 0;
 	for(i = 0; i < npr; i++)
@@ -905,10 +784,11 @@ int npr;
 				zombie++; /* shouldn't happen */
 		}
 	}
-	printf("Tasks:%4d total, %3d running,", npr, run);
-	printf(" %4d sleeping, %3d stopped, %3d zombie",
+	printw("Tasks:%4d total, %3d running,", npr, run);
+	printw(" %4d sleeping, %3d stopped, %3d zombie\n",
 		sleep, stop, zombie);
-	printf(NewLine);
+
+	/* Cpu states */
 
 	/* Memory and Swap status */
 
@@ -916,23 +796,24 @@ int npr;
 		return;
 	if(GetSwapStats(&swapsize, &swapfree) < 0)
 		return;
-	/* 2.11 BSD has static buffer cache so no need to display this */	
-	printf("    Mem : %8ld total, %8ld free, %8ld used (%2ld%%)%s",
-		memsize, memfree, memsize-memfree,
-		(memsize-memfree)*100L/memsize, NewLine);
-	printf("    Swap: %8ld total, %8ld free, %8ld used (%2ld%%)%s", 
-		swapsize, swapfree, swapsize-swapfree,
-		(swapsize-swapfree)*100L/swapsize, NewLine);
+	/* 2.11 BSD has static buffer cache so no need to display this */
+	printw("    Mem : %7.1fK total, %7.1fK free, %7.1fK used (%2ld%%)\n",
+		memsize/1024.0, memfree/1024.0, (memsize-memfree)/1024.0,
+		(memsize-memfree)*100L/memsize);
+	printw("    Swap: %7.1fK total, %7.1fK free, %7.1fK used (%2ld%%)\n",
+		swapsize/1024.0, swapfree/1024.0, (swapsize-swapfree)/1024.0,
+		(swapsize-swapfree)*100L/swapsize);
 }
+
 /*
  * show heading information
  */
 LOCAL void
 show_titles()
 {
-	tputs(US, 1, ttcom);
-	printw(columns, "  PID USER      PR  NI  TEXT  DATA STACK S     TIME   DTIME COMMAND");
-	tputs(UE, 1, ttcom);
+	standout();
+	printw("  PID USER      PR  NI  TEXT  DATA STACK S     TIME   DTIME COMMAND \n");
+	standend();
 }
 
 LOCAL void
@@ -950,42 +831,46 @@ int	max;
 	{
 		register struct proc	*p = &proctab[procidx[i]];
 		register struct udata_s	*a = &userdata[procidx[i]];
-		
-		printf("%5d ",	p->p_pid);
-		if(a->o_uname != NULL)
-			printf("%-7s", a->o_uname);
-		else
-			printf("%7d", p->p_uid);
-		printf("%5d",	p->p_pri);
-		printf("%4d",	p->p_nice);
-		printf("%6d", 	a->o_tsize);
-		printf("%6d", 	p->p_dsize);
-		printf("%6d", 	p->p_ssize);
-		printf(" %c",   (p->p_stat>6)? '?' : states[p->p_stat]);
-		printf("%c", 	(p->p_flag & SLOAD)? ' ':'s');
+
+		if (idle || a->o_dtime || p->p_stat == SRUN)
+		{
+			printw("%5d ",	p->p_pid);
+			if(a->o_uname != NULL)
+				printw("%-7s", a->o_uname);
+			else
+				printw("%7d", p->p_uid);
+			printw("%5d",	p->p_pri);
+			printw("%4d",	p->p_nice);
+			printw("%5.1fK", (ctob(a->o_tsize))/1024.0);
+			printw("%5.1fK", (ctob(p->p_dsize))/1024.0);
+			printw("%5.1fK", (ctob(p->p_ssize))/1024.0);
+			printw(" %c",   (p->p_stat>6)? '?' : states[p->p_stat]);
+			printw("%c", 	(p->p_flag & SLOAD)? ' ':'s');
 
 #if 1
-		printf("%8.2f ", a->o_ttime/fhz);
-		printf("%7.2f ", a->o_dtime/fhz);
+			printw("%8.2f ", a->o_ttime/fhz);
+			printw("%7.2f ", a->o_dtime/fhz);
 #else
-		printf("%8ld ", a->o_ttime);
-		printf("%7ld ", a->o_dtime);
+			printw("%8ld ", a->o_ttime);
+			printw("%7ld ", a->o_dtime);
 #endif
 #if 0
-		printf(" %2d %2d %2d ", a->o_nswap, a->o_nvcsw, a->o_nicsw);
-		printf(" %4d %1d ", a->o_LastPid, a->o_LastStat);
+			printw(" %2d %2d %2d ", a->o_nswap, a->o_nvcsw, a->o_nicsw);
+			printw(" %4d %1d ", a->o_LastPid, a->o_LastStat);
 #endif
-		if((a->o_comm[0] == 0)&&(p->p_pid == 0))
-			printf("%-19s",    "swapper");
-		else
-			printf("%-19s",    a->o_comm);
+			if((a->o_comm[0] == 0)&&(p->p_pid == 0))
+				printw("%-19s",    "[swapper]");
+			else
+				printw("%-19s",    a->o_comm);
 #if 1
-		if(i >= (max-1))
-			break;
+			if(i >= (max-1))
+				break;
 #endif
-		printf("%s", NewLine);
+			printw("%s", "\n");
+		}
 	}
 }
+
 /*
  * Wait for a key press on stdin, signal  or until tout microseconds
  * have elapsed
@@ -1016,6 +901,7 @@ long usec;
 	}
 	return(0);
 }
+
 /*
  * Convert and return a ms value formatted s[.d[d[d]]]
  * returns delay on success
@@ -1068,11 +954,15 @@ LOCAL char *ReadLine()
 	static char	lbuff[50];
 	char		*lp = lbuff;
 
-	while(read(0, &c, 1) == 1)
+	noraw();
+	echo();
+	while((c = getch()) >= 0)
 	{
 		if(c == '\n')
 		{
 			*lp = 0;
+			noecho();
+			raw();
 			return(lbuff);
 		}
 		if(c == 0x7f)
@@ -1080,19 +970,17 @@ LOCAL char *ReadLine()
 			if(lp == &lbuff[0])
 				continue;
 			--lp;
-			write(1, "\b \b", 3);
+			printw("\b");
+			clrtoeol();
+			refresh();
 			continue;
 		}
-#if 1
-		write(1, &c, 1);
-#else
-		printf("%02x", c);
-		fflush(stdout);
-#endif
 		*lp++ = c;
 		if(lp == &lbuff[sizeof(lbuff)-2])
-			return(NULL);
+			break;
 	}
+	noecho();
+	raw();
 	return(NULL);
 }
 
@@ -1132,7 +1020,7 @@ do_top()
 
         if(getksyms("/unix") < 0)
 	{
-		fprintf(stderr, "Can't read kernel symbols - aborting\n");
+		fprintf(stderr, "Can't read kernel symbols - aborting\r\n");
 		return(1);
 	}
 
@@ -1140,7 +1028,7 @@ do_top()
 
 	if(nproc_sym == 0)
 	{
-		fputs("nproc not in namelist\n",stderr);
+		fprintf(stderr, "nproc not in namelist\r\n");
 		return(-1);
 	}
 
@@ -1164,7 +1052,7 @@ do_top()
 
 	if((proctab = (struct proc *)malloc(ptsz))==NULL)
 	{
-		fputs("top: not enough memory for proc table\n",stderr);
+		fprintf(stderr, "top: not enough memory for proc table\r\n");
 		exit(1);
 	}
 	/*
@@ -1172,7 +1060,7 @@ do_top()
 	 */
 	if((userdata=(struct udata_s *)calloc(nproc, sizeof(struct udata_s)))==NULL)
 	{
-		fprintf(stdout, "top: can't allocate %d bytes for saving info\n", nproc*sizeof(struct udata_s));
+		fprintf(stderr, "top: can't allocate %d bytes for saving info\r\n", nproc*sizeof(struct udata_s));
 		exit(1);
 	}
 	/*
@@ -1180,14 +1068,12 @@ do_top()
 	 */
 	if( (procidx = (int *) malloc(nproc*sizeof(short))) == NULL)
 	{
-		fputs("top: cant allocate index table\n", stderr);
+		fprintf(stderr, "top: cant allocate index table\r\n");
 		return(1);
 	}
 	if((npr = update()) < 0)
 		return(1);
-	tputs(CLEARSCR, 1, ttcom);
- 	dial(STATLINES, 0);
-	show_titles();
+
 	if((ut = fopen(_PATH_UTMP, "r")) == NULL)
 	{
 		perror(_PATH_UTMP);
@@ -1201,58 +1087,112 @@ do_top()
 		if(c != 0)
 		{
 			if(c == 'q')
+			{
+				move(LINES-1,0);
+				clrtoeol();
+				refresh();
+				endwin();
 				return(0);
+			}
+
 			if(c == 's')
 			{
 				char	*s;
 
-				dial(STATLINES-1,0);
-				fprintf(stdout, "Change delay from %4.3f to ",
+				move(STATLINES-1,0);
+				printw("Change delay from %4.3f to ",
 					(upd_us *1.0)/1000000);
-				fflush(stdout);
+				clrtoeol();
+				refresh();
+
 				s = ReadLine();
-				dial(STATLINES-1,0);
-				fprintf(stdout, "%40s", "");
-				fflush(stdout);
-				if(s != NULL)
+
+				move(STATLINES-1,0);
+				clrtoeol();
+				move(0,0);
+				refresh();
+
+				if (s)
 				{
 					long newdelay;
 
 					if((newdelay = GetDelay(s)) > 0)
 					{
 						upd_us = newdelay;
-						dial(lines-1, 0);
-						fflush(stdout);
 						continue;
 					}
 					if(*s == 0)
 						continue;
 				}
-				dial(STATLINES-1,0);
-				fprintf(stdout, "Unacceptable delay: %s", s);
-				fflush(stdout);
+
+				move(STATLINES-1,0);
+				printw("Unacceptable delay: %s", s);
+				move(0,0);
+				refresh();
 				sleep(1);
-				dial(STATLINES-1,0);
-				fprintf(stdout, "%40s", "");
-				dial(lines-1, 0);
-				fflush(stdout);
 				continue;
+			}
+
+			if(c == 'o')
+			{
+				char	*s;
+
+				move(STATLINES-1,0);
+				printw("Order: ");
+				clrtoeol();
+				refresh();
+
+				s = ReadLine();
+
+				move(STATLINES-1,0);
+				clrtoeol();
+				move(0,0);
+				refresh();
+
+				if (s)
+				{
+					int newsort;
+
+					newsort = atoi(s);
+					if ((newsort >= 0) && (newsort <= 10))
+					{
+						sort = newsort;
+					}
+					else
+					{
+						move(STATLINES-1,0);
+						printw("Bad order");
+						move(0,0);
+						refresh();
+						sleep(1);
+					}
+				}
+			}
+
+			if (c == 'I')
+			{
+				idle = 1-idle;
 			}
 #if !BADKEY_IGNORE
 
-			dial(lines-1,0);
-			fprintf(stdout, "\nUnexpected command: '%c'", c);
+			move(LINES-1,0);
+			printw("\nUnexpected command: '%c'", c);
+			refresh();
 			return(0);
 /* otherwise invalid key commands just force an update */
 #endif
 		}
 		if((npr = update()) < 0)
 			return(1);
-		dial(0,0);
+
+		erase();
+		move(0,0);
 		show_stats(npr);
-		dial(STATLINES+1,0);
-		show_procs(npr, lines-(STATLINES+1));
-		fflush(stdout);
+		printw("\n");
+		show_titles();
+		show_procs(npr, LINES-(STATLINES+1));
+		move(0,0);
+		refresh();
 	}
 }
 
@@ -1272,6 +1212,8 @@ char *p;
 	fprintf(stderr, "Where options are\n");
 	fprintf(stderr, "\t-h         show this summary\n");
 	fprintf(stderr, "\t-s<delay>  delay in seconds between updates\n");
+	fprintf(stderr, "\t-o<order>  select sort column\n");
+	fprintf(stderr, "\t-I         do not show idle processes\n");
 }
 
 EXPORT int main(int argc, char *argv[])
@@ -1279,7 +1221,18 @@ EXPORT int main(int argc, char *argv[])
 	int 	status = 0;
 	char	ch;
 
-	while((ch = getopt(argc, argv, "hs:")) != EOF)
+	if (argc < 2)
+	{
+		char *e;
+		e = getenv("TOP");
+		if (e)
+		{
+			argv[1] = e;
+			argc = 2;
+		}
+	}
+
+	while((ch = getopt(argc, argv, "hs:o:I")) != EOF)
 	{
 		switch(ch)
 		{
@@ -1290,6 +1243,12 @@ EXPORT int main(int argc, char *argv[])
 					exit(1);
 				}
 				break;		
+			case 'o':
+				sort = atoi(optarg);
+				break;
+			case 'I':
+				idle = 0;
+				break;
 			default:
 			case 'h':
 				usage(argv[0]);
@@ -1299,8 +1258,6 @@ EXPORT int main(int argc, char *argv[])
 		argv += optind;
 	}
 
-	if(tcinit() < 0)
-		return(1);
 #if !TTY_RAW
 	if(
 		(signal(SIGHUP, sighand) == -1)
@@ -1312,13 +1269,17 @@ EXPORT int main(int argc, char *argv[])
 		exit(1);
 	}
 #endif /* TTY_RAW */
-	if(config_tty(1, &lines, &columns) < 0)
+
+	gethostname(host, sizeof(host)-1);
+	host[sizeof(host)-1] = 0;
+
+	if(config_tty(1) < 0)
 		return(1);
 
 	if(do_top() != 0)
 		status = 1;
 
-	config_tty(0, NULL, NULL);
+	config_tty(0);
 	if(done)
 		fprintf(stdout, "*interrupt*\n");
 	return(status);
