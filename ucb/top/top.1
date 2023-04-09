@@ -14,6 +14,10 @@ top \- display system activity
 .B \-h
 ] [
 .B \-s delay
+] [
+.B \-o column
+] [
+.B \-I
 ]
 .SH DESCRIPTION
 The
@@ -31,9 +35,24 @@ If the
 command line option is specified, its argument is the update delay
 in seconds followed by an optional decimal point and up to 3 digits, allowing
 millisecond accurate delay specifications.
-The default delay is one second. The
+The default delay is one second.
+.PP
+If the
+.B \-o
+command line option is specified, its argument is the column over
+which the list should be sorted. The
 .B \-h
 command line option produces a usage summary.
+.PP
+If the
+.B \-I
+command line option is specified, top start up with idle processes
+being filtered out.
+.PP
+If no options are given on the command line, the enviornment
+variable
+.B TOP
+translation will be used, if it is defined, as the command line options.
 .PP
 .I Summary Display
 .PP
@@ -128,10 +147,24 @@ The process name
 The display updates indefinately until a command in the form of a
 key press is received, or a signal is received.
 Keys are not echoed and are acted on immediately without the
-need for a carriage return. The only command currently implemented is
-the
+need for a carriage return. 
+The
 .B q
-command, which terminates the program. Any unrecognized command will
+command terminates the program.
+.PP
+The
+.B s
+command selects the timeout interval.
+.PP
+The
+.B o
+command selects the sorting order.
+.PP
+The
+.B I
+command toggles between displaying and hiding idle processes.
+.PP
+Any unrecognized command will
 result in termination with a warning message.
 .P
 .SH EXAMPLE
