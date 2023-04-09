@@ -14,8 +14,10 @@
  * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- *	@(#)pathnames.h	5.3.7 (2.11BSD) 1996/11/27
+ *	@(#)pathnames.h	5.4 (2.11BSD) 2020/3/24
  */
+#ifndef _PATHS_H_
+#define _PATHS_H_
 
 #define	_PATH_BSHELL	"/bin/sh"
 #define	_PATH_CSHELL	"/bin/csh"
@@ -25,12 +27,19 @@
 #define	_PATH_CONSOLE	"/dev/console"
 #define	_PATH_DEVNULL	"/dev/null"
 #define	_PATH_TTY	"/dev/tty"
-#define	_PATH_DEV	"/dev"
 #define	_PATH_NOLOGIN	"/etc/nologin"
 #define	_PATH_LASTLOG	"/usr/adm/lastlog"
-#define	_PATH_TMP	"/tmp/"
-#define	_PATH_VARTMP	"/usr/tmp/"
 #define	_PATH_SENDMAIL	"/usr/sbin/sendmail"
 #define	_PATH_DEVDB	"/var/run/dev"
-#define	_PATH_VARRUN	"/var/run/"
 #define	_PATH_CTIMED	"/usr/libexec/ctimed"
+
+/* Provide trailing slash, since mostly used for building pathnames. */
+#define _PATH_DEV	"/dev/"
+#define _PATH_TMP	"/tmp/"
+#define _PATH_VARRUN	"/var/run/"
+#define _PATH_VARTMP	"/usr/tmp/"
+#define _PATH_TERMTAB	"/usr/share/term/"
+#define _PATH_TMAC	"/usr/share/tmac/"
+#define _PATH_TFONT	"/usr/share/font/"
+
+#endif /* !_PATHS_H_ */

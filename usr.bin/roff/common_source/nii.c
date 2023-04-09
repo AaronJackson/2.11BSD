@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)nii.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)nii.c	4.2 (2.11BSD) 2020/3/24";
+#endif
 
 #include "tdef.h"
 #ifdef NROFF
@@ -13,7 +13,7 @@ static char sccsid[] = "@(#)nii.c	4.1 6/7/82";
 
 int *vlist = (int *)&v;
 struct s *frame, *stk, *ejl;
-struct s *nxf, *litlev;
+struct s *nxf;
 
 #ifdef NROFF
 int pipeflg;
@@ -70,7 +70,6 @@ int lgf;
 int copyf;
 int ch0;
 int cwidth;
-filep ip;
 int nlflg;
 int *ap;
 int donef;
@@ -88,28 +87,17 @@ int nonumb;
 int trap;
 int tflg;
 int ejf;
-int lit;
 int gflag;
 int dilev;
 int tlss;
-filep offset;
 int em;
-int ds;
-filep woff;
-int app;
 int ndone;
 int lead;
 int ralss;
-filep nextb;
 int *argtop;
 int nrbits;
 int nform;
-int oldmn;
-int newmn;
 int macerr;
-filep apptr;
-int diflg;
-filep roff;
 int wbfi;
 int inc[NN];
 int fmt[NN];
@@ -136,5 +124,5 @@ int *olinep;
 int esct;
 int ttysave = -1;
 int dotT;
-char *unlkp;
 int no_out;
+int ipb, ipx; /* current read positions */

@@ -1,6 +1,6 @@
-#ifndef lint
-static char sccsid[] = "@(#)suftab.c	4.1 6/7/82";
-#endif lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)suftab.c	4.2 2020/3/24";
+#endif
 
 /*
  * Suffix table
@@ -324,7 +324,7 @@ static	char sufl[] = {
 	04,0200+'c','i','a',	/* -CIAL */
 	03,0200+'g','a',	/* -GAL */
 	04,0200+'m','e','a',	/* -MEAL */
-/*	040+04,0200+'r','e',0200+'a',	/* -RE-AL */
+/*	040+04,0200+'r','e',0200+'a', */	/* -RE-AL */
 	040+04,0200+'r','e','a',	/* -REAL */
 	06,'c',0200+'t','i',0200+'c','a',	/* C-TI-CAL */
 	05,0200+'s','i',0200+'c','a',	/* -SI-CAL */
@@ -425,7 +425,7 @@ static	char sufr[] = {
 	040+04,0200+'r','i',0200+'o',	/* -RI-OR */
 	04,'i','z',0200+'e',	/* IZ-ER */
 	05,0200+'c','o','v',0200+'e',	/* -COV-ER */
-/*	04,'o',0200+'v','e',	/* O-VER */
+/*	04,'o',0200+'v','e', */	/* O-VER */
 	04,0200+'o','v','e',	/* -OVER */
 	04,0200+'e','v',0200+'e',	/* -EV-ER */
 	8,0200+'c','o','m',0200+'p','u','t',0200+'e',	/* -COM-PUT-ER */

@@ -1,6 +1,6 @@
 # ------------------------
 #
-#	Termcap source file	@(#)termcap.src	5.40.1 (2.11BSD) 1996/10/21
+#	Termcap source file	@(#)termcap.src	5.41 (2.11BSD) 2020/3/24
 #	John Kunze, Berkeley
 #	Craig Leres, Berkeley
 #
@@ -1834,6 +1834,9 @@ dy|vt102-obs|dec vt102:\
 dw|vt52|dec vt52:\
 	:do=^J:le=^H:bs:cd=\EJ:ce=\EK:cl=\EH\EJ:cm=\EY%+ %+ :co#80:li#24:\
 	:nd=\EC:pt:sr=\EI:up=\EA:ku=\EA:kd=\EB:kr=\EC:kl=\ED:kb=^H:
+# Screen VT100 virtual terminal emulator
+# Have more capabilities but stay with VT100 for now.
+screen|VT 100/ANSI X3.64 virtual terminal:tc=vt100
 # vt61 created by Roger Sacilotto  Massachusetts Computer Associates, Inc
 # Similar to vt52 but add al and dl
 #

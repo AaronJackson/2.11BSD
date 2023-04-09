@@ -2,8 +2,14 @@
 .\" All rights reserved.  The Berkeley software License Agreement
 .\" specifies the terms and conditions for redistribution.
 .\"
-.\"	@(#)tmac.an	6.1.1 (2.11BSD) 1996/10/21
+.\"	@(#)tmac.an	6.2 (2.11BSD) 2020/3/24
 .\"
+.de Dd
+.rn Dd xX
+.so /usr/share/tmac/tmac.doc
+.Dd \\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8
+.rm xX
+..
 .de th
 .if t .so /usr/share/tmac/tmac.an6t
 .if n .so /usr/share/tmac/tmac.an6n

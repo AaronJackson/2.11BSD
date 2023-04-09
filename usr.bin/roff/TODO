@@ -1,0 +1,25 @@
+There are a bunch of things that could/should be done to increase 
+the usability of nroff (not counting the benefit of making troff like ditroff).
+
+- Move saved environments to their own temp file.  This would
+  remove the limits of 3 env's and allow for the temp buffers to grow.
+
+- Use linked buffers in the temp file instead of a static array of next buffer.
+  This could remove the limit of the number of temp buffers.
+
+- Implement a write cache as well as the read cache.
+
+- Call eqn/tbl directly from troff, instead of needing to pipe.
+
+- Allow for macro names longer than 2 chars (as groff)
+
+- Make special characters a dynamic property (like ditroff)
+
+- Fix internal stack handling (for macros), currently it has a bunch of 
+  problems with args (for example max number of args).
+
+- Make number register allocation dynamic insted of a static table.
+
+- Line buffers should not require a fixed length, for long lines
+  it could use for example the temp file.
+

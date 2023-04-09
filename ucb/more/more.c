@@ -5,7 +5,7 @@
  */
 
 #if	!defined(lint) && defined(DOSCCS)
-static char sccsid[] = "@(#)more.c	5.5 (2.11BSD) 2020/1/7";
+static char sccsid[] = "@(#)more.c	5.6 (2.11BSD) 2020/3/24";
 #endif
 
 /*
@@ -84,6 +84,7 @@ char		*Clear;		/* clear screen */
 char		*eraseln;	/* erase line */
 char		*Senter, *Sexit;/* enter and exit standout mode */
 char		*ULenter, *ULexit;	/* enter and exit underline mode */
+char		*Benter, *Bexit;	/* enter and exit bold mode */
 char		*chUL;		/* underline character */
 char		*chBS;		/* backspace character */
 char		*Home;		/* go to home */
@@ -835,12 +836,26 @@ register int n;
 {
     register char c;			/* next output character */
     register int state;			/* next output char's UL state */
+    register int  bstate = 0;
 #define wouldul(s,n)	((n) >= 2 && (((s)[0] == '_' && (s)[1] == '\b') || ((s)[1] == '\b' && (s)[2] == '_')))
+#define	WOULDBOLD(s,n) (n > 2 && s[0] == s[2] && s[1] == '\b')
 
     while (--n >= 0)
 	if (!ul_opt)
 	    putchar (*s++);
 	else {
+	    if (Benter && WOULDBOLD(s, n)) {
+		if (bstate == 0)
+			tputs(Benter, 1, putch);
+		s += 2, n -= 2;
+		c = *s++;
+		bstate = 1;
+		putchar(c);
+		continue;
+	    } else if (Bexit && bstate) {
+		tputs(Bexit, 1, putch);
+		bstate = 0;
+	    }
 	    if (*s == ' ' && pstate == 0 && ulglitch && wouldul(s+1, n-1)) {
 		s++;
 		continue;
@@ -865,6 +880,8 @@ register int n;
 	    }
 	    pstate = state;
 	}
+	if (Bexit && bstate)
+		tputs(Bexit, 1, putch);
 }
 
 /*
@@ -1474,6 +1491,8 @@ retry:
 	    Clear = tgetstr("cl", &clearptr);
 	    Senter = tgetstr("so", &clearptr);
 	    Sexit = tgetstr("se", &clearptr);
+	    Benter = tgetstr("md", &clearptr);
+	    Bexit = tgetstr("me", &clearptr);
 	    if ((soglitch = tgetnum("sg")) < 0)
 		soglitch = 0;
 

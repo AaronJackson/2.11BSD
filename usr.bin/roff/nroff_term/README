@@ -1,4 +1,55 @@
-	README	4.4	87/09/17
+	README	4.5	(2.11BSD) 2020/3/24
+
+Brief description of the tab format. It is essentially the same as 
+ditroff has, but has no required order of the entries.
+Also # in the first column is a comment.
+
+First 23 entries are description of printer functionality.
+
+There are 240 units per inch.
+In order; first nine are integers.
+
+bset            Bits to be set for printing (in stty sg_flags)
+breset          Bits to be cleared for printing (in stty sg_flags)
+Hor             # of units for horiz. motion
+Vert            # of units for vertical. motion
+Newline         # of units for newline
+Char            # of units wide a character is
+Em              # of units an 'em' is.
+Halfline        # of units a halfline vertical motion is.
+Adj             # of units for horizontal motion
+
+Following are strings (or empty strings).
+twinit          Init string (for terminal)
+twrest          Restore string (for terminal)
+twnl            Newline character sequence
+hlr             Half-line reverse
+hlf             Half-line forward
+flr             Full-line reverse
+bdon            Turn on bold
+bdoff           Turn off bold
+ploton          Start plot mode
+plotoff         Stop plot mode
+up              Up (in plot mode)
+down            Down (in plot mode)
+right           Right (in plot mode)
+left            Left (in plot mode)
+
+Thereafter are special characters or moves. Only the defined ones
+need to be present.
+
+Format; example of a square.
+char	size	string
+sq	2	[]
+
+The string is encoded like:
+        bit 7:  set: Plot mode
+                bit 5-6: right/left/down/up
+                bit 0-4: # of times
+        bit 7:  clear: 6-0: character
+
+For control codes C string codes can be used, both octal escapes
+as well as normal escapes, like o\b| or \033A.
 
 Here are the currently supported types of printers:
 
