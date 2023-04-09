@@ -1,3 +1,5 @@
+#!/bin/sh
+
 trap "" 1 15
 if test -t 2>&1  ; then
 	echo "Sending output to 'nohup.out'"

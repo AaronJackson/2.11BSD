@@ -1,3 +1,5 @@
+#!/bin/csh
+
 date
 set nfutil =	/usr/spool/notes/.utilities
 du -s /usr/spool/notes /usr/spool/oldnotes
