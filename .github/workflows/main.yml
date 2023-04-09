@@ -8,7 +8,7 @@ jobs:
       - uses: AaronJackson/2.11BSD-Action@rsyncfix
         with:
           path: /usr/src
-          patch_level: 476
+          patch_level: 477
           run: |
             cd /usr/src/sys/conf
             ./config GENERIC

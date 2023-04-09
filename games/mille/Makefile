@@ -30,11 +30,8 @@ BINDIR=	/usr/games
 .c.i:
 	${CC} ${LDFLAGS} -P $*.c
 
-a.out: ${OBJS} ${CRL}
-	${CC} ${SEPFLAG} ${LDFLAGS} ${OBJS} ${LIBS}
-
 mille: ${OBJS} ${CRL}
-	${CC} ${SEPFLAG} ${CFLAGS} -o mille ${OBJS} ${LIBS}
+	${CC} ${SEPFLAG} ${LDFLAGS} -o mille ${OBJS} ${LIBS}
 
 install: mille
 	install -s mille ${DESTDIR}${BINDIR}

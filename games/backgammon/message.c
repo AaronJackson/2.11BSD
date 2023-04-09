@@ -4,12 +4,11 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
-static char Msccsid[] = "@(#)Mesgfix	5.2 (Berkeley) 1/8/86";
-static char sccsid[] = "@(#)message.c	4.3 (Berkeley) 1/11/86";
-#endif not lint
+#if	!defined(lint) && defined(DOSCCS)
+static char sccsid[] = "@(#)message.c	4.4 (2.11BSD) 2022/10/3";
+#endif
 
 char	*message[] = {
-	"Last update on Friday, November 26, 1999.",
+	"Last update on Monday, October 3, 2022.",
 	0
 };
