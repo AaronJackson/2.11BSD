@@ -18,16 +18,9 @@ jobs:
             make
             cd /usr/src/sbin
             make
-            cd /usr/src/usr.bin/f77
-            rm -f malloc.c
+            cd /usr/src/usr.bin
             make
-            cd /usr/src/bin
-            make df size
-            cd /usr/src/ucb/top
+            cd /usr/src/usr.sbin
             make
-            cd /usr/src/bin/disklabel
-            make clean
-            make
-            cd /usr/src/sys/mdec
-            make clean
+            cd /usr/src/ucb
             make
