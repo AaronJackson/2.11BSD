@@ -3,7 +3,7 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  *
- *	@(#)trap.c	1.6 (2.11BSD) 1999/9/13
+ *	@(#)trap.c	1.7 (2.11BSD) 2022/8/18
  */
 
 #include "param.h"
@@ -205,8 +205,12 @@ trap(dev, sp, r1, ov, nps, r0, pc, ps)
 	 * The 'grow' routine sees that SP is still within the (valid) stack
 	 * segment and does not extend the stack, resulting in a 'segmentation
 	 * violation' rather than a successfull floating to long store.
-	 * The "fix" is to pretend that SP is 4 bytes lower than it really
-	 * is (for KDJ-11 systems only) when calling 'grow'.
+	 * A first "fix" was to pretend that SP is 4 bytes lower than it really
+	 * is (for KDJ-11 systems only) when calling 'grow'. However, doing
+	 *      setd
+	 *      movf fr0,-(sp)
+	 * still fails, as found a bit later (29yrs), so the final "fix" is to
+	 * pretend that the SP is 8 bytes lower than it really is.
 	 */
 	case T_SEGFLT + USER:
 		{
@@ -214,7 +218,7 @@ trap(dev, sp, r1, ov, nps, r0, pc, ps)
 
 		osp = sp;
 		if (kdj11)
-			osp -= 4;
+			osp -= 8;
 		if (backup(u.u_ar0) == 0)
 			if (!(u.u_sigstk.ss_flags & SA_ONSTACK) && 
 					grow((u_int)osp))
