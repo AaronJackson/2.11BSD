@@ -1,6 +1,8 @@
 #
 /*
  * C object code improver-- second part
+ *
+ *      @(#) c21.c 2.0  (2.11BSD) 2022/1/21
  */
 
 #include "c2.h"
@@ -654,7 +656,14 @@ char *as;
 			regs[i][0] = 0;
 	if (equstr(s, conloc))
 		conloc[0] = '\0';
-	while ((i = findrand(s, flt)) >= 0)
+	/*
+	 * Type casting between float and int may end up removing
+	 * non-redundant moves. This is OK if supporting strict aliasing,
+	 * but this compiler is about 40 year too old.
+	 */
+	while ((i = findrand(s, 0)) >= 0)
+		regs[i][0] = 0;
+	while ((i = findrand(s, NREG)) >= 0)
 		regs[i][0] = 0;
 	while (*s) {
 		if ((*s=='(' && (*(s+1)!='r' || *(s+2)!='5')) || *s++=='*') {
