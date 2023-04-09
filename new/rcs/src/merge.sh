@@ -1,3 +1,5 @@
+#!/bin/sh
+
 PATH=/bin:/usr/bin:.
 DIFF3=/usr/libexec/diff3
 p=0

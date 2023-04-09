@@ -1,3 +1,5 @@
+#!/bin/csh
+
 echo -n "	NOTESFILE ARCHIVAL STARTED AT: " ; date
 echo "Notesfile Locks at start:" ; /bin/ls -l /usr/spool/notes/.locks
 du -s /usr/spool/notes/. /usr/spool/oldnotes/.

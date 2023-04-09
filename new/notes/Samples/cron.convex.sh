@@ -1,3 +1,5 @@
+#!/bin/csh
+
 date
 set nfutil	= /usr/spool/notes/.utilities
 echo " ---- Sending Updates to CONVEX Computer Corporation"

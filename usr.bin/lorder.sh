@@ -1,3 +1,5 @@
+#!/bin/sh
+
 trap "rm -f $$sym?ef; exit" 0 1 2 13 15
 case $# in
 0)	echo usage: lorder file ...
