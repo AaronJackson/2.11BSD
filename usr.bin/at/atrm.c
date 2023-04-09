@@ -4,19 +4,16 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
+#if	!defined(lint) && defined(DOSCCS)
 char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
-#endif not lint
 
-#ifndef lint
-static char sccsid[] = "@(#)atrm.c	5.2 (Berkeley) 5/28/86";
-#endif not lint
+static char sccsid[] = "@(#)atrm.c	5.3 (2.11BSD) 9/18/2021";
+#endif
 
 /*
  *	synopsis: atrm [-f] [-i] [-] [[job #] [user] ...]
- *
  *
  *	Remove files from the directory /usr/spool/at. These files
  *	represent jobs to be run at a later date.
@@ -24,7 +21,6 @@ static char sccsid[] = "@(#)atrm.c	5.2 (Berkeley) 5/28/86";
  *	Author: Steve Wall
  *		Computer Systems Research Group
  *		University of California @ Berkeley
- *
  */
 
 #include <stdio.h>
@@ -39,7 +35,6 @@ static char sccsid[] = "@(#)atrm.c	5.2 (Berkeley) 5/28/86";
 #define MAXENTRIES	1000			/* max # of entries allowed */
 #define ATDIR		"/usr/spool/at"		/* spooling area */
 
-
 int user;					/* person requesting removal */
 int fflag = 0;					/* suppress announcements? */
 int iflag = 0;					/* run interactively? */
@@ -47,7 +42,6 @@ int iflag = 0;					/* run interactively? */
 main(argc,argv)
 int argc;
 char **argv;
-
 {
 	int i;				/* for loop index */
 	int userid;			/* uid of owner of file */
@@ -238,7 +232,7 @@ usage()
 
 /*
  * Do we want to include a file in the queue? (used by "scandir") We are looking
- * for files with following syntax: yy.ddd.hhhh. so the test is made to see if 
+ * for files with following syntax: yyyy.ddd.hhhh. so the test is made to see if 
  * the file name has three dots in it. This test will suffice since the only
  * other files in /usr/spool/at don't have any dots in their name.
  */

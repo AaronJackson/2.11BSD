@@ -4,28 +4,25 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
+#if	!defined(lint) && defined(DOSCCS)
 char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
-#endif not lint
 
-#ifndef lint
-static char sccsid[] = "@(#)at.c	5.4 (Berkeley) 5/28/86";
-#endif not lint
+static char sccsid[] = "@(#)at.c	5.5 (2.11BSD) 9/18/2021";
+#endif
 
 /*
  *	Synopsis:	at [-s] [-c] [-m] time [filename]
- *						
- * 
  *
  *	Execute commands at a later date.
- *
  *
  *	Modifications by:	Steve Wall
  *				Computer Systems Research Group
  *				University of California @ Berkeley
  *
+ *	Modifications by:	Johnny Billquist
+ *				Fix Y2K problems
  */
 #include <stdio.h>
 #include <ctype.h>
@@ -120,7 +117,7 @@ struct times {
 	int min;			/* min. of hour that job is to be run */
 } attime, nowtime;
 
-char	atfile[100];			/* name of spoolfile "yy.ddd.hhhh.??" */
+char	atfile[100];			/* name of spoolfile "yyyy.ddd.hhhh.??" */
 char	*getenv();			/* get info on user's environment */
 char	**environ;			/* user's environment */
 FILE	*spoolfile;			/* spool file */
@@ -507,8 +504,8 @@ FILE **spoolfile;
 }
 
 /*
- * Create the filename for the spoolfile. The format is "yy.ddd.mmmm.??"
- * where "yy" is the year the job will be run, "ddd" the day of year, 
+ * Create the filename for the spoolfile. The format is "yyyy.ddd.mmmm.??"
+ * where "yyyy" is the year the job will be run, "ddd" the day of year, 
  * "mmmm" the hour and minute, and "??" a scratch value used to dis-
  * tinguish between two files that are to be run at the same time.
  */
@@ -522,7 +519,7 @@ char *atfile;
 	int i;				/* scratch variable */
 
 	for (i=0; ; i += 53) {
-		sprintf(atfile, "%s/%02d.%03d.%02d%02d.%02d", ATDIR, year,
+		sprintf(atfile, "%s/%04d.%03d.%02d%02d.%02d", ATDIR, year,
 			dayofyear, hour, minute, (getpid() + i) % 100);
 
 		/*
@@ -694,10 +691,6 @@ isnextyear()
 		attime.yday -= daysinyear;
 		return(1);
 	}
-	if (attime.yday > (isleap(attime.year) ? 366 : 365)) {
-		attime.yday -= (isleap(attime.year) ? 366 : 365);
-		return(1);
-	}
 
 	return(0);
 }
@@ -736,7 +729,7 @@ isleap(year)
 int year;
 
 {
-	return((year%4 == 0 && year%100 != 0) || year%100 == 0);
+	return((year%4 == 0 && year%100 != 0) || year%400 == 0);
 }
 
 getdateindex(date)
@@ -791,7 +784,7 @@ struct times *attime;
 	}
 	now = localtime(&time.tv_sec);
 
-	attime->year = nowtime->year = now->tm_year;
+	attime->year = nowtime->year = now->tm_year+1900;
 	attime->yday = nowtime->yday = now->tm_yday;
 	attime->mon = nowtime->mon = now->tm_mon;
 	attime->mday = nowtime->mday = now->tm_mday;

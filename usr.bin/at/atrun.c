@@ -4,27 +4,22 @@
  * specifies the terms and conditions for redistribution.
  */
 
-#ifndef lint
+#if	!defined(lint) && defined(DOSCCS)
 char copyright[] =
 "@(#) Copyright (c) 1983 Regents of the University of California.\n\
  All rights reserved.\n";
-#endif not lint
 
-#ifndef lint
-static char sccsid[] = "@(#)atrun.c	5.4 (Berkeley) 5/28/86";
-#endif not lint
+static char sccsid[] = "@(#)atrun.c	5.5 (2.11BSD) 9/18/2021";
+#endif
 
 /*
  *	Synopsis: atrun
  *
- *
  *	Run jobs created by at(1)
- *
  *
  *	Modifications by:	Steve Wall
  *				Computer Systems Research Group
  *				University of California @ Berkeley
- *
  */
 # include <stdio.h>
 # include <sys/types.h>
@@ -47,20 +42,16 @@ static char sccsid[] = "@(#)atrun.c	5.4 (Berkeley) 5/28/86";
 # define PASTDIR	"/usr/spool/at/past"	/* area to run jobs from */
 # define LASTFILE	"/usr/spool/at/lasttimedone"	/* update time file */
 
-
-char nowtime[11];			/* time it is right now (yy.ddd.hhmm) */
+char nowtime[14];			/* time it is right now (yyyy.ddd.hhmm) */
 char errfile[25];			/* file where we redirect errors to */
-
 
 main(argc, argv)
 char **argv;
 {
-
 	int i;				/* for loop index */
 	int numjobs;			/* number of jobs to be run */
 	int should_be_run();		/* should a job be run? */
 	struct direct **jobqueue;	/* queue of jobs to be run */
-
 
 	/*
 	 * Move to the spooling area.
@@ -98,7 +89,7 @@ char **argv;
 }
 
 /*
- * Create a string with the syntax yy.ddd.hhmm that represents the
+ * Create a string with the syntax yyyy.ddd.hhmm that represents the
  * time it is right now. This string is used to determine whether a
  * job should be run.
  */
@@ -125,9 +116,9 @@ char *nowtime;
 
 	/*
 	 * Create a string to be used in determining whether or not a job
-	 * should be run. The syntax is yy.ddd.hhmm .
+	 * should be run. The syntax is yyyy.ddd.hhmm .
 	 */
-	sprintf(nowtime,"%d.%03d.%02d%02d",now->tm_year,
+	sprintf(nowtime,"%d.%03d.%02d%02d",now->tm_year+1900,
 					   now->tm_yday,
 					   now->tm_hour,
 					   now->tm_min);
