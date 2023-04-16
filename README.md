@@ -57,3 +57,11 @@ There were a few patches which caused issues:
 	 works on my local machine
   ```
   Eventually I realised mistake - like with `459`, I had to remove the changes to `use/doc/...` but while doing so, accidentally removed the changeset to the Makefile for `mdec`. I'm leaving this in here to document my stupidity while applying these patches :-)
+  
+## Related Stuff
+
+I have also been working on the following related stuff:
+
+- [2.11BSD-Distribution-Builder](https://github.com/AaronJackson/2.11BSD-Distribution-Builder) to produce installation / distribution files for the same set of patch levels.
+- [2.11BSD-Action](https://github.com/AaronJackson/2.11BSD-Action) which allows GitHub workflows to perform testing against a 2.11BSD simulated PDP-11 - this also performs builds of all patch levels and provides .img files for each
+- [bnlisp](https://github.com/AaronJackson/bnlisp) A small lisp written in K&R C for 2.11BSD, dedicated to my friend bnl, written with lots of help from stylewarning
