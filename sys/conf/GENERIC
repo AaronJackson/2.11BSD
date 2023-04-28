@@ -261,3 +261,4 @@ PROFILE		NO		# system profiling with KW11P clock
 INGRES		NO		# include the Ingres lock driver
 
 NIBV		1		# IBV11 GPIB
+NSBD		1		# Dowty SBD
